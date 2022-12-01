@@ -1,7 +1,5 @@
 package tim24.projekat.uberapp.model;
 
-import java.io.Serializable;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,12 +9,14 @@ import jakarta.persistence.Table;
 
 @Table(name="users")
 @Entity
-public class User implements Serializable{
+public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(nullable = false, updatable= false)
 	private Long id;
 	private String name;
+	private String surname;
+	private String telephoneNumber;
 	private String email;
 	private String address;
 	
@@ -24,10 +24,12 @@ public class User implements Serializable{
 		super();
 	}
 	
-	public User(Long id, String name, String email, String address) {
+	public User(Long id, String name, String surname, String telephoneNumber, String email, String address) {
 		super();
 		this.id = id;
 		this.name = name;
+		this.surname = surname;
+		this.telephoneNumber = telephoneNumber;
 		this.email = email;
 		this.address = address;
 	}
@@ -48,6 +50,22 @@ public class User implements Serializable{
 		this.name = name;
 	}
 
+	public String getSurname() {
+		return surname;
+	}
+
+	public void setSurname(String surname) {
+		this.surname = surname;
+	}
+
+	public String getTelephoneNumber() {
+		return telephoneNumber;
+	}
+
+	public void setTelephoneNumber(String telephoneNumber) {
+		this.telephoneNumber = telephoneNumber;
+	}
+
 	public String getEmail() {
 		return email;
 	}
@@ -66,12 +84,8 @@ public class User implements Serializable{
 
 	@Override
 	public String toString() {
-		return "User [id=" + id + ", name=" + name + ", email=" + email + ", address=" + address + "]";
+		return "User [id=" + id + ", name=" + name + ", surname=" + surname + ", telephoneNumber=" + telephoneNumber
+				+ ", email=" + email + ", address=" + address + "]";
 	}
-
-	
-	
-	
-	
 	
 }
