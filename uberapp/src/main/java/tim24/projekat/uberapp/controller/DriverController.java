@@ -21,7 +21,7 @@ public class DriverController {
 	
 	private final DriverService DriverService;
 	
-	//@Autowired
+	@Autowired
 	public DriverController(DriverService DriverService) {
 		super();
 		this.DriverService = DriverService;
