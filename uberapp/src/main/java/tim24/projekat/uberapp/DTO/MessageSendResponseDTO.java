@@ -23,6 +23,62 @@ public class MessageSendResponseDTO {
 		this.type = type;
 		this.rideId = rideId;
 	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public LocalDateTime getTimeOfSending() {
+		return timeOfSending;
+	}
+
+	public void setTimeOfSending(LocalDateTime timeOfSending) {
+		this.timeOfSending = timeOfSending;
+	}
+
+	public Long getSenderId() {
+		return senderId;
+	}
+
+	public void setSenderId(Long senderId) {
+		this.senderId = senderId;
+	}
+
+	public Long getRecieverId() {
+		return recieverId;
+	}
+
+	public void setRecieverId(Long recieverId) {
+		this.recieverId = recieverId;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public Long getRideId() {
+		return rideId;
+	}
+
+	public void setRideId(Long rideId) {
+		this.rideId = rideId;
+	}
 	
 	
 	

@@ -29,7 +29,7 @@ import tim24.projekat.uberapp.service.UserService;
 
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("api/")
 public class UserController {
 	private final UserService UserService;
 
@@ -41,7 +41,7 @@ public class UserController {
 	
 	//			GET
 	
-	@GetMapping ("/api/user/{id}/ride")
+	@GetMapping ("user/{id}/ride")
 	public ResponseEntity<List<RideDTO>> getUserRidesById(@PathVariable("id") Long id){
 		List<RideDTO> rides = new ArrayList<RideDTO>();
 		RideDTO r = new RideDTO(1L,"18.11.1991T19:30","18.11.1991T20:00",420,new UserRef(1L,"email@mail.com","VOZAC"),30,"STANDARD",false,false);
@@ -50,7 +50,7 @@ public class UserController {
 		return new ResponseEntity<List<RideDTO>>(rides,HttpStatus.OK);
 	}
 	
-	@GetMapping ("/api/user")
+	@GetMapping ("user")
 	public ResponseEntity<List<UserDTO>> getUsers ()
 	{
 		ArrayList<UserDTO> list = new ArrayList<UserDTO>();
@@ -62,7 +62,7 @@ public class UserController {
 		return new ResponseEntity<>(list,HttpStatus.OK);
 	}
 	
-	@GetMapping ("/api/user/{id}/message")
+	@GetMapping ("user/{id}/message")
 	public ResponseEntity<List<MessageDTO>> getUserMessagesById (@PathVariable("id") Long id)
 	{
 		
@@ -72,7 +72,7 @@ public class UserController {
 		return new ResponseEntity<>(list,HttpStatus.OK);
 	}
 	
-	@GetMapping ("/api/user/{id}/note")
+	@GetMapping ("user/{id}/note")
 	public ResponseEntity<List<NoteDTO>> getUserNotesById (@PathVariable("id") Long id)
 	{
 		
@@ -84,7 +84,7 @@ public class UserController {
 	
 	//			POST
 	
-	@PostMapping ("/api/login")
+	@PostMapping ("login")
 	public ResponseEntity<LoginResponseDTO> postLogin (@PathVariable("id") Long id)
 	{
 		
@@ -92,7 +92,7 @@ public class UserController {
 		return new ResponseEntity<>(response,HttpStatus.OK);
 	}
 	
-	@PostMapping ("/api/user/{id}/message")
+	@PostMapping ("user/{id}/message")
 	public ResponseEntity<MessageSendResponseDTO> postMessageById (@PathVariable("id") Long id)
 	{
 		
@@ -100,7 +100,7 @@ public class UserController {
 		return new ResponseEntity<>(m,HttpStatus.OK);
 	}
 	
-	@PostMapping ("/api/user/{id}/note")
+	@PostMapping ("user/{id}/note")
 	public ResponseEntity<NoteResponseDTO> postNoteById (@PathVariable("id") Long id)
 	{
 		
@@ -108,7 +108,7 @@ public class UserController {
 		return new ResponseEntity<>(n,HttpStatus.OK);
 	}
 	
-	@PostMapping ("/api/unregisteredUser/")
+	@PostMapping ("unregisteredUser/")
 	public ResponseEntity<UnregisteredResponseDTO> postUnregistered (@PathVariable("id") Long id)
 	{
 		
@@ -118,14 +118,14 @@ public class UserController {
 	
 	//			PUT
 	
-	@PutMapping ("/api/user/{id}/block")
+	@PutMapping ("user/{id}/block")
 	public ResponseEntity<User> putBlockUserById (@PathVariable("id") Long id) //mozda ovo nije pravi nacin lol
 	{
 		
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT); 
 	}
 	
-	@PutMapping ("/api/user/{id}/unblock")
+	@PutMapping ("user/{id}/unblock")
 	public ResponseEntity<User> putUnblockUserById (@PathVariable("id") Long id) //takodjer
 {
 		
