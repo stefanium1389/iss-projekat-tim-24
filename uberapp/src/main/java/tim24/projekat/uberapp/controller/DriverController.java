@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import tim24.projekat.uberapp.DTO.GeoCoordinate;
 import tim24.projekat.uberapp.DTO.RideDTO;
+import tim24.projekat.uberapp.DTO.UserRef;
 import tim24.projekat.uberapp.DTO.VehicleDTO;
 import tim24.projekat.uberapp.model.DriverDocument;
 import tim24.projekat.uberapp.model.User;
-import tim24.projekat.uberapp.model.UserRef;
 import tim24.projekat.uberapp.model.WorkingHour;
 import tim24.projekat.uberapp.service.DriverService;
 
@@ -43,11 +43,13 @@ public class DriverController {
 	}
 	
 	@GetMapping("driver")
-	public ResponseEntity<User> GetPaginatedDriverData() {
-		
-		User driver = new User(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
-		
-		return new ResponseEntity<User>(driver, HttpStatus.OK);
+	public ResponseEntity<ArrayList<User>> GetAllDrivers() {
+		ArrayList<User> list = new ArrayList<User>();
+		User driver1 = new User(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
+		list.add(driver1);
+		User driver2 = new User(1L,"Pero","Perovic","profilePicture.jpg","+3810641235667","mail@email.com","Bulevar Evrope 42");
+		list.add(driver2);
+		return new ResponseEntity<ArrayList<User>>(list, HttpStatus.OK);
 	}
 	@GetMapping("driver/{id}")
 	public ResponseEntity<User> GetDriverDetails(@PathVariable("id") Long id){
@@ -60,9 +62,11 @@ public class DriverController {
 		return new ResponseEntity<User>(driver, HttpStatus.OK);
 	}
 	@GetMapping("driver/{id}/documents")
-	public ResponseEntity<DriverDocument> GetDriverDocuments(@PathVariable("id") Long id){
+	public ResponseEntity<ArrayList<DriverDocument>> GetDriverDocuments(@PathVariable("id") Long id){
+		ArrayList<DriverDocument> list = new ArrayList<DriverDocument>();
 		DriverDocument dd = new DriverDocument(1L,"stefanova vozacka","slika.png",1L);
-		return new ResponseEntity<>(dd, HttpStatus.OK);
+		list.add(dd);
+		return new ResponseEntity<>(list, HttpStatus.OK);
 	}
 	@PostMapping("driver/{id}/documents")
 	public ResponseEntity<DriverDocument> CreateDriverDocuments(@PathVariable("id") Long id){
@@ -70,9 +74,9 @@ public class DriverController {
 		return new ResponseEntity<>(dd, HttpStatus.OK);
 	}
 	@DeleteMapping("driver/{id}/documents")
-	public ResponseEntity<DriverDocument> DeleteDriverDocuments(@PathVariable("id") Long id){
-		DriverDocument dd = new DriverDocument(1L,"stefanova vozacka","slika.png",1L);
-		return new ResponseEntity<DriverDocument>(dd, HttpStatus.OK);
+	public ResponseEntity<Error> DeleteDriverDocuments(@PathVariable("id") Long id){
+		
+		return new ResponseEntity<>( HttpStatus.NO_CONTENT);
 	}
 	
 	@GetMapping("driver/{id}/vehicle")
@@ -95,9 +99,11 @@ public class DriverController {
 	}
 	
 	@GetMapping("driver/{id}/working-hours")
-	public ResponseEntity<WorkingHour> GetDriverWorkinghours(@PathVariable("id") Long id){
+	public ResponseEntity<ArrayList<WorkingHour>> GetDriverWorkinghours(@PathVariable("id") Long id){
+		ArrayList<WorkingHour> list = new ArrayList<WorkingHour>();
 		WorkingHour wh = new WorkingHour(1L,"18.11.1991T19:00","19.11.1991T00:00");
-		return new ResponseEntity<WorkingHour>(wh, HttpStatus.OK);
+		list.add(wh);
+		return new ResponseEntity<ArrayList<WorkingHour>>(list, HttpStatus.OK);
 	}
 	@PostMapping("driver/{id}/working-hours")
 	public ResponseEntity<WorkingHour> CreateDriverWorkinghours(@PathVariable("id") Long id){

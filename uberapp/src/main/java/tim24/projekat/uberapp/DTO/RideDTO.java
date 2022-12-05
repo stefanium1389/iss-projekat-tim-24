@@ -2,8 +2,6 @@ package tim24.projekat.uberapp.DTO;
 
 import java.util.List;
 
-import tim24.projekat.uberapp.model.UserRef;
-
 public class RideDTO {
 	
 	private Long id;

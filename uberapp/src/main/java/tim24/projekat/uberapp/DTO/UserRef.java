@@ -1,4 +1,4 @@
-package tim24.projekat.uberapp.model;
+package tim24.projekat.uberapp.DTO;
 
 public class UserRef {
 	
