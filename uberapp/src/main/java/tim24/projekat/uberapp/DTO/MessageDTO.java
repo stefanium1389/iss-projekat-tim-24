@@ -1,0 +1,36 @@
+package tim24.projekat.uberapp.DTO;
+
+import java.time.LocalDateTime;
+
+public class MessageDTO {
+
+	private Long id;
+	private LocalDateTime timeOfSending;
+	private Long senderId;
+	private String message;
+	private String type;
+	private Long rideId;
+	
+	
+	public MessageDTO(Long id, LocalDateTime timeOfSending, Long senderId, String message, String type, Long rideId) {
+		super();
+		this.id = id;
+		this.timeOfSending = timeOfSending;
+		this.senderId = senderId;
+		this.message = message;
+		this.type = type;
+		this.rideId = rideId;
+	}
+	
+}
+
+
+
+
+/*"id": 10,
+      "timeOfSending": "2022-11-25T17:32:28Z",
+      "senderId": 123,
+      "receiverId": 123,
+      "message": "The driver is going on a longer route on purpose",
+      "type": "RIDE",
+      "rideId": 123*/
