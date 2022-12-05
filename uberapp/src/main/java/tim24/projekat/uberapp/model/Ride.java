@@ -30,5 +30,5 @@ public class Ride
     private Refusal rafusal;
     @OneToMany
     private ArrayList<User> passengers;
-
+    
 }
