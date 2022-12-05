@@ -1,10 +1,11 @@
-package tim24.projekat.uberapp.model;
+package tim24.projekat.uberapp.DTO;
 
 public class GeoCoordinate {
 	
 	private String address;
 	private int latitude;
 	private int longitude;
+	
 	public GeoCoordinate(String address, int latitude, int longitude) {
 		super();
 		this.address = address;

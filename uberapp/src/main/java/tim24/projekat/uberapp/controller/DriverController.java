@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import tim24.projekat.uberapp.DTO.GeoCoordinate;
 import tim24.projekat.uberapp.DTO.RideDTO;
+import tim24.projekat.uberapp.DTO.VehicleDTO;
 import tim24.projekat.uberapp.model.DriverDocument;
-import tim24.projekat.uberapp.model.GeoCoordinate;
 import tim24.projekat.uberapp.model.User;
 import tim24.projekat.uberapp.model.UserRef;
-import tim24.projekat.uberapp.model.Vehicle;
 import tim24.projekat.uberapp.model.WorkingHour;
 import tim24.projekat.uberapp.service.DriverService;
 
@@ -76,22 +76,22 @@ public class DriverController {
 	}
 	
 	@GetMapping("driver/{id}/vehicle")
-	public ResponseEntity<Vehicle> GetDriverVehicle(@PathVariable("id") Long id){
-		Vehicle v = new Vehicle(1L,"STANDARD","Ford Mondeo","NS-42069", new GeoCoordinate("Kraj sveta",1,1), 1,false,false );
+	public ResponseEntity<VehicleDTO> GetDriverVehicle(@PathVariable("id") Long id){
+		VehicleDTO v = new VehicleDTO("STANDARD","Ford Mondeo","NS-42069", new GeoCoordinate("Kraj sveta",1,1), 1,false,false );
 		
-		return new ResponseEntity<Vehicle>(v, HttpStatus.OK);
+		return new ResponseEntity<VehicleDTO>(v, HttpStatus.OK);
 	}
 	@PutMapping("driver/{id}/vehicle")
-	public ResponseEntity<Vehicle> UpdateDriverVehicle(@PathVariable("id") Long id){
-		Vehicle v = new Vehicle(1L,"STANDARD","Ford Mondeo","NS-42069", new GeoCoordinate("Kraj sveta",1,1), 1,false,false );
+	public ResponseEntity<VehicleDTO> UpdateDriverVehicle(@PathVariable("id") Long id){
+		VehicleDTO v = new VehicleDTO("STANDARD","Ford Mondeo","NS-42069", new GeoCoordinate("Kraj sveta",1,1), 1,false,false );
 		
-		return new ResponseEntity<Vehicle>(v,HttpStatus.OK);
+		return new ResponseEntity<VehicleDTO>(v,HttpStatus.OK);
 	}
 	@PostMapping("driver/{id}/vehicle")
-	public ResponseEntity<Vehicle> AddDriverVehicle(@PathVariable("id") Long id){
-		Vehicle v = new Vehicle(1L,"STANDARD","Ford Mondeo","NS-42069", new GeoCoordinate("Kraj sveta",1,1), 1,false,false );
+	public ResponseEntity<VehicleDTO> AddDriverVehicle(@PathVariable("id") Long id){
+		VehicleDTO v = new VehicleDTO("STANDARD","Ford Mondeo","NS-42069", new GeoCoordinate("Kraj sveta",1,1), 1,false,false );
 		
-		return new ResponseEntity<Vehicle>(v, HttpStatus.OK);
+		return new ResponseEntity<VehicleDTO>(v, HttpStatus.OK);
 	}
 	
 	@GetMapping("driver/{id}/working-hours")
