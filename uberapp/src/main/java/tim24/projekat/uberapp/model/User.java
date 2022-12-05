@@ -16,6 +16,7 @@ public class User {
 	private Long id;
 	private String name;
 	private String surname;
+	private String profilePicture;
 	private String telephoneNumber;
 	private String email;
 	private String address;
@@ -24,11 +25,12 @@ public class User {
 		super();
 	}
 	
-	public User(Long id, String name, String surname, String telephoneNumber, String email, String address) {
+	public User(Long i, String name, String surname, String profilePicture, String telephoneNumber, String email, String address) {
 		super();
-		this.id = id;
+		this.id = i;
 		this.name = name;
 		this.surname = surname;
+		this.profilePicture = profilePicture;
 		this.telephoneNumber = telephoneNumber;
 		this.email = email;
 		this.address = address;
@@ -56,6 +58,14 @@ public class User {
 
 	public void setSurname(String surname) {
 		this.surname = surname;
+	}
+	
+	public String getProfilePicture() {
+		return profilePicture;
+	}
+
+	public void setProfilePicture(String profilePicture) {
+		this.profilePicture = profilePicture;
 	}
 
 	public String getTelephoneNumber() {
