@@ -1,7 +1,6 @@
 package tim24.projekat.uberapp.controller;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,12 +13,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import tim24.projekat.uberapp.DTO.DtoList;
 import tim24.projekat.uberapp.DTO.GeoCoordinate;
 import tim24.projekat.uberapp.DTO.RideDTO;
+import tim24.projekat.uberapp.DTO.UserDTO;
 import tim24.projekat.uberapp.DTO.UserRef;
 import tim24.projekat.uberapp.DTO.VehicleDTO;
 import tim24.projekat.uberapp.model.DriverDocument;
-import tim24.projekat.uberapp.model.User;
 import tim24.projekat.uberapp.model.WorkingHour;
 import tim24.projekat.uberapp.service.DriverService;
 
@@ -37,29 +37,29 @@ public class DriverController {
 	}
 	
 	@PostMapping("driver")
-	public ResponseEntity<User> CreateDriver() {
-		User driver = new User();
-		return new ResponseEntity<User>(driver, HttpStatus.OK);
+	public ResponseEntity<UserDTO> CreateDriver() {
+		UserDTO driver = new UserDTO(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
+		return new ResponseEntity<UserDTO>(driver, HttpStatus.OK);
 	}
 	
 	@GetMapping("driver")
-	public ResponseEntity<ArrayList<User>> GetAllDrivers() {
-		ArrayList<User> list = new ArrayList<User>();
-		User driver1 = new User(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
+	public ResponseEntity<DtoList<UserDTO>> GetAllDrivers() {
+		DtoList<UserDTO> list = new DtoList<UserDTO>();
+		UserDTO driver1 = new UserDTO(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
 		list.add(driver1);
-		User driver2 = new User(1L,"Pero","Perovic","profilePicture.jpg","+3810641235667","mail@email.com","Bulevar Evrope 42");
+		UserDTO driver2 = new UserDTO(1L,"Pero","Perovic","profilePicture.jpg","+3810641235667","mail@email.com","Bulevar Evrope 42");
 		list.add(driver2);
-		return new ResponseEntity<ArrayList<User>>(list, HttpStatus.OK);
+		return new ResponseEntity<DtoList<UserDTO>>(list, HttpStatus.OK);
 	}
 	@GetMapping("driver/{id}")
-	public ResponseEntity<User> GetDriverDetails(@PathVariable("id") Long id){
-		User driver = new User(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
-		return new ResponseEntity<User>(driver, HttpStatus.OK);
+	public ResponseEntity<UserDTO> GetDriverDetails(@PathVariable("id") Long id){
+		UserDTO driver = new UserDTO(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
+		return new ResponseEntity<UserDTO>(driver, HttpStatus.OK);
 	}
 	@PutMapping("driver/{id}")
-	public ResponseEntity<User> UpdateDriverDetails(@PathVariable("id") Long id){
-		User driver = new User(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
-		return new ResponseEntity<User>(driver, HttpStatus.OK);
+	public ResponseEntity<UserDTO> UpdateDriverDetails(@PathVariable("id") Long id){
+		UserDTO driver = new UserDTO(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
+		return new ResponseEntity<UserDTO>(driver, HttpStatus.OK);
 	}
 	@GetMapping("driver/{id}/documents")
 	public ResponseEntity<ArrayList<DriverDocument>> GetDriverDocuments(@PathVariable("id") Long id){
@@ -81,29 +81,29 @@ public class DriverController {
 	
 	@GetMapping("driver/{id}/vehicle")
 	public ResponseEntity<VehicleDTO> GetDriverVehicle(@PathVariable("id") Long id){
-		VehicleDTO v = new VehicleDTO("STANDARD","Ford Mondeo","NS-42069", new GeoCoordinate("Kraj sveta",1,1), 1,false,false );
+		VehicleDTO v = new VehicleDTO(1L, 1L,"STANDARD","Ford Mondeo","NS-42069", new GeoCoordinate("Kraj sveta",1,1), 4,false,false );
 		
 		return new ResponseEntity<VehicleDTO>(v, HttpStatus.OK);
 	}
 	@PutMapping("driver/{id}/vehicle")
 	public ResponseEntity<VehicleDTO> UpdateDriverVehicle(@PathVariable("id") Long id){
-		VehicleDTO v = new VehicleDTO("STANDARD","Ford Mondeo","NS-42069", new GeoCoordinate("Kraj sveta",1,1), 1,false,false );
+		VehicleDTO v = new VehicleDTO(1L, 1L,"STANDARD","Ford Mondeo","NS-42069", new GeoCoordinate("Kraj sveta",1,1), 4,false,false );
 		
 		return new ResponseEntity<VehicleDTO>(v,HttpStatus.OK);
 	}
 	@PostMapping("driver/{id}/vehicle")
 	public ResponseEntity<VehicleDTO> AddDriverVehicle(@PathVariable("id") Long id){
-		VehicleDTO v = new VehicleDTO("STANDARD","Ford Mondeo","NS-42069", new GeoCoordinate("Kraj sveta",1,1), 1,false,false );
+		VehicleDTO v = new VehicleDTO(1L, 1L,"STANDARD","Ford Mondeo","NS-42069", new GeoCoordinate("Kraj sveta",1,1), 4,false,false );
 		
 		return new ResponseEntity<VehicleDTO>(v, HttpStatus.OK);
 	}
 	
 	@GetMapping("driver/{id}/working-hours")
-	public ResponseEntity<ArrayList<WorkingHour>> GetDriverWorkinghours(@PathVariable("id") Long id){
-		ArrayList<WorkingHour> list = new ArrayList<WorkingHour>();
+	public ResponseEntity<DtoList<WorkingHour>> GetDriverWorkinghours(@PathVariable("id") Long id){
+		DtoList<WorkingHour> list = new DtoList<WorkingHour>();
 		WorkingHour wh = new WorkingHour(1L,"18.11.1991T19:00","19.11.1991T00:00");
 		list.add(wh);
-		return new ResponseEntity<ArrayList<WorkingHour>>(list, HttpStatus.OK);
+		return new ResponseEntity<DtoList<WorkingHour>>(list, HttpStatus.OK);
 	}
 	@PostMapping("driver/{id}/working-hours")
 	public ResponseEntity<WorkingHour> CreateDriverWorkinghours(@PathVariable("id") Long id){
@@ -112,12 +112,12 @@ public class DriverController {
 	}
 	
 	@GetMapping("driver/{id}/ride")
-	public ResponseEntity<List<RideDTO>> GetDriverRides(@PathVariable("id") Long id){
-		List<RideDTO> rides = new ArrayList<RideDTO>();
+	public ResponseEntity<DtoList<RideDTO>> GetDriverRides(@PathVariable("id") Long id){
+		DtoList<RideDTO> rides = new DtoList<RideDTO>();
 		RideDTO r = new RideDTO(1L,"18.11.1991T19:30","18.11.1991T20:00",420,new UserRef(1L,"email@mail.com","VOZAC"),30,"STANDARD",false,false);
 		r.addPassenger(new UserRef(1L, "mailic@mail.com","PUTNIK"));
 		rides.add(r);
-		return new ResponseEntity<List<RideDTO>>(rides,HttpStatus.OK);
+		return new ResponseEntity<DtoList<RideDTO>>(rides,HttpStatus.OK);
 	}
 	
 	@GetMapping("driver/{driver-id}/working-hour/{working-hour-id}")

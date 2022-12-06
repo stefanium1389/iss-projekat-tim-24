@@ -35,5 +35,7 @@ public class DtoList<T> {
 	public void setResults(List results) {
 		this.results = results;
 	}
-	
+	public void add(T element) {
+		results.add(element);
+	}
 }
