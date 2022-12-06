@@ -1,5 +1,6 @@
 package tim24.projekat.uberapp.DTO;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RideDTO {
@@ -27,6 +28,7 @@ public class RideDTO {
 		this.vehicleType = vehicleType;
 		this.babyTransport = babyTransport;
 		this.petTransport = petTransport;
+		this.passengers = new ArrayList<UserRef>();
 	}
 	
 	public void addPassenger(UserRef passenger) {
