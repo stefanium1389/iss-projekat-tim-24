@@ -6,12 +6,12 @@ public class VehicleDTO {
 	private String vehicleType;
 	private String model;
 	private String licenseNumber;
-	private GeoCoordinate currentLocation;
+	private GeoCoordinateDTO currentLocation;
 	private int passengerSeats;
 	private boolean babyTransport;
 	private boolean petTransport;
 	
-	public VehicleDTO(Long id, Long driverId, String vehicleType, String model, String licenseNumber, GeoCoordinate currentLocation,
+	public VehicleDTO(Long id, Long driverId, String vehicleType, String model, String licenseNumber, GeoCoordinateDTO currentLocation,
 			int passengerSeats, boolean babyTransport, boolean petTransport) {
 		super();
 		this.id = id;
@@ -65,11 +65,11 @@ public class VehicleDTO {
 		this.licenseNumber = licenseNumber;
 	}
 
-	public GeoCoordinate getCurrentLocation() {
+	public GeoCoordinateDTO getCurrentLocation() {
 		return currentLocation;
 	}
 
-	public void setCurrentLocation(GeoCoordinate currentLocation) {
+	public void setCurrentLocation(GeoCoordinateDTO currentLocation) {
 		this.currentLocation = currentLocation;
 	}
 

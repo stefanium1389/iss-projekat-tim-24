@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import tim24.projekat.uberapp.DTO.DtoList;
+import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.ReviewDTO;
 
 
@@ -22,36 +22,36 @@ public class ReviewController {
 	//			GET
 	
 	@GetMapping ("vehicle/{id}")
-	public ResponseEntity<DtoList<ReviewDTO>> GetVehicleReviewsById(@PathVariable("id") Long id){
+	public ResponseEntity<DTOList<ReviewDTO>> GetVehicleReviewsById(@PathVariable("id") Long id){
 		List<ReviewDTO> reviews = new ArrayList<ReviewDTO>();
 		ReviewDTO r = new ReviewDTO(3L,4L,"superrr");
 		ReviewDTO r1 = new ReviewDTO(4L,2L,"nije superrr");
 		reviews.add(r);
 		reviews.add(r1);
-		DtoList<ReviewDTO> dtoList = new DtoList<ReviewDTO>(reviews.size(), reviews);
-		return new ResponseEntity<DtoList<ReviewDTO>>(dtoList,HttpStatus.OK);
+		DTOList<ReviewDTO> dtoList = new DTOList<ReviewDTO>(reviews.size(), reviews);
+		return new ResponseEntity<DTOList<ReviewDTO>>(dtoList,HttpStatus.OK);
 	}
 	
 	@GetMapping ("driver/{id}")
-	public ResponseEntity<DtoList<ReviewDTO>> GetDriverReviewsById(@PathVariable("id") Long id){
+	public ResponseEntity<DTOList<ReviewDTO>> GetDriverReviewsById(@PathVariable("id") Long id){
 		List<ReviewDTO> reviews = new ArrayList<ReviewDTO>();
 		ReviewDTO r = new ReviewDTO(3L,4L,"vozi super");
 		ReviewDTO r1 = new ReviewDTO(4L,2L,"umalo nastradali");
 		reviews.add(r);
 		reviews.add(r1);
-		DtoList<ReviewDTO> dtoList = new DtoList<ReviewDTO>(reviews.size(), reviews);
-		return new ResponseEntity<DtoList<ReviewDTO>>(dtoList,HttpStatus.OK);
+		DTOList<ReviewDTO> dtoList = new DTOList<ReviewDTO>(reviews.size(), reviews);
+		return new ResponseEntity<DTOList<ReviewDTO>>(dtoList,HttpStatus.OK);
 	}
 	
 	@GetMapping ("review/{rideId}")
-	public ResponseEntity<DtoList<ReviewDTO>> GetReviewsByRide(@PathVariable("rideId") Long rideId){
+	public ResponseEntity<DTOList<ReviewDTO>> GetReviewsByRide(@PathVariable("rideId") Long rideId){
 		List<ReviewDTO> reviews = new ArrayList<ReviewDTO>();
 		ReviewDTO r = new ReviewDTO(3L,4L,"iksde");
 		ReviewDTO r1 = new ReviewDTO(8L,3L,"moze i bolje braleee");
 		reviews.add(r);
 		reviews.add(r1);
-		DtoList<ReviewDTO> dtoList = new DtoList<ReviewDTO>(reviews.size(), reviews);
-		return new ResponseEntity<DtoList<ReviewDTO>>(dtoList,HttpStatus.OK);
+		DTOList<ReviewDTO> dtoList = new DTOList<ReviewDTO>(reviews.size(), reviews);
+		return new ResponseEntity<DTOList<ReviewDTO>>(dtoList,HttpStatus.OK);
 	}
 	
 	

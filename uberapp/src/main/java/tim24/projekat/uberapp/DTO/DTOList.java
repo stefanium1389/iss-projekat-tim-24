@@ -3,18 +3,18 @@ package tim24.projekat.uberapp.DTO;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DtoList<T> {
+public class DTOList<T> {
 
 	int totalCount;
 	List results;
 	
-	public DtoList(int totalCount, List<T> results) {
+	public DTOList(int totalCount, List<T> results) {
 		super();
 		this.totalCount = totalCount;
 		this.results = results;
 	}
 
-	public DtoList() {
+	public DTOList() {
 		super();
 		this.totalCount = 0;
 		this.results = new ArrayList<T>();
