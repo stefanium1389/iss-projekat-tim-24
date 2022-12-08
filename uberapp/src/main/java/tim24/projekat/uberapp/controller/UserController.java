@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import tim24.projekat.uberapp.DTO.DTOList;
@@ -51,7 +52,14 @@ public class UserController {
 	//			GET
 	
 	@GetMapping ("user/{id}/ride")
-	public ResponseEntity<DTOList<RideDTO>> getUserRidesById(@PathVariable("id") Long id){
+	public ResponseEntity<DTOList<RideDTO>> getUserRidesById(
+			@PathVariable("id") Long id,
+			@RequestParam("page") int page, 
+			@RequestParam("size") int size,
+			@RequestParam("sort") int sort, 
+			@RequestParam("from") String from,
+			@RequestParam("to") String to)
+	{
 		List<RideDTO> rides = new ArrayList<RideDTO>();
 		RejectionDTO rej = new RejectionDTO ("neki razlog","datummm");
 		GeoCoordinateDTO gcd1 = new GeoCoordinateDTO ("adresa1",123,321);
@@ -70,7 +78,9 @@ public class UserController {
 	}
 	
 	@GetMapping ("user")
-	public ResponseEntity<DTOList<UserResponseDTO>> getUsers ()
+	public ResponseEntity<DTOList<UserResponseDTO>> getUsers (
+			@RequestParam("page") int page, 
+			@RequestParam("size") int size)
 	{
 		ArrayList<UserResponseDTO> list = new ArrayList<UserResponseDTO>();
 		UserResponseDTO u1 = new UserResponseDTO (1L,"vladimir","golosin","url","123213","mail","adresa");
@@ -94,7 +104,10 @@ public class UserController {
 	}
 	
 	@GetMapping ("user/{id}/note")
-	public ResponseEntity<DTOList<NoteDTO>> getUserNotesById (@PathVariable("id") Long id)
+	public ResponseEntity<DTOList<NoteDTO>> getUserNotesById (
+			@PathVariable("id") Long id,
+			@RequestParam("page") int page, 
+			@RequestParam("size") int size)
 	{
 		
 		ArrayList<NoteDTO> list = new ArrayList<NoteDTO>();
