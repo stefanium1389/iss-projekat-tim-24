@@ -1,10 +1,10 @@
-package tim24.projekat.uberapp.model;
+package tim24.projekat.uberapp.DTO;
 
-public class WorkingHour {
+public class WorkingHourDTO {
 	private Long id;
 	private String start;
 	private String end;
-	public WorkingHour(Long id, String start, String end) {
+	public WorkingHourDTO(Long id, String start, String end) {
 		super();
 		this.id = id;
 		this.start = start;
