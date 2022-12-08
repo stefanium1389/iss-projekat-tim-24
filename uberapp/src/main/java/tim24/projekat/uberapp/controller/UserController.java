@@ -87,7 +87,7 @@ public class UserController {
 	{
 		
 		ArrayList<MessageDTO> list = new ArrayList<MessageDTO>();
-		MessageDTO m1 = new MessageDTO(1L, LocalDateTime.now(),2L,"asdasd","tip",100L);
+		MessageDTO m1 = new MessageDTO(1L, LocalDateTime.now(),2L,44L,"asdasd","tip",100L);
 		list.add(m1);
 		DTOList<MessageDTO> dtoList = new DTOList<MessageDTO>(list.size(),list);
 		return new ResponseEntity<>(dtoList,HttpStatus.OK);
