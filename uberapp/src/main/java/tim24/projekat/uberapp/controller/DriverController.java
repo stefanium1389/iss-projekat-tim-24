@@ -1,6 +1,7 @@
 package tim24.projekat.uberapp.controller;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,7 +20,9 @@ import tim24.projekat.uberapp.DTO.DriverDocumentDTO;
 import tim24.projekat.uberapp.DTO.DriverDocumentRequestDTO;
 import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.GeoCoordinateDTO;
+import tim24.projekat.uberapp.DTO.RejectionDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
+import tim24.projekat.uberapp.DTO.RouteDTO;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.DTO.UserRef;
 import tim24.projekat.uberapp.DTO.UserRequestDTO;
@@ -146,11 +149,20 @@ public class DriverController {
 			@RequestParam("sort") String sort,
 			@RequestParam("from") String fromDate,
 			@RequestParam("to") String toDate){
-		DTOList<RideDTO> rides = new DTOList<RideDTO>();
-		RideDTO r = new RideDTO(1L,"18.11.1991T19:30","18.11.1991T20:00",420,new UserRef(1L,"email@mail.com","VOZAC"),30,"STANDARD",false,false);
-		r.addPassenger(new UserRef(1L, "mailic@mail.com","PUTNIK"));
-		rides.add(r);
-		return new ResponseEntity<DTOList<RideDTO>>(rides,HttpStatus.OK);
+		List<RideDTO> rides = new ArrayList<RideDTO>();
+		RejectionDTO rej = new RejectionDTO ("neki razlog","datummm");
+		GeoCoordinateDTO gcd1 = new GeoCoordinateDTO ("adresa1",123,321);
+		GeoCoordinateDTO gcd2 = new GeoCoordinateDTO ("adresa2",424,572);
+		
+		ArrayList<RouteDTO> routes = new ArrayList<RouteDTO>();
+		routes.add(new RouteDTO(gcd1,gcd2));
+		
+		ArrayList<UserRef> passengers = new ArrayList<UserRef>();
+		passengers.add(new UserRef(1L, "mailic@mail.com","PUTNIK"));
+		
+		RideDTO r = new RideDTO(300L, "18:44", "19:30", 123,new UserRef(2L, "mailicXD@mail.com","VOZAC"),passengers,40,"tip",false,true,rej,routes);
+		DTOList<RideDTO> dtoList = new DTOList<RideDTO>(rides.size(), rides);
+		return new ResponseEntity<DTOList<RideDTO>>(dtoList,HttpStatus.OK);
 	}
 	
 	@GetMapping("/{driver-id}/working-hour/{working-hour-id}")

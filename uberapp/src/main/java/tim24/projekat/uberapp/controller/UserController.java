@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import tim24.projekat.uberapp.DTO.DTOList;
+import tim24.projekat.uberapp.DTO.GeoCoordinateDTO;
 import tim24.projekat.uberapp.DTO.LoginRequestDTO;
 import tim24.projekat.uberapp.DTO.LoginResponseDTO;
 import tim24.projekat.uberapp.DTO.MessageDTO;
@@ -24,7 +25,9 @@ import tim24.projekat.uberapp.DTO.MessageSendResponseDTO;
 import tim24.projekat.uberapp.DTO.NoteDTO;
 import tim24.projekat.uberapp.DTO.NoteRequestDTO;
 import tim24.projekat.uberapp.DTO.NoteResponseDTO;
+import tim24.projekat.uberapp.DTO.RejectionDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
+import tim24.projekat.uberapp.DTO.RouteDTO;
 import tim24.projekat.uberapp.DTO.UnregisteredRequestDTO;
 import tim24.projekat.uberapp.DTO.UnregisteredResponseDTO;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
@@ -50,9 +53,17 @@ public class UserController {
 	@GetMapping ("user/{id}/ride")
 	public ResponseEntity<DTOList<RideDTO>> getUserRidesById(@PathVariable("id") Long id){
 		List<RideDTO> rides = new ArrayList<RideDTO>();
-		RideDTO r = new RideDTO(1L,"18.11.1991T19:30","18.11.1991T20:00",420,new UserRef(1L,"email@mail.com","VOZAC"),30,"STANDARD",false,false);
-		r.addPassenger(new UserRef(1L, "mailic@mail.com","PUTNIK"));
-		rides.add(r);
+		RejectionDTO rej = new RejectionDTO ("neki razlog","datummm");
+		GeoCoordinateDTO gcd1 = new GeoCoordinateDTO ("adresa1",123,321);
+		GeoCoordinateDTO gcd2 = new GeoCoordinateDTO ("adresa2",424,572);
+		
+		ArrayList<RouteDTO> routes = new ArrayList<RouteDTO>();
+		routes.add(new RouteDTO(gcd1,gcd2));
+		
+		ArrayList<UserRef> passengers = new ArrayList<UserRef>();
+		passengers.add(new UserRef(1L, "mailic@mail.com","PUTNIK"));
+		
+		RideDTO r = new RideDTO(300L, "18:44", "19:30", 123,new UserRef(2L, "mailicXD@mail.com","VOZAC"),passengers,40,"tip",false,true,rej,routes);
 		DTOList<RideDTO> dtoList = new DTOList<RideDTO>(rides.size(), rides);
 		return new ResponseEntity<DTOList<RideDTO>>(dtoList,HttpStatus.OK);
 	}
@@ -62,7 +73,7 @@ public class UserController {
 	{
 		ArrayList<UserResponseDTO> list = new ArrayList<UserResponseDTO>();
 		UserResponseDTO u1 = new UserResponseDTO (1L,"vladimir","golosin","url","123213","mail","adresa");
-		UserResponseDTO u2 = new UserResponseDTO (2L,"hladimir","golosin","url","565656","mail2","adresa");
+		UserResponseDTO u2 = new UserResponseDTO (2L,"hladimir","golosin","url","565656","mail","adresa");
 		list.add(u1);
 		list.add(u2);
 		DTOList<UserResponseDTO> dtoList = new DTOList<UserResponseDTO>(list.size(),list);
