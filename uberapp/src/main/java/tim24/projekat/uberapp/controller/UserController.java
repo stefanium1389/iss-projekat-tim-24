@@ -61,9 +61,10 @@ public class UserController {
 		routes.add(new RouteDTO(gcd1,gcd2));
 		
 		ArrayList<UserRef> passengers = new ArrayList<UserRef>();
-		passengers.add(new UserRef(1L, "mailic@mail.com","PUTNIK"));
+		passengers.add(new UserRef(1L, "mailic@mail.com"));
 		
-		RideDTO r = new RideDTO(300L, "18:44", "19:30", 123,new UserRef(2L, "mailicXD@mail.com","VOZAC"),passengers,40,"tip",false,true,rej,routes);
+		RideDTO r = new RideDTO(300L, "18:44", "19:30", 123,new UserRef(2L, "mailicXD@mail.com"),passengers,40,"tip",false,true,rej,routes);
+		rides.add(r);
 		DTOList<RideDTO> dtoList = new DTOList<RideDTO>(rides.size(), rides);
 		return new ResponseEntity<DTOList<RideDTO>>(dtoList,HttpStatus.OK);
 	}
