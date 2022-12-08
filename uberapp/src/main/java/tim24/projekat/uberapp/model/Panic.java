@@ -11,7 +11,7 @@ public class Panic
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false, unique = true)
-    private Long id;
+    private long id;
     private Date time;
     private String reason;
     @OneToOne
