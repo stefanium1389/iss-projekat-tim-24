@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import tim24.projekat.uberapp.DTO.DriverDocumentDTO;
@@ -47,7 +48,7 @@ public class DriverController {
 	}
 	
 	@GetMapping("driver")
-	public ResponseEntity<DTOList<UserResponseDTO>> GetAllDrivers() {
+	public ResponseEntity<DTOList<UserResponseDTO>> GetAllDrivers(@RequestParam("page") int page, @RequestParam("size") int size) {
 		DTOList<UserResponseDTO> list = new DTOList<UserResponseDTO>();
 		UserResponseDTO driver1 = new UserResponseDTO(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
 		list.add(driver1);
@@ -103,7 +104,13 @@ public class DriverController {
 	}
 	
 	@GetMapping("driver/{id}/working-hours")
-	public ResponseEntity<DTOList<WorkingHourDTO>> GetDriverWorkinghours(@PathVariable("id") Long id){
+	public ResponseEntity<DTOList<WorkingHourDTO>> GetDriverWorkinghours(
+			@PathVariable("id") Long id, 
+			@RequestParam("page") int page, 
+			@RequestParam("size") int size,
+			@RequestParam("from") String fromDate,
+			@RequestParam("to") String toDated)
+	{
 		DTOList<WorkingHourDTO> list = new DTOList<WorkingHourDTO>();
 		WorkingHourDTO wh = new WorkingHourDTO(1L,"18.11.1991T19:00","19.11.1991T00:00");
 		list.add(wh);
@@ -116,7 +123,13 @@ public class DriverController {
 	}
 	
 	@GetMapping("driver/{id}/ride")
-	public ResponseEntity<DTOList<RideDTO>> GetDriverRides(@PathVariable("id") Long id){
+	public ResponseEntity<DTOList<RideDTO>> GetDriverRides(
+			@PathVariable("id") Long id,
+			@RequestParam("page") int page,
+			@RequestParam("size") int size,
+			@RequestParam("sort") String sort,
+			@RequestParam("from") String fromDate,
+			@RequestParam("to") String toDate){
 		DTOList<RideDTO> rides = new DTOList<RideDTO>();
 		RideDTO r = new RideDTO(1L,"18.11.1991T19:30","18.11.1991T20:00",420,new UserRef(1L,"email@mail.com","VOZAC"),30,"STANDARD",false,false);
 		r.addPassenger(new UserRef(1L, "mailic@mail.com","PUTNIK"));
