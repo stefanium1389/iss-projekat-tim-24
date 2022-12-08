@@ -1,8 +1,6 @@
 package tim24.projekat.uberapp.DTO;
 
-public class VehicleDTO {
-	private Long id;
-	private Long driverId;
+public class VehicleRequestDTO {
 	private String vehicleType;
 	private String model;
 	private String licenseNumber;
@@ -11,11 +9,9 @@ public class VehicleDTO {
 	private boolean babyTransport;
 	private boolean petTransport;
 	
-	public VehicleDTO(Long id, Long driverId, String vehicleType, String model, String licenseNumber, GeoCoordinateDTO currentLocation,
+	public VehicleRequestDTO(String vehicleType, String model, String licenseNumber, GeoCoordinateDTO currentLocation,
 			int passengerSeats, boolean babyTransport, boolean petTransport) {
 		super();
-		this.id = id;
-		this.driverId = driverId;
 		this.vehicleType = vehicleType;
 		this.model = model;
 		this.licenseNumber = licenseNumber;
@@ -25,22 +21,6 @@ public class VehicleDTO {
 		this.petTransport = petTransport;
 	}
 	
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public Long getDriverId() {
-		return driverId;
-	}
-
-	public void setDriverId(Long driverId) {
-		this.driverId = driverId;
-	}
-
 	public String getVehicleType() {
 		return vehicleType;
 	}
