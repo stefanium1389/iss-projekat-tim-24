@@ -4,13 +4,8 @@ public class ReviewDTO {
 	private Long id;
 	private Long rating;
 	private String comment;
+	private UserRef passenger;
 	
-	public ReviewDTO(Long id, Long rating, String comment) {
-		super();
-		this.id = id;
-		this.rating = rating;
-		this.comment = comment;
-	}
 	public Long getId() {
 		return id;
 	}
@@ -29,9 +24,23 @@ public class ReviewDTO {
 	public void setComment(String comment) {
 		this.comment = comment;
 	}
+	public UserRef getPassenger() {
+		return passenger;
+	}
+	public void setPassenger(UserRef passenger) {
+		this.passenger = passenger;
+	}
 	
+	public ReviewDTO(Long id, Long rating, String comment, UserRef passenger) {
+		super();
+		this.id = id;
+		this.rating = rating;
+		this.comment = comment;
+		this.passenger = passenger;
+	}
+	
+	public ReviewDTO() {
+		super();
+	}
 	
 }
-/*"id": 123,
-    "rating": 3,
-    "comment": "The vehicle was bad and dirty"*/
