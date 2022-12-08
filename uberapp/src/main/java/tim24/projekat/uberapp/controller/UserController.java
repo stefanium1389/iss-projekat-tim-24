@@ -162,7 +162,7 @@ public class UserController {
 	
 	@PutMapping ("user/{id}/unblock")
 	public ResponseEntity<User> putUnblockUserById (@PathVariable("id") Long id)
-{
+	{
 		
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT); 
 	}
