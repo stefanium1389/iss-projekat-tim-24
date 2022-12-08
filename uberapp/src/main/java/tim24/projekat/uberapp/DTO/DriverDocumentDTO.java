@@ -1,24 +1,14 @@
-package tim24.projekat.uberapp.model;
+package tim24.projekat.uberapp.DTO;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Table;
-import jakarta.persistence.Id;
 
-@Table(name="driver_documents")
-@Entity
-public class DriverDocument {
+public class DriverDocumentDTO { //saljes u response
 	
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	Long id;
 	String name;
 	String documentImage;
 	Long driverId;
 	
-	public DriverDocument(Long id, String name, String documentImage, Long driverId) {
-		super();
+	public DriverDocumentDTO(Long id, String name, String documentImage, Long driverId) {
 		this.id = id;
 		this.name = name;
 		this.documentImage = documentImage;
