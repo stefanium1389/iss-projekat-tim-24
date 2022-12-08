@@ -16,15 +16,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import tim24.projekat.uberapp.DTO.DTOList;
+import tim24.projekat.uberapp.DTO.LoginRequestDTO;
 import tim24.projekat.uberapp.DTO.LoginResponseDTO;
 import tim24.projekat.uberapp.DTO.MessageDTO;
+import tim24.projekat.uberapp.DTO.MessageRequestDTO;
 import tim24.projekat.uberapp.DTO.MessageSendResponseDTO;
 import tim24.projekat.uberapp.DTO.NoteDTO;
+import tim24.projekat.uberapp.DTO.NoteRequestDTO;
 import tim24.projekat.uberapp.DTO.NoteResponseDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
+import tim24.projekat.uberapp.DTO.UnregisteredRequestDTO;
 import tim24.projekat.uberapp.DTO.UnregisteredResponseDTO;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.DTO.UserRef;
+import tim24.projekat.uberapp.DTO.UserRequestDTO;
 import tim24.projekat.uberapp.model.User;
 import tim24.projekat.uberapp.service.UserService;
 
@@ -57,7 +62,7 @@ public class UserController {
 	{
 		ArrayList<UserResponseDTO> list = new ArrayList<UserResponseDTO>();
 		UserResponseDTO u1 = new UserResponseDTO (1L,"vladimir","golosin","url","123213","mail","adresa");
-		UserResponseDTO u2 = new UserResponseDTO (2L,"hladimir","golosin","url","565656","mail","adresa");
+		UserResponseDTO u2 = new UserResponseDTO (2L,"hladimir","golosin","url","565656","mail2","adresa");
 		list.add(u1);
 		list.add(u2);
 		DTOList<UserResponseDTO> dtoList = new DTOList<UserResponseDTO>(list.size(),list);
@@ -89,8 +94,8 @@ public class UserController {
 	
 	//			POST
 	
-	@PostMapping ("login")
-	public ResponseEntity<LoginResponseDTO> postLogin (@PathVariable("id") Long id)
+	@PostMapping ("user/login")
+	public ResponseEntity<LoginResponseDTO> postLogin (@RequestBody LoginRequestDTO loginRequestDTO)
 	{
 		
 		LoginResponseDTO response = new LoginResponseDTO("asdasd","ffgdfgfdgfd");
@@ -98,7 +103,7 @@ public class UserController {
 	}
 	
 	@PostMapping ("user/{id}/message")
-	public ResponseEntity<MessageSendResponseDTO> postMessageById (@PathVariable("id") Long id)
+	public ResponseEntity<MessageSendResponseDTO> postMessageById (@PathVariable("id") Long id, @RequestBody MessageRequestDTO messageRequestDTO)
 	{
 		
 		MessageSendResponseDTO m = new MessageSendResponseDTO(1L, LocalDateTime.now(),4L, 10L,"asdasdsa","tip",101L);
@@ -106,15 +111,15 @@ public class UserController {
 	}
 	
 	@PostMapping ("user/{id}/note")
-	public ResponseEntity<NoteResponseDTO> postNoteById (@PathVariable("id") Long id)
+	public ResponseEntity<NoteResponseDTO> postNoteById (@PathVariable("id") Long id, @RequestBody NoteRequestDTO nrd)
 	{
 		
-		NoteResponseDTO n = new NoteResponseDTO(6L, LocalDateTime.now(), "xdd");
-		return new ResponseEntity<>(n,HttpStatus.OK);
+		NoteResponseDTO response = new NoteResponseDTO (101L, LocalDateTime.now(), nrd.getMessage());
+		return new ResponseEntity<>(response,HttpStatus.OK);
 	}
 	
-	@PostMapping ("unregisteredUser/")
-	public ResponseEntity<UnregisteredResponseDTO> postUnregistered (@PathVariable("id") Long id)
+	@PostMapping ("unregisteredUser")
+	public ResponseEntity<UnregisteredResponseDTO> postUnregistered ( @RequestBody UnregisteredRequestDTO urd)
 	{
 		
 		UnregisteredResponseDTO u = new UnregisteredResponseDTO(10L, 100L);
@@ -124,14 +129,14 @@ public class UserController {
 	//			PUT
 	
 	@PutMapping ("user/{id}/block")
-	public ResponseEntity<User> putBlockUserById (@PathVariable("id") Long id) //mozda ovo nije pravi nacin lol
+	public ResponseEntity<User> putBlockUserById (@PathVariable("id") Long id) 
 	{
 		
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT); 
 	}
 	
 	@PutMapping ("user/{id}/unblock")
-	public ResponseEntity<User> putUnblockUserById (@PathVariable("id") Long id) //takodjer
+	public ResponseEntity<User> putUnblockUserById (@PathVariable("id") Long id)
 {
 		
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT); 

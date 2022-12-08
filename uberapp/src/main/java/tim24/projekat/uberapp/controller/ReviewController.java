@@ -43,7 +43,7 @@ public class ReviewController {
 		return new ResponseEntity<DTOList<ReviewDTO>>(dtoList,HttpStatus.OK);
 	}
 	
-	@GetMapping ("review/{rideId}")
+	@GetMapping ("{rideId}")
 	public ResponseEntity<DTOList<ReviewDTO>> GetReviewsByRide(@PathVariable("rideId") Long rideId){
 		List<ReviewDTO> reviews = new ArrayList<ReviewDTO>();
 		ReviewDTO r = new ReviewDTO(3L,4L,"iksde");
@@ -57,7 +57,7 @@ public class ReviewController {
 	
 	//			POST
 	
-	@PostMapping ("vehicle/{id}")
+	@PostMapping ("{rideId}/vehicle/{id}")
 	public ResponseEntity<ReviewDTO> postVehicleReview (@PathVariable("id") Long id)
 	{
 		
@@ -65,7 +65,7 @@ public class ReviewController {
 		return new ResponseEntity<>(response,HttpStatus.OK);
 	}
 	
-	@PostMapping ("driver/{id}")
+	@PostMapping ("{rideId}/driver/{id}")
 	public ResponseEntity<ReviewDTO> postDriverReview (@PathVariable("id") Long id)
 	{
 		

@@ -27,9 +27,4 @@ public class UnregisteredResponseDTO {
 		this.estimatedCost = estimatedCost;
 	}
 	
-	
 }
-/*{
-  "estimatedTimeInMinutes": 10,
-  "estimatedCost": 450
-}*/
