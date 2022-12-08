@@ -10,16 +10,20 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import tim24.projekat.uberapp.DTO.DriverDocumentDTO;
+import tim24.projekat.uberapp.DTO.DriverDocumentRequestDTO;
 import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.GeoCoordinateDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
-import tim24.projekat.uberapp.DTO.UserDTO;
+import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.DTO.UserRef;
+import tim24.projekat.uberapp.DTO.UserRequestDTO;
 import tim24.projekat.uberapp.DTO.VehicleDTO;
+import tim24.projekat.uberapp.DTO.VehicleRequestDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourDTO;
 import tim24.projekat.uberapp.service.DriverService;
 
@@ -37,29 +41,29 @@ public class DriverController {
 	}
 	
 	@PostMapping("driver")
-	public ResponseEntity<UserDTO> CreateDriver() {
-		UserDTO driver = new UserDTO(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
-		return new ResponseEntity<UserDTO>(driver, HttpStatus.OK);
+	public ResponseEntity<UserResponseDTO> CreateDriver(@RequestBody UserRequestDTO newDriver) {
+		UserResponseDTO driver = new UserResponseDTO(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
+		return new ResponseEntity<UserResponseDTO>(driver, HttpStatus.OK);
 	}
 	
 	@GetMapping("driver")
-	public ResponseEntity<DTOList<UserDTO>> GetAllDrivers() {
-		DTOList<UserDTO> list = new DTOList<UserDTO>();
-		UserDTO driver1 = new UserDTO(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
+	public ResponseEntity<DTOList<UserResponseDTO>> GetAllDrivers() {
+		DTOList<UserResponseDTO> list = new DTOList<UserResponseDTO>();
+		UserResponseDTO driver1 = new UserResponseDTO(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
 		list.add(driver1);
-		UserDTO driver2 = new UserDTO(1L,"Pero","Perovic","profilePicture.jpg","+3810641235667","mail@email.com","Bulevar Evrope 42");
+		UserResponseDTO driver2 = new UserResponseDTO(1L,"Pero","Perovic","profilePicture.jpg","+3810641235667","mail@email.com","Bulevar Evrope 42");
 		list.add(driver2);
-		return new ResponseEntity<DTOList<UserDTO>>(list, HttpStatus.OK);
+		return new ResponseEntity<DTOList<UserResponseDTO>>(list, HttpStatus.OK);
 	}
 	@GetMapping("driver/{id}")
-	public ResponseEntity<UserDTO> GetDriverDetails(@PathVariable("id") Long id){
-		UserDTO driver = new UserDTO(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
-		return new ResponseEntity<UserDTO>(driver, HttpStatus.OK);
+	public ResponseEntity<UserResponseDTO> GetDriverDetails(@PathVariable("id") Long id){
+		UserResponseDTO driver = new UserResponseDTO(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
+		return new ResponseEntity<UserResponseDTO>(driver, HttpStatus.OK);
 	}
 	@PutMapping("driver/{id}")
-	public ResponseEntity<UserDTO> UpdateDriverDetails(@PathVariable("id") Long id){
-		UserDTO driver = new UserDTO(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
-		return new ResponseEntity<UserDTO>(driver, HttpStatus.OK);
+	public ResponseEntity<UserResponseDTO> UpdateDriverDetails(@RequestBody UserRequestDTO updatedDriver, @PathVariable("id") Long id){
+		UserResponseDTO driver = new UserResponseDTO(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
+		return new ResponseEntity<UserResponseDTO>(driver, HttpStatus.OK);
 	}
 	@GetMapping("driver/{id}/documents")
 	public ResponseEntity<ArrayList<DriverDocumentDTO>> GetDriverDocuments(@PathVariable("id") Long id){
@@ -69,7 +73,7 @@ public class DriverController {
 		return new ResponseEntity<>(list, HttpStatus.OK);
 	}
 	@PostMapping("driver/{id}/documents")
-	public ResponseEntity<DriverDocumentDTO> CreateDriverDocuments(@PathVariable("id") Long id){
+	public ResponseEntity<DriverDocumentDTO> CreateDriverDocuments(@RequestBody DriverDocumentRequestDTO ddrq, @PathVariable("id") Long id){
 		DriverDocumentDTO dd = new DriverDocumentDTO(1L,"stefanova vozacka","slika.png",1L);
 		return new ResponseEntity<>(dd, HttpStatus.OK);
 	}
@@ -86,13 +90,13 @@ public class DriverController {
 		return new ResponseEntity<VehicleDTO>(v, HttpStatus.OK);
 	}
 	@PutMapping("driver/{id}/vehicle")
-	public ResponseEntity<VehicleDTO> UpdateDriverVehicle(@PathVariable("id") Long id){
+	public ResponseEntity<VehicleDTO> UpdateDriverVehicle(@RequestBody VehicleRequestDTO newV, @PathVariable("id") Long id){
 		VehicleDTO v = new VehicleDTO(1L, 1L,"STANDARD","Ford Mondeo","NS-42069", new GeoCoordinateDTO("Kraj sveta",1,1), 4,false,false );
 		
 		return new ResponseEntity<VehicleDTO>(v,HttpStatus.OK);
 	}
 	@PostMapping("driver/{id}/vehicle")
-	public ResponseEntity<VehicleDTO> AddDriverVehicle(@PathVariable("id") Long id){
+	public ResponseEntity<VehicleDTO> AddDriverVehicle(@RequestBody VehicleRequestDTO newV, @PathVariable("id") Long id){
 		VehicleDTO v = new VehicleDTO(1L, 1L,"STANDARD","Ford Mondeo","NS-42069", new GeoCoordinateDTO("Kraj sveta",1,1), 4,false,false );
 		
 		return new ResponseEntity<VehicleDTO>(v, HttpStatus.OK);

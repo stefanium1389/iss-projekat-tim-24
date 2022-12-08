@@ -23,7 +23,7 @@ import tim24.projekat.uberapp.DTO.NoteDTO;
 import tim24.projekat.uberapp.DTO.NoteResponseDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
 import tim24.projekat.uberapp.DTO.UnregisteredResponseDTO;
-import tim24.projekat.uberapp.DTO.UserDTO;
+import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.DTO.UserRef;
 import tim24.projekat.uberapp.model.User;
 import tim24.projekat.uberapp.service.UserService;
@@ -53,14 +53,14 @@ public class UserController {
 	}
 	
 	@GetMapping ("user")
-	public ResponseEntity<DTOList<UserDTO>> getUsers ()
+	public ResponseEntity<DTOList<UserResponseDTO>> getUsers ()
 	{
-		ArrayList<UserDTO> list = new ArrayList<UserDTO>();
-		UserDTO u1 = new UserDTO (1L,"vladimir","golosin","url","123213","mail","adresa");
-		UserDTO u2 = new UserDTO (2L,"hladimir","golosin","url","565656","mail","adresa");
+		ArrayList<UserResponseDTO> list = new ArrayList<UserResponseDTO>();
+		UserResponseDTO u1 = new UserResponseDTO (1L,"vladimir","golosin","url","123213","mail","adresa");
+		UserResponseDTO u2 = new UserResponseDTO (2L,"hladimir","golosin","url","565656","mail","adresa");
 		list.add(u1);
 		list.add(u2);
-		DTOList<UserDTO> dtoList = new DTOList<UserDTO>(list.size(),list);
+		DTOList<UserResponseDTO> dtoList = new DTOList<UserResponseDTO>(list.size(),list);
 		
 		return new ResponseEntity<>(dtoList,HttpStatus.OK);
 	}

@@ -1,26 +1,18 @@
 package tim24.projekat.uberapp.DTO;
 
 
-public class DriverDocumentDTO { //saljes u response
-	
-	Long id;
+public class DriverDocumentRequestDTO { //otpakujes iz request body
+
 	String name;
 	String documentImage;
 	Long driverId;
 	
-	public DriverDocumentDTO(Long id, String name, String documentImage, Long driverId) {
-		this.id = id;
+	public DriverDocumentRequestDTO(Long id, String name, String documentImage, Long driverId) {
 		this.name = name;
 		this.documentImage = documentImage;
 		this.driverId = driverId;
 	}
 	
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
 	public String getName() {
 		return name;
 	}
@@ -41,7 +33,7 @@ public class DriverDocumentDTO { //saljes u response
 	}
 	@Override
 	public String toString() {
-		return "DriverDocument [id=" + id + ", name=" + name + ", documentImage=" + documentImage + ", driverId="
+		return "DriverDocument [name=" + name + ", documentImage=" + documentImage + ", driverId="
 				+ driverId + "]";
 	}
 	

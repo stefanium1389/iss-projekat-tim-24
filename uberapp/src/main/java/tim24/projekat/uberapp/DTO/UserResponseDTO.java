@@ -1,6 +1,6 @@
 package tim24.projekat.uberapp.DTO;
 
-public class UserDTO {
+public class UserResponseDTO { //ovog usera vracas u responsu
 
 	private Long id;
 	private String name;
@@ -11,7 +11,7 @@ public class UserDTO {
 	private String address;
 	
 	
-	public UserDTO(Long id, String name, String surname, String profilePicture, String telephoneNumber, String email,
+	public UserResponseDTO(Long id, String name, String surname, String profilePicture, String telephoneNumber, String email,
 			String address) {
 		
 		this.id = id;
