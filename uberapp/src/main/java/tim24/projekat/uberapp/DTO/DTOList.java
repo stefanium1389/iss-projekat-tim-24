@@ -36,6 +36,7 @@ public class DTOList<T> {
 		this.results = results;
 	}
 	public void add(T element) {
+		this.totalCount ++;
 		results.add(element);
 	}
 }
