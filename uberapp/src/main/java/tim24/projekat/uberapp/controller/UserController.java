@@ -56,7 +56,7 @@ public class UserController {
 			@PathVariable("id") Long id,
 			@RequestParam("page") int page, 
 			@RequestParam("size") int size,
-			@RequestParam("sort") int sort, 
+			@RequestParam("sort") String sort, 
 			@RequestParam("from") String from,
 			@RequestParam("to") String to)
 	{

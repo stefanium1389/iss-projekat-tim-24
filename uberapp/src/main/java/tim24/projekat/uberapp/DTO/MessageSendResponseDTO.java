@@ -7,18 +7,22 @@ public class MessageSendResponseDTO {
 	private Long id;
 	private LocalDateTime timeOfSending;
 	private Long senderId;
-	private Long recieverId;
+	private Long receiverId;
 	private String message;
 	private String type;
 	private Long rideId;
 	
-	public MessageSendResponseDTO(Long id, LocalDateTime timeOfSending, Long senderId, Long recieverId, String message,
+	public MessageSendResponseDTO() {
+		super();
+	}
+
+	public MessageSendResponseDTO(Long id, LocalDateTime timeOfSending, Long senderId, Long receiverId, String message,
 			String type, Long rideId) {
 		super();
 		this.id = id;
 		this.timeOfSending = timeOfSending;
 		this.senderId = senderId;
-		this.recieverId = recieverId;
+		this.receiverId = receiverId;
 		this.message = message;
 		this.type = type;
 		this.rideId = rideId;
@@ -48,12 +52,12 @@ public class MessageSendResponseDTO {
 		this.senderId = senderId;
 	}
 
-	public Long getRecieverId() {
-		return recieverId;
+	public Long getReceiverId() {
+		return receiverId;
 	}
 
-	public void setRecieverId(Long recieverId) {
-		this.recieverId = recieverId;
+	public void setReceiverId(Long receiverId) {
+		this.receiverId = receiverId;
 	}
 
 	public String getMessage() {
