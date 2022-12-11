@@ -33,7 +33,7 @@ public class RideController
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RideDTO> getRide(@PathVariable("id") Long id)
+    public ResponseEntity<RideDTO> getRides(@PathVariable("id") Long id)
     {
         RideDTO ride = new RideDTO();
         return new ResponseEntity<>(ride, HttpStatus.OK);
