@@ -10,7 +10,11 @@ public class UserResponseDTO { //ovog usera vracas u responsu
 	private String email;
 	private String address;
 	
-	
+	public UserResponseDTO()
+	{
+		super();
+	}
+
 	public UserResponseDTO(Long id, String name, String surname, String profilePicture, String telephoneNumber, String email,
 			String address) {
 		

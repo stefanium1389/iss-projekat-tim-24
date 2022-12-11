@@ -5,7 +5,12 @@ public class GeoCoordinateDTO {
 	private String address;
 	private int latitude;
 	private int longitude;
-	
+
+	public GeoCoordinateDTO()
+	{
+		super();
+	}
+
 	public GeoCoordinateDTO(String address, int latitude, int longitude) {
 		super();
 		this.address = address;
