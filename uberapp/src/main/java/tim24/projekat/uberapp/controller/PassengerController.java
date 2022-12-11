@@ -30,7 +30,7 @@ public class PassengerController
     @GetMapping("/activate/{activationId}")
     public ResponseEntity<UserResponseDTO> activatePassenger(@PathVariable("activationId") Long id)
     {
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
