@@ -17,7 +17,7 @@ public class RideDTO {
 	private boolean petTransport;
 	private RejectionDTO rejection;
 	private List<RouteDTO> locations;
-	
+	private String status;
 
 	public RideDTO() {
 		super();
@@ -25,7 +25,7 @@ public class RideDTO {
 
 	public RideDTO(Long id, String startTime, String endTime, int totalCost, UserRef driver, List<UserRef> passengers,
 			int estimatedTimeInMinutes, String vehicleType, boolean babyTransport, boolean petTransport,
-			RejectionDTO rejection, List<RouteDTO> locations) {
+			RejectionDTO rejection, List<RouteDTO> locations, String status) {
 		super();
 		this.id = id;
 		this.startTime = startTime;
@@ -39,6 +39,7 @@ public class RideDTO {
 		this.petTransport = petTransport;
 		this.rejection = rejection;
 		this.locations = locations;
+		this.status = status;
 	}
 
 	public Long getId() {
@@ -81,12 +82,12 @@ public class RideDTO {
 		this.driver = driver;
 	}
 
-	public List<UserRef> getPassengers() {
-		return passengers;
-	}
-
 	public void setPassengers(List<UserRef> passengers) {
 		this.passengers = passengers;
+	}
+
+	public List<UserRef> getPassengers() {
+		return passengers;
 	}
 
 	public int getEstimatedTimeInMinutes() {
@@ -140,5 +141,14 @@ public class RideDTO {
 	public void addPassenger(UserRef passenger) {
 		this.passengers.add(passenger);
 	}
-	
+
+	public String getStatus()
+	{
+		return this.status;
+	}
+
+	public void setStatus(String status)
+	{
+		this.status = status;
+	}
 }
