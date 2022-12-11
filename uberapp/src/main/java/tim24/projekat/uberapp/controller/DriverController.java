@@ -90,7 +90,7 @@ public class DriverController {
 		DriverDocumentDTO dd = new DriverDocumentDTO(1L,"stefanova vozacka","slika.png",1L);
 		return new ResponseEntity<>(dd, HttpStatus.OK);
 	}
-	@DeleteMapping("/{id}/documents")
+	@DeleteMapping("/document/{id}")
 	public ResponseEntity<Error> DeleteDriverDocuments(
 			@PathVariable("id") Long id){
 		
@@ -121,7 +121,7 @@ public class DriverController {
 		return new ResponseEntity<VehicleDTO>(v, HttpStatus.OK);
 	}
 	
-	@GetMapping("/{id}/working-hours")
+	@GetMapping("/{id}/working-hour")
 	public ResponseEntity<DTOList<WorkingHourDTO>> GetDriverWorkinghours(
 			@PathVariable("id") Long id, 
 			@RequestParam("page") int page, 
@@ -134,7 +134,7 @@ public class DriverController {
 		list.add(wh);
 		return new ResponseEntity<DTOList<WorkingHourDTO>>(list, HttpStatus.OK);
 	}
-	@PostMapping("/{id}/working-hours")
+	@PostMapping("/{id}/working-hour")
 	public ResponseEntity<WorkingHourDTO> CreateDriverWorkinghours(
 			@PathVariable("id") Long id){
 		WorkingHourDTO wh = new WorkingHourDTO(1L,"18.11.1991T19:00","19.11.1991T00:00");
@@ -161,23 +161,21 @@ public class DriverController {
 		ArrayList<UserRef> passengers = new ArrayList<UserRef>();
 		passengers.add(new UserRef(1L, "mailic@mail.com"));
 		
-		RideDTO r = new RideDTO(300L, "18:44", "19:30", 123,new UserRef(2L, "mailicXD@mail.com"),passengers,40,"tip",false,true,rej,routes);
+		RideDTO r = new RideDTO(300L, "18:44", "19:30", 123,new UserRef(2L, "mailicXD@mail.com"),passengers,40,"tip",false,true,rej,routes, "PENDING");
 		rides.add(r);
 		DTOList<RideDTO> dtoList = new DTOList<RideDTO>(rides.size(), rides);
 		return new ResponseEntity<DTOList<RideDTO>>(dtoList,HttpStatus.OK);
 	}
 	
-	@GetMapping("/{driver-id}/working-hour/{working-hour-id}")
+	@GetMapping("/working-hour/{working-hour-id}")
 	public ResponseEntity<WorkingHourDTO> GetDriverWorkinghoursDetails(
-			@PathVariable("driver-id") Long driverId, 
 			@PathVariable("working-hour-id") Long workinghoursId){
 		WorkingHourDTO wh = new WorkingHourDTO(1L,"18.11.1991T19:00","19.11.1991T00:00");
 		return new ResponseEntity<WorkingHourDTO>(wh, HttpStatus.OK);
 	}
 	
-	@PutMapping("/{driver-id}/working-hour/{working-hour-id}")
+	@PutMapping("/working-hour/{working-hour-id}")
 	public ResponseEntity<WorkingHourDTO> ChangeDriverWorkinghoursDetails(
-			@PathVariable("driver-id") Long driverId, 
 			@PathVariable("working-hour-id") Long workinghoursId){
 		WorkingHourDTO wh = new WorkingHourDTO(1L,"18.11.1991T19:00","19.11.1991T00:00");
 		return new ResponseEntity<WorkingHourDTO>(wh, HttpStatus.OK);

@@ -4,6 +4,10 @@ public class UserRef {
 	
 	private Long id;
 	private String email;
+	public UserRef()
+	{
+		super();
+	}
 	public UserRef(Long id, String email) {
 		super();
 		this.id = id;

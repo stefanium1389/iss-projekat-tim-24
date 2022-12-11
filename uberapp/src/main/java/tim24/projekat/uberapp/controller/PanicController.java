@@ -14,8 +14,8 @@ public class PanicController
     public ResponseEntity<DTOList<PanicDTO>> getPanic()
     {
         DTOList<PanicDTO> panicList = new DTOList<PanicDTO>();
-        //PanicDTO panicDto = new PanicDTO();
-        //panicList.add(panicDto);
+        PanicDTO panicDto = new PanicDTO();
+        panicList.add(panicDto);
         return new ResponseEntity<>(panicList, HttpStatus.OK);
     }
 }
