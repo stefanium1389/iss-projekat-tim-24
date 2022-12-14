@@ -12,6 +12,23 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import tim24.projekat.uberapp.DTO.DTOList;
+import tim24.projekat.uberapp.DTO.GeoCoordinateDTO;
+import tim24.projekat.uberapp.DTO.LoginRequestDTO;
+import tim24.projekat.uberapp.DTO.LoginResponseDTO;
+import tim24.projekat.uberapp.DTO.MessageDTO;
+import tim24.projekat.uberapp.DTO.MessageRequestDTO;
+import tim24.projekat.uberapp.DTO.MessageSendResponseDTO;
+import tim24.projekat.uberapp.DTO.NoteDTO;
+import tim24.projekat.uberapp.DTO.NoteRequestDTO;
+import tim24.projekat.uberapp.DTO.NoteResponseDTO;
+import tim24.projekat.uberapp.DTO.RejectionDTO;
+import tim24.projekat.uberapp.DTO.RideDTO;
+import tim24.projekat.uberapp.DTO.RouteDTO;
+import tim24.projekat.uberapp.DTO.UnregisteredRequestDTO;
+import tim24.projekat.uberapp.DTO.UnregisteredResponseDTO;
+import tim24.projekat.uberapp.DTO.UserRef;
+import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.model.User;
 import tim24.projekat.uberapp.service.UserService;
 

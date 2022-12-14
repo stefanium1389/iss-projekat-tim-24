@@ -27,16 +27,25 @@ public class DriverController {
 		this.DriverService = DriverService;
 	}
 	
-	@PostMapping("driver")
-	public ResponseEntity<User> CreateDriver() {
-		
-		return new ResponseEntity<>(HttpStatus.OK);
+	@PostMapping
+	public ResponseEntity<UserResponseDTO> CreateDriver(
+			@RequestBody UserRequestDTO newDriver) {
+		UserResponseDTO driver = DriverService.createDriver(newDriver);
+		return new ResponseEntity<UserResponseDTO>(driver, HttpStatus.OK);
 	}
 	
-	@GetMapping("driver")
-	public ResponseEntity<User> GetPaginatedDriverData() {
-		
-		return new ResponseEntity<>(HttpStatus.OK);
+	@GetMapping
+	public ResponseEntity<DTOList<UserResponseDTO>> GetAllDrivers(
+			@RequestParam("page") int page, 
+			@RequestParam("size") int size) {
+		DTOList<UserResponseDTO> list = DriverService.GetAllDrivers(page, size);
+		return new ResponseEntity<DTOList<UserResponseDTO>>(list, HttpStatus.OK);
+	}
+	@GetMapping("/{id}")
+	public ResponseEntity<UserResponseDTO> GetDriverDetails(
+			@PathVariable("id") Long id){
+		UserResponseDTO driver = new UserResponseDTO(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
+		return new ResponseEntity<UserResponseDTO>(driver, HttpStatus.OK);
 	}
 	@GetMapping("driver/{id}")
 	public ResponseEntity<User> GetDriverDetails(@PathVariable("id") Long id){
