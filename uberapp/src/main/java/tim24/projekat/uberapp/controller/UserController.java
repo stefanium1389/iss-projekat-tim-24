@@ -40,13 +40,9 @@ import tim24.projekat.uberapp.service.UserService;
 @RestController
 @RequestMapping("api/")
 public class UserController {
-	private final UserService UserService;
 
 	@Autowired
-	public UserController(UserService UserService) {
-		super();
-		this.UserService = UserService;
-	}
+	private UserService userService;
 	
 	//			GET
 	

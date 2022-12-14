@@ -3,6 +3,7 @@ package tim24.projekat.uberapp.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,11 +18,15 @@ import tim24.projekat.uberapp.DTO.LoginRequestDTO;
 import tim24.projekat.uberapp.DTO.ReviewDTO;
 import tim24.projekat.uberapp.DTO.ReviewRequestDTO;
 import tim24.projekat.uberapp.DTO.UserRef;
+import tim24.projekat.uberapp.service.ReviewService;
 
 
 @RestController
 @RequestMapping("api/review")
 public class ReviewController {
+	
+	@Autowired
+	private ReviewService reviewService;
 	
 	//			GET
 	

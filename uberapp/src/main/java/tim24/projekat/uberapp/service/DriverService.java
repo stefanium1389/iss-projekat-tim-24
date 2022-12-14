@@ -3,6 +3,7 @@ package tim24.projekat.uberapp.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import tim24.projekat.uberapp.DTO.DTOList;
@@ -18,9 +19,13 @@ import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.DTO.VehicleDTO;
 import tim24.projekat.uberapp.DTO.VehicleRequestDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourDTO;
+import tim24.projekat.uberapp.repo.UserRepository;
 
 @Service
 public class DriverService {
+	
+	@Autowired
+	private UserRepository userRepo;
 
 	public UserResponseDTO createDriver(UserRequestDTO newDriver) {
 		return new UserResponseDTO(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
@@ -51,7 +56,7 @@ public class DriverService {
 		return list;
 	}
 
-	public DriverDocumentDTO createDocument(Long id, DriverDocumentRequestDTO ddrq) {
+	public DriverDocumentDTO createDriverDocuments(Long id, DriverDocumentRequestDTO ddrq) {
 		DriverDocumentDTO dd = new DriverDocumentDTO(1L,"stefanova vozacka","slika.png",1L);
 		return dd;
 	}
