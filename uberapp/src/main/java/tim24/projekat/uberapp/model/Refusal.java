@@ -11,7 +11,7 @@ public class Refusal
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false, unique = true)
-    private long id;
+    private Long id;
     private String reason;
     private Date time;
     @OneToOne
