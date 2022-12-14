@@ -31,35 +31,23 @@ public class ReviewController {
 	//			GET
 	
 	@GetMapping ("/vehicle/{id}")
-	public ResponseEntity<DTOList<ReviewDTO>> GetVehicleReviewsById(@PathVariable("id") Long id){
-		List<ReviewDTO> reviews = new ArrayList<ReviewDTO>();
-		ReviewDTO r = new ReviewDTO(3L,4L,"superrr", new UserRef(123L,"mojmail@xd.com"));
-		ReviewDTO r1 = new ReviewDTO(4L,2L,"nije superrr", new UserRef(321L,"mojmail2@xd.com"));
-		reviews.add(r);
-		reviews.add(r1);
-		DTOList<ReviewDTO> dtoList = new DTOList<ReviewDTO>(reviews.size(), reviews);
+	public ResponseEntity<DTOList<ReviewDTO>> getVehicleReviewsById(@PathVariable("id") Long id){
+		
+		DTOList<ReviewDTO> dtoList = reviewService.getVehicleReviewsById(id);
 		return new ResponseEntity<DTOList<ReviewDTO>>(dtoList,HttpStatus.OK);
 	}
 	
 	@GetMapping ("/driver/{id}")
-	public ResponseEntity<DTOList<ReviewDTO>> GetDriverReviewsById(@PathVariable("id") Long id){
-		List<ReviewDTO> reviews = new ArrayList<ReviewDTO>();
-		ReviewDTO r = new ReviewDTO(3L,4L,"vozi super",new UserRef(123L,"mojmail@xd.com"));
-		ReviewDTO r1 = new ReviewDTO(4L,2L,"umalo nastradali",new UserRef(222L,"mojmaillmao@xd.com"));
-		reviews.add(r);
-		reviews.add(r1);
-		DTOList<ReviewDTO> dtoList = new DTOList<ReviewDTO>(reviews.size(), reviews);
+	public ResponseEntity<DTOList<ReviewDTO>> getDriverReviewsById(@PathVariable("id") Long id){
+		
+		DTOList<ReviewDTO> dtoList = reviewService.getDriverReviewsById(id);
 		return new ResponseEntity<DTOList<ReviewDTO>>(dtoList,HttpStatus.OK);
 	}
 	
 	@GetMapping ("/{rideId}")
 	public ResponseEntity<DTOList<ReviewDTO>> GetReviewsByRide(@PathVariable("rideId") Long rideId){
-		List<ReviewDTO> reviews = new ArrayList<ReviewDTO>();
-		ReviewDTO r = new ReviewDTO(3L,4L,"iksde", new UserRef(444L,"angulumail@xd.com"));
-		ReviewDTO r1 = new ReviewDTO(8L,3L,"moze i bolje braleee",new UserRef(666L,"zlimail@xd.com"));
-		reviews.add(r);
-		reviews.add(r1);
-		DTOList<ReviewDTO> dtoList = new DTOList<ReviewDTO>(reviews.size(), reviews);
+	
+		DTOList<ReviewDTO> dtoList = reviewService.getReviewsByRide(rideId);
 		return new ResponseEntity<DTOList<ReviewDTO>>(dtoList,HttpStatus.OK);
 	}
 	
@@ -70,7 +58,8 @@ public class ReviewController {
 	public ResponseEntity<ReviewDTO> postVehicleReview (@PathVariable("id") Long id,@PathVariable("rideId") Long rideId, @RequestBody ReviewRequestDTO reviewRequestDTO )
 	{
 		
-		ReviewDTO response = new ReviewDTO(50L, 4L,reviewRequestDTO.getComment(),new UserRef(123L,"mojmail@xd.com"));
+		
+		ReviewDTO response = reviewService.postVehicleReview(id,rideId, reviewRequestDTO);
 		return new ResponseEntity<>(response,HttpStatus.OK);
 	}
 	
@@ -78,7 +67,8 @@ public class ReviewController {
 	public ResponseEntity<ReviewDTO> postDriverReview (@PathVariable("id") Long id,@PathVariable("rideId") Long rideId, @RequestBody ReviewRequestDTO reviewRequestDTO)
 	{
 		
-		ReviewDTO response = new ReviewDTO(50L, 4L,reviewRequestDTO.getComment(),new UserRef(123L,"mojmail@xd.com"));
+		
+		ReviewDTO response = reviewService.postDriverReview(id,rideId,reviewRequestDTO);
 		return new ResponseEntity<>(response,HttpStatus.OK);
 	}
 	

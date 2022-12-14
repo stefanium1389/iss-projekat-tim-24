@@ -55,20 +55,8 @@ public class UserController {
 			@RequestParam("from") String from,
 			@RequestParam("to") String to)
 	{
-		List<RideDTO> rides = new ArrayList<RideDTO>();
-		RejectionDTO rej = new RejectionDTO ("neki razlog","datummm");
-		GeoCoordinateDTO gcd1 = new GeoCoordinateDTO ("adresa1",123,321);
-		GeoCoordinateDTO gcd2 = new GeoCoordinateDTO ("adresa2",424,572);
 		
-		ArrayList<RouteDTO> routes = new ArrayList<RouteDTO>();
-		routes.add(new RouteDTO(gcd1,gcd2));
-		
-		ArrayList<UserRef> passengers = new ArrayList<UserRef>();
-		passengers.add(new UserRef(1L, "mailic@mail.com"));
-		
-		RideDTO r = new RideDTO(300L, "18:44", "19:30", 123,new UserRef(2L, "mailicXD@mail.com"),passengers,40,"tip",false,true,rej,routes, "PENDING");
-		rides.add(r);
-		DTOList<RideDTO> dtoList = new DTOList<RideDTO>(rides.size(), rides);
+		DTOList<RideDTO> dtoList = userService.getUserRidesById(id,page,size,sort,from,to);
 		return new ResponseEntity<DTOList<RideDTO>>(dtoList,HttpStatus.OK);
 	}
 	
@@ -77,13 +65,8 @@ public class UserController {
 			@RequestParam("page") int page, 
 			@RequestParam("size") int size)
 	{
-		ArrayList<UserResponseDTO> list = new ArrayList<UserResponseDTO>();
-		UserResponseDTO u1 = new UserResponseDTO (1L,"vladimir","golosin","url","123213","mail","adresa");
-		UserResponseDTO u2 = new UserResponseDTO (2L,"hladimir","golosin","url","565656","mail","adresa");
-		list.add(u1);
-		list.add(u2);
-		DTOList<UserResponseDTO> dtoList = new DTOList<UserResponseDTO>(list.size(),list);
 		
+		DTOList<UserResponseDTO> dtoList = userService.getUsers(page,size);
 		return new ResponseEntity<>(dtoList,HttpStatus.OK);
 	}
 	
@@ -91,10 +74,8 @@ public class UserController {
 	public ResponseEntity<DTOList<MessageDTO>> getUserMessagesById (@PathVariable("id") Long id)
 	{
 		
-		ArrayList<MessageDTO> list = new ArrayList<MessageDTO>();
-		MessageDTO m1 = new MessageDTO(1L, LocalDateTime.now(),2L,44L,"asdasd","tip",100L);
-		list.add(m1);
-		DTOList<MessageDTO> dtoList = new DTOList<MessageDTO>(list.size(),list);
+		
+		DTOList<MessageDTO> dtoList = userService.getUserMessagesById(id);
 		return new ResponseEntity<>(dtoList,HttpStatus.OK);
 	}
 	
@@ -105,10 +86,7 @@ public class UserController {
 			@RequestParam("size") int size)
 	{
 		
-		ArrayList<NoteDTO> list = new ArrayList<NoteDTO>();
-		NoteDTO n1 = new NoteDTO(1L, LocalDateTime.now(),"asdasd");
-		list.add(n1);
-		DTOList<NoteDTO> dtoList = new DTOList<NoteDTO>(list.size(),list);
+		DTOList<NoteDTO> dtoList = userService.getUserNotesById(id,page,size);
 		return new ResponseEntity<>(dtoList,HttpStatus.OK);
 	}
 	
@@ -118,7 +96,8 @@ public class UserController {
 	public ResponseEntity<LoginResponseDTO> postLogin (@RequestBody LoginRequestDTO loginRequestDTO)
 	{
 		
-		LoginResponseDTO response = new LoginResponseDTO("asdasd","ffgdfgfdgfd");
+		
+		LoginResponseDTO response = userService.postLogin(loginRequestDTO);
 		return new ResponseEntity<>(response,HttpStatus.OK);
 	}
 	
@@ -126,7 +105,8 @@ public class UserController {
 	public ResponseEntity<MessageSendResponseDTO> postMessageById (@PathVariable("id") Long id, @RequestBody MessageRequestDTO messageRequestDTO)
 	{
 		
-		MessageSendResponseDTO m = new MessageSendResponseDTO(1L, LocalDateTime.now(),4L, 10L,"asdasdsa","tip",101L);
+		
+		MessageSendResponseDTO m = userService.postMessageById(id, messageRequestDTO);
 		return new ResponseEntity<>(m,HttpStatus.OK);
 	}
 	
@@ -134,15 +114,17 @@ public class UserController {
 	public ResponseEntity<NoteResponseDTO> postNoteById (@PathVariable("id") Long id, @RequestBody NoteRequestDTO nrd)
 	{
 		
-		NoteResponseDTO response = new NoteResponseDTO (101L, LocalDateTime.now(), nrd.getMessage());
+		
+		NoteResponseDTO response = userService.postNoteById(id, nrd);
 		return new ResponseEntity<>(response,HttpStatus.OK);
 	}
 	
-	@PostMapping ("unregisteredUser")
+	@PostMapping ("unregisteredUser/")
 	public ResponseEntity<UnregisteredResponseDTO> postUnregistered ( @RequestBody UnregisteredRequestDTO urd)
 	{
 		
-		UnregisteredResponseDTO u = new UnregisteredResponseDTO(10L, 100L);
+		
+		UnregisteredResponseDTO u = userService.postUnregistered(urd);
 		return new ResponseEntity<>(u,HttpStatus.OK);
 	}
 	
@@ -152,13 +134,14 @@ public class UserController {
 	public ResponseEntity<User> putBlockUserById (@PathVariable("id") Long id) 
 	{
 		
+		userService.putBlockUserById(id); // izmeni ovo
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT); 
 	}
 	
 	@PutMapping ("user/{id}/unblock")
 	public ResponseEntity<User> putUnblockUserById (@PathVariable("id") Long id)
 	{
-		
+		userService.putUnblockUserById(id); //izmeni ovo
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT); 
 	}
 	
