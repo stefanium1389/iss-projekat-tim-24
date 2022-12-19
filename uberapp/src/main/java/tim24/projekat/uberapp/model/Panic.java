@@ -18,4 +18,9 @@ public class Panic
     private Ride ride;
     @OneToOne
     private User user;
+
+    public Panic()
+    {
+        super();
+    }
 }

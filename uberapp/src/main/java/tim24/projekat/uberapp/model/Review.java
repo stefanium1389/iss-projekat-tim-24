@@ -13,4 +13,9 @@ public class Review
     private int driverGrade;
     private int vehicleGrade;
     private String comment;
+
+    public Review()
+    {
+        super();
+    }
 }

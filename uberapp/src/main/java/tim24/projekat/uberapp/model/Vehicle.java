@@ -14,4 +14,9 @@ public class Vehicle
     private int numberOfSeats;
     private boolean allowedBabyInVehicle;
     private boolean allowedPetInVehicle;
+
+    public Vehicle()
+    {
+        super();
+    }
 }

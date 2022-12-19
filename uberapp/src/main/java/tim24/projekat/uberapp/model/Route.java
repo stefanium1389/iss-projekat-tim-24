@@ -12,7 +12,12 @@ public class Route
     private Long id;
     private double lenght; //in km
     @OneToOne
-    private Location start;
+    private Location startLocation;
     @OneToOne
-    private Location end;
+    private Location endLocation;
+
+    public Route()
+    {
+        super();
+    }
 }

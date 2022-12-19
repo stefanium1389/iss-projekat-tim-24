@@ -18,8 +18,8 @@ public class Ride
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false, unique = true)
     private Long id;
-    private Date start;
-    private Date end;
+    private Date startTime;
+    private Date endTime;
     private RideStatus status;
     private boolean panic;
     private boolean babyInVehicle;
@@ -27,22 +27,28 @@ public class Ride
     @OneToOne
     private User driver;
     @OneToOne
-    private Refusal rafusal;
+    private Refusal refusal;
     @OneToMany
     private ArrayList<User> passengers;    
-    
-	public Ride(Long id, Date start, Date end, RideStatus status, boolean panic, boolean babyInVehicle,
-			boolean petInVehicle, User driver, Refusal rafusal, ArrayList<User> passengers) {
+
+	public Ride()
+	{
+		super();
+	}
+
+	public Ride(Long id, Date startTime, Date endTime, RideStatus status, boolean panic, boolean babyInVehicle,
+			boolean petInVehicle, User driver, Refusal refusal, ArrayList<User> passengers)
+	{
 		super();
 		this.id = id;
-		this.start = start;
-		this.end = end;
+		this.startTime = startTime;
+		this.endTime = endTime;
 		this.status = status;
 		this.panic = panic;
 		this.babyInVehicle = babyInVehicle;
 		this.petInVehicle = petInVehicle;
 		this.driver = driver;
-		this.rafusal = rafusal;
+		this.refusal = refusal;
 		this.passengers = passengers;
 	}
 	
@@ -52,17 +58,17 @@ public class Ride
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public Date getStart() {
-		return start;
+	public Date getStartTime() {
+		return startTime;
 	}
-	public void setStart(Date start) {
-		this.start = start;
+	public void setStartTime(Date start) {
+		this.startTime = start;
 	}
-	public Date getEnd() {
-		return end;
+	public Date getEndTime() {
+		return endTime;
 	}
-	public void setEnd(Date end) {
-		this.end = end;
+	public void setEndTime(Date end) {
+		this.endTime = end;
 	}
 	public RideStatus getStatus() {
 		return status;
@@ -94,11 +100,11 @@ public class Ride
 	public void setDriver(User driver) {
 		this.driver = driver;
 	}
-	public Refusal getRafusal() {
-		return rafusal;
+	public Refusal getRefusal() {
+		return refusal;
 	}
-	public void setRafusal(Refusal rafusal) {
-		this.rafusal = rafusal;
+	public void setRefusal(Refusal refusal) {
+		this.refusal = refusal;
 	}
 	public ArrayList<User> getPassengers() {
 		return passengers;
