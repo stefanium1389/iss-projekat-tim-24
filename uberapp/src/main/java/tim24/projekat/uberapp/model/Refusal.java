@@ -16,4 +16,9 @@ public class Refusal
     private Date time;
     @OneToOne
     private User user;
+
+    public Refusal()
+    {
+        super();
+    }
 }

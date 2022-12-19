@@ -16,7 +16,12 @@ public class DriverDocument {
 	String name;
 	String documentImage;
 	Long driverId;
-	
+
+	public DriverDocument()
+	{
+		super();
+	}
+
 	public DriverDocument(Long id, String name, String documentImage, Long driverId) {
 		super();
 		this.id = id;

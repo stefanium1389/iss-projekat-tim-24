@@ -13,4 +13,9 @@ public class VehicleType
     private String typeName;
     private int startingPrice;
     private int pricePerKm;
+
+    public VehicleType()
+    {
+        super();
+    }
 }
