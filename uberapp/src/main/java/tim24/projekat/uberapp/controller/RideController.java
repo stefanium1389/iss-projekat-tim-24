@@ -13,7 +13,6 @@ import tim24.projekat.uberapp.service.RideService;
 @RequestMapping("api/ride")
 public class RideController
 {
-	
 	@Autowired
 	private RideService rideService;
 	
@@ -27,7 +26,6 @@ public class RideController
     @GetMapping("/driver/{driverId}/active")
     public ResponseEntity<RideDTO> getDriverRide(@PathVariable("driverId") Long id)
     {
-
         RideDTO ride = rideService.getDriverRide(id);
         return new ResponseEntity<>(ride, HttpStatus.OK);
     }
@@ -35,7 +33,6 @@ public class RideController
     @GetMapping("/passenger/{passengerId}/active")
     public ResponseEntity<RideDTO> getPassengerRide(@PathVariable("passengerId") Long id)
     {
-        
         RideDTO ride = rideService.getPassengerRide(id);
         return new ResponseEntity<>(ride, HttpStatus.OK);
     }
@@ -43,7 +40,6 @@ public class RideController
     @GetMapping("/{id}")
     public ResponseEntity<RideDTO> getRides(@PathVariable("id") Long id)
     {
-        
         RideDTO ride = rideService.getRides(id);
         return new ResponseEntity<>(ride, HttpStatus.OK);
     }
@@ -51,7 +47,6 @@ public class RideController
     @PutMapping("/{id}/withdraw")
     public ResponseEntity<RideDTO> withdrawRide(@PathVariable("id") Long id)
     {
-        
         RideDTO ride = rideService.withdrawRide(id);
         return new ResponseEntity<>(ride, HttpStatus.OK);
     }
@@ -59,7 +54,6 @@ public class RideController
     @PutMapping("/{id}/panic")
     public ResponseEntity<PanicDTO> panicRide(@PathVariable("id") Long id)
     {
-       
         PanicDTO panic = rideService.panicRide(id);
         return new ResponseEntity<>(panic, HttpStatus.OK);
     }
@@ -67,7 +61,6 @@ public class RideController
     @PutMapping("/{id}/accept")
     public ResponseEntity<RideDTO> acceptRide(@PathVariable("id") Long id)
     {
-        
         RideDTO ride = rideService.acceptRide(id);
         return new ResponseEntity<>(ride, HttpStatus.OK);
     }
@@ -75,7 +68,6 @@ public class RideController
     @PutMapping("/{id}/end")
     public ResponseEntity<RideDTO> endRide(@PathVariable("id") Long id)
     {
-       
         RideDTO ride = rideService.endRide(id);
         return new ResponseEntity<>(ride, HttpStatus.OK);
     }
@@ -83,7 +75,6 @@ public class RideController
     @PutMapping("/{id}/cancel")
     public ResponseEntity<RideDTO> cancelRide(@PathVariable("id") Long id)
     {
-        
         RideDTO ride = rideService.cancelRide(id);
         return new ResponseEntity<>(ride, HttpStatus.OK);
     }

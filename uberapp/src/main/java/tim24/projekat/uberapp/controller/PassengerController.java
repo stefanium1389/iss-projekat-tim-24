@@ -19,7 +19,6 @@ public class PassengerController
     @PostMapping
     public ResponseEntity<UserResponseDTO> postPassenger()
     {
-        
         UserResponseDTO user = passengerService.postPassenger();
         return new ResponseEntity<>(user, HttpStatus.OK);
     }

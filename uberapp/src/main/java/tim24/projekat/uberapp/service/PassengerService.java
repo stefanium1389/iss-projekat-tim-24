@@ -22,16 +22,17 @@ public class PassengerService {
 		return new UserResponseDTO();
 	}
 
-	public DTOList<UserResponseDTO> getPassengers() {
-		
+	public DTOList<UserResponseDTO> getPassengers()
+	{
 		DTOList<UserResponseDTO> list = new DTOList<UserResponseDTO>();
         UserResponseDTO user = new UserResponseDTO();
         list.add(user);
         return list;
 	}
 
-	public void activatePassenger(Long id) {
-		
+	public void activatePassenger(Long id)
+	{
+		//TODO
 	}
 
 	public UserResponseDTO getPassenger(Long id) {
@@ -42,7 +43,8 @@ public class PassengerService {
 		return new UserResponseDTO();
 	}
 
-	public DTOList<RideDTO> getPassengerRides(Long id, int page, int size, String sort, String from, String to) {
+	public DTOList<RideDTO> getPassengerRides(Long id, int page, int size, String sort, String from, String to)
+	{
 		DTOList<RideDTO> list = new DTOList<>();
         RideDTO ride = new RideDTO();
         list.add(ride);
