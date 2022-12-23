@@ -20,12 +20,14 @@ public class User {
 	private String telephoneNumber;
 	private String email;
 	private String address;
+	private String password;
+	private Role role;
 	
 	public User() {
 		super();
 	}
 	
-	public User(Long i, String name, String surname, String profilePicture, String telephoneNumber, String email, String address) {
+	public User(Long i, String name, String surname, String profilePicture, String telephoneNumber, String email, String address, String password, Role role) {
 		super();
 		this.id = i;
 		this.name = name;
@@ -34,6 +36,8 @@ public class User {
 		this.telephoneNumber = telephoneNumber;
 		this.email = email;
 		this.address = address;
+		this.password = password;
+		this.role = role;
 	}
 
 	public Long getId() {
@@ -92,10 +96,29 @@ public class User {
 		this.address = address;
 	}
 
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
+	}
+
 	@Override
 	public String toString() {
-		return "User [id=" + id + ", name=" + name + ", surname=" + surname + ", telephoneNumber=" + telephoneNumber
-				+ ", email=" + email + ", address=" + address + "]";
+		return "User [id=" + id + ", name=" + name + ", surname=" + surname + ", profilePicture=" + profilePicture
+				+ ", telephoneNumber=" + telephoneNumber + ", email=" + email + ", address=" + address + ", password="
+				+ password + ", role=" + role + "]";
 	}
+
+	
 	
 }
