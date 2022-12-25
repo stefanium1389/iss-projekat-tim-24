@@ -26,11 +26,13 @@ public class WebSecurityConfiguration {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.csrf().disable().authorizeRequests() // csrf->disabled, pošto nam JWT odrađuje zaštitu od CSRF napada
-				.requestMatchers("/*").permitAll().requestMatchers("/api/v2/login/*").permitAll() // statički html i login mogu svi da pozovu
-				.requestMatchers("/api/v2/student/**").authenticated() // sav pristup API-ju mora da bude autentikovan
+				.requestMatchers("/*").permitAll().requestMatchers("/api/unregisteredUser","/api/user/login").permitAll() // statički html i login mogu svi da pozovu
+				.requestMatchers("/api/**").authenticated() // sav pristup API-ju mora da bude autentikovan
 				.and()
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); // ne koristimo HttpSession i kukije
 		http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class); // JWT procesiramo pre autentikacije
+		http.csrf().disable();
+	    http.headers().frameOptions().disable();
 
 		return http.build();
 	}
@@ -38,7 +40,7 @@ public class WebSecurityConfiguration {
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		PasswordEncoder encoder = new BCryptPasswordEncoder();// PasswordEncoderFactories.createDelegatingPasswordEncoder();
-		//System.out.println(encoder.encode("admin"));
+		//System.out.println("enkodiraj 'admin': "+encoder.encode("admin"));
 		return encoder;
 	}
 

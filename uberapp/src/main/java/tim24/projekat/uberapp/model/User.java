@@ -2,10 +2,13 @@ package tim24.projekat.uberapp.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Table(name="users")
 @Entity
@@ -21,7 +24,12 @@ public class User {
 	private String email;
 	private String address;
 	private String password;
+	
+	@Enumerated(EnumType.STRING)
 	private Role role;
+	
+	@Transient
+	private String accessToken;
 	
 	public User() {
 		super();
@@ -112,12 +120,22 @@ public class User {
 		this.role = role;
 	}
 
+	public String getAccessToken() {
+		return accessToken;
+	}
+
+	public void setAccessToken(String accessToken) {
+		this.accessToken = accessToken;
+	}
+
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", name=" + name + ", surname=" + surname + ", profilePicture=" + profilePicture
 				+ ", telephoneNumber=" + telephoneNumber + ", email=" + email + ", address=" + address + ", password="
-				+ password + ", role=" + role + "]";
+				+ password + ", role=" + role + ", accessToken=" + accessToken + "]";
 	}
+
+	
 
 	
 	
