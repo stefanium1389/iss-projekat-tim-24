@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import tim24.projekat.uberapp.model.User;
+import tim24.projekat.uberapp.service.UserService;
 
 @Component
 public class JwtTokenUtil implements Serializable {
@@ -21,6 +24,8 @@ public class JwtTokenUtil implements Serializable {
 	public static final long REFRESH_TOKEN_VALIDITY = 24 * 60 * 60;
 	@Value("${jwt.secret}")
 	private String secret;
+	@Autowired
+	private UserService userService;
 
 	// retrieve username from jwt token
 	public String getUsernameFromToken(String token) {
@@ -51,6 +56,9 @@ public class JwtTokenUtil implements Serializable {
 	// generate token for user
 	public String generateToken(String username) {
 		Map<String, Object> claims = new HashMap<>();
+		User user = userService.findUserByEmail(username);
+		claims.put("role", user.getRole());
+		claims.put("id", user.getId());
 		return doGenerateToken(claims, username);
 	}
 	public String generateRefrshToken(String username) {
