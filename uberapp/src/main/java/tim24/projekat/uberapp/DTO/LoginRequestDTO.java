@@ -4,6 +4,10 @@ public class LoginRequestDTO {
 	private String email;
 	private String password;
 	
+	public LoginRequestDTO() {
+		super();
+	}
+	
 	public LoginRequestDTO(String email, String password) {
 		super();
 		this.email = email;
