@@ -1,12 +1,13 @@
 package tim24.projekat.uberapp.controller;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import tim24.projekat.uberapp.DTO.DTOList;
-import tim24.projekat.uberapp.DTO.GeoCoordinateDTO;
 import tim24.projekat.uberapp.DTO.LoginRequestDTO;
 import tim24.projekat.uberapp.DTO.LoginResponseDTO;
 import tim24.projekat.uberapp.DTO.MessageDTO;
@@ -26,14 +26,12 @@ import tim24.projekat.uberapp.DTO.MessageSendResponseDTO;
 import tim24.projekat.uberapp.DTO.NoteDTO;
 import tim24.projekat.uberapp.DTO.NoteRequestDTO;
 import tim24.projekat.uberapp.DTO.NoteResponseDTO;
-import tim24.projekat.uberapp.DTO.RejectionDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
-import tim24.projekat.uberapp.DTO.RouteDTO;
 import tim24.projekat.uberapp.DTO.UnregisteredRequestDTO;
 import tim24.projekat.uberapp.DTO.UnregisteredResponseDTO;
-import tim24.projekat.uberapp.DTO.UserRef;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.model.User;
+import tim24.projekat.uberapp.security.JwtTokenUtil;
 import tim24.projekat.uberapp.service.UserService;
 
 
@@ -43,6 +41,30 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private AuthenticationManager authenticationManager;
+	
+	@Autowired
+	private JwtTokenUtil jwtTokenUtil;
+	
+	@PostMapping ("user/login")
+	public ResponseEntity<LoginResponseDTO> postLogin (@RequestBody LoginRequestDTO loginRequestDTO)
+	{
+		UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(loginRequestDTO.getEmail(),
+				loginRequestDTO.getPassword());
+		Authentication auth = authenticationManager.authenticate(authReq);
+
+		SecurityContext sc = SecurityContextHolder.getContext();
+		sc.setAuthentication(auth);
+
+		String token = jwtTokenUtil.generateToken(loginRequestDTO.getEmail());
+		String refreshToken = jwtTokenUtil.generateRefrshToken(loginRequestDTO.getEmail());
+		LoginResponseDTO response = new LoginResponseDTO(token, refreshToken);
+		
+//		LoginResponseDTO response = userService.postLogin(loginRequestDTO);
+		return new ResponseEntity<>(response,HttpStatus.OK);
+	}
 	
 	//			GET
 	
@@ -92,14 +114,7 @@ public class UserController {
 	
 	//			POST
 	
-	@PostMapping ("user/login")
-	public ResponseEntity<LoginResponseDTO> postLogin (@RequestBody LoginRequestDTO loginRequestDTO)
-	{
-		
-		
-		LoginResponseDTO response = userService.postLogin(loginRequestDTO);
-		return new ResponseEntity<>(response,HttpStatus.OK);
-	}
+	
 	
 	@PostMapping ("user/{id}/message")
 	public ResponseEntity<MessageSendResponseDTO> postMessageById (@PathVariable("id") Long id, @RequestBody MessageRequestDTO messageRequestDTO)

@@ -2,10 +2,13 @@ package tim24.projekat.uberapp.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Table(name="users")
 @Entity
@@ -20,12 +23,19 @@ public class User {
 	private String telephoneNumber;
 	private String email;
 	private String address;
+	private String password;
+	
+	@Enumerated(EnumType.STRING)
+	private Role role;
+	
+	@Transient
+	private String accessToken;
 	
 	public User() {
 		super();
 	}
 	
-	public User(Long i, String name, String surname, String profilePicture, String telephoneNumber, String email, String address) {
+	public User(Long i, String name, String surname, String profilePicture, String telephoneNumber, String email, String address, String password, Role role) {
 		super();
 		this.id = i;
 		this.name = name;
@@ -34,6 +44,8 @@ public class User {
 		this.telephoneNumber = telephoneNumber;
 		this.email = email;
 		this.address = address;
+		this.password = password;
+		this.role = role;
 	}
 
 	public Long getId() {
@@ -92,10 +104,39 @@ public class User {
 		this.address = address;
 	}
 
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
+	}
+
+	public String getAccessToken() {
+		return accessToken;
+	}
+
+	public void setAccessToken(String accessToken) {
+		this.accessToken = accessToken;
+	}
+
 	@Override
 	public String toString() {
-		return "User [id=" + id + ", name=" + name + ", surname=" + surname + ", telephoneNumber=" + telephoneNumber
-				+ ", email=" + email + ", address=" + address + "]";
+		return "User [id=" + id + ", name=" + name + ", surname=" + surname + ", profilePicture=" + profilePicture
+				+ ", telephoneNumber=" + telephoneNumber + ", email=" + email + ", address=" + address + ", password="
+				+ password + ", role=" + role + ", accessToken=" + accessToken + "]";
 	}
+
+	
+
+	
 	
 }

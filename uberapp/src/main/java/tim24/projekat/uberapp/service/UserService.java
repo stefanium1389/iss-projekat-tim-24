@@ -3,6 +3,7 @@ package tim24.projekat.uberapp.service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +65,11 @@ public class UserService {
 	{
 		return UserRepo.findUserById(id).orElseThrow(()-> new UserNotFoundException("leeeel"));
 	}
-
+	
+	public User findUserByEmail(String email) {
+		return UserRepo.findUserByEmail(email).orElseThrow(()-> new UserNotFoundException("nema me"));
+	}
+	
 	public DTOList<RideDTO> getUserRidesById(Long id, int page, int size, String sort, String from, String to) {
 		List<RideDTO> rides = new ArrayList<RideDTO>();
 		RejectionDTO rej = new RejectionDTO ("neki razlog","datummm");
