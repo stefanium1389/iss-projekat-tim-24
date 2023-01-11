@@ -143,4 +143,33 @@ public class UserService {
 		// TODO Auto-generated method stub
 		
 	}
+
+	public DTOList<UserResponseDTO> searchUsers(String querry) {
+		List<User> allUsers = UserRepo.findAll();
+		List<User> foundUsers = new ArrayList<User>();
+		for (User user : allUsers) {
+			if(user.getName().contains(querry) || user.getEmail().contains(querry)) {
+				foundUsers.add(user);
+			}
+		}
+		DTOList<UserResponseDTO> dtoList = this.repackUsersToDTO(foundUsers);
+		return dtoList;
+	}
+	
+	private DTOList<UserResponseDTO> repackUsersToDTO(List<User> usersList){
+		DTOList<UserResponseDTO> returnList = new DTOList<UserResponseDTO>();
+		for(User user: usersList) {
+			UserResponseDTO dto = new UserResponseDTO(
+					user.getId(),
+					user.getName(),
+					user.getSurname(),
+					user.getProfilePicture(),
+					user.getTelephoneNumber(),
+					user.getEmail(),
+					user.getAddress());
+			returnList.add(dto);
+		}
+		return returnList;
+		
+	}
 }

@@ -21,6 +21,11 @@ public class UserRequestDTO { //ovog usera otpakujes iz request body
 		this.address = address;
 		this.password = password;
 	}
+	
+	public UserRequestDTO() {
+		super();
+	}
+
 	public String getName() {
 		return name;
 	}

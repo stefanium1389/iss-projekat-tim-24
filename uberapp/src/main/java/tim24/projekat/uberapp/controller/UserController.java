@@ -91,6 +91,13 @@ public class UserController {
 		DTOList<UserResponseDTO> dtoList = userService.getUsers(page,size);
 		return new ResponseEntity<>(dtoList,HttpStatus.OK);
 	}
+	@GetMapping("user/search") //Nije po swaggeru, ovaj smo sami dodali jer nam je trebao, pretraga korisnika po imenu i e-mailu
+	public ResponseEntity<DTOList<UserResponseDTO>> findUsers (
+			@RequestParam("querry") String querry
+			){
+		DTOList<UserResponseDTO> dtoList = userService.searchUsers(querry);
+		return new ResponseEntity<>(dtoList,HttpStatus.OK);
+	}
 	
 	@GetMapping ("user/{id}/message")
 	public ResponseEntity<DTOList<MessageDTO>> getUserMessagesById (@PathVariable("id") Long id)

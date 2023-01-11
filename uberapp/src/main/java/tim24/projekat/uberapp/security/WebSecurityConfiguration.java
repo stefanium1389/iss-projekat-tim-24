@@ -3,6 +3,7 @@ package tim24.projekat.uberapp.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -27,6 +28,7 @@ public class WebSecurityConfiguration {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.csrf().disable().authorizeRequests() // csrf->disabled, pošto nam JWT odrađuje zaštitu od CSRF napada
 				.requestMatchers("/*").permitAll().requestMatchers("/api/unregisteredUser","/api/user/login").permitAll() // statički html i login mogu svi da pozovu
+				.requestMatchers(HttpMethod.OPTIONS,"/**").permitAll() //dozvolimo options request da prodje uvek
 				.requestMatchers("/api/**").authenticated() // sav pristup API-ju mora da bude autentikovan
 				.and()
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); // ne koristimo HttpSession i kukije
