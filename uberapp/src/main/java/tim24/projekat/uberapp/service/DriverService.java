@@ -1,7 +1,9 @@
 package tim24.projekat.uberapp.service;
 
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,8 +23,11 @@ import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.DTO.VehicleDTO;
 import tim24.projekat.uberapp.DTO.VehicleRequestDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourDTO;
+import tim24.projekat.uberapp.DTO.WorkingHourPostDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourPutDTO;
+import tim24.projekat.uberapp.exception.InvalidRoleException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
+import tim24.projekat.uberapp.model.Role;
 import tim24.projekat.uberapp.model.User;
 import tim24.projekat.uberapp.model.WorkingHour;
 import tim24.projekat.uberapp.repo.UserRepository;
@@ -51,8 +56,23 @@ public class DriverService {
 	}
 
 	public UserResponseDTO getDriverById(Long id) {
-		UserResponseDTO driver = new UserResponseDTO(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
-		return driver;
+		
+		Optional<User> driverOpt = userRepo.findUserById(id);
+		if (driverOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Driver does not exist!");
+		}
+		
+		User driver = driverOpt.get();
+		
+		if (driver.getRole() == Role.DRIVER) 
+		{
+			UserResponseDTO dto = new UserResponseDTO(driver);
+			return dto;
+		}
+		else {
+			throw new InvalidRoleException("Found user is not a driver!");
+		}
 	}
 
 	public UserResponseDTO updateDriver(Long id, UserRequestDTO updatedDriver) {
@@ -98,7 +118,7 @@ public class DriverService {
 		return list;
 	}
 
-	public WorkingHourDTO createDriverWorkinghour(Long id, WorkingHourPutDTO whDTO) {
+	public WorkingHourDTO createDriverWorkinghour(Long id, WorkingHourPostDTO whDTO) {
 		
 		Optional<User> driverOpt = userRepo.findUserById(id);
 		if (driverOpt.isEmpty()) 
@@ -111,9 +131,8 @@ public class DriverService {
 		WorkingHour newWorkingHour = new WorkingHour(whDTO.getStart(), driver);
 		workingHourRepo.save(newWorkingHour);
 		workingHourRepo.flush();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-		String startDate = sdf.format(newWorkingHour.getStartTime());
-		String endDate = sdf.format(newWorkingHour.getEndTime());
+		String startDate = formatDate(newWorkingHour.getStartTime());
+		String endDate = formatDate(newWorkingHour.getEndTime());
 		WorkingHourDTO wh = new WorkingHourDTO(newWorkingHour.getId(),startDate,endDate);
 		return wh;
 	}
@@ -135,14 +154,39 @@ public class DriverService {
 		return rides;
 	}
 
-	public WorkingHourDTO changeDriverWorkinghourDetails(Long workinghoursId) {
-		WorkingHourDTO wh = new WorkingHourDTO(1L,"18.11.1991T19:00","19.11.1991T00:00");
+	public WorkingHourDTO changeDriverWorkingHourDetails(Long id, WorkingHourPutDTO dto) {
+		
+		Optional<WorkingHour> hourOpt = workingHourRepo.findWorkingHourById(id);
+		
+		if (hourOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Working hour does not exist!");
+		}
+		
+		WorkingHour hour = hourOpt.get();
+		hour.setEndTime(parseDate(dto.getend()));
+		workingHourRepo.save(hour);
+		workingHourRepo.flush();
+		WorkingHourDTO wh = new WorkingHourDTO(hour.getId(),formatDate(hour.getStartTime()),formatDate(hour.getEndTime()));
 		return wh;
 	}
 
-	public WorkingHourDTO getDriverWorkinghourDetails(Long workinghoursId) {
+	public WorkingHourDTO getDriverWorkingHourDetails(Long workinghoursId) {
 		WorkingHourDTO wh = new WorkingHourDTO(1L,"18.11.1991T19:00","19.11.1991T00:00");
 		return wh;
+	}
+	
+	public Date parseDate (String date) 
+	{
+		Instant instant = Instant.parse(date);
+		Date parsedDate = Date.from(instant);
+		return parsedDate;
+	}
+	
+	public String formatDate (Date date) 
+	{
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		return sdf.format(date);
 	}
 
 }

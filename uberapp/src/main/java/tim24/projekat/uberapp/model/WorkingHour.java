@@ -11,7 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import tim24.projekat.uberapp.DTO.WorkingHourPutDTO;
+import tim24.projekat.uberapp.DTO.WorkingHourPostDTO;
 
 @Table(name = "working_hours")
 @Entity

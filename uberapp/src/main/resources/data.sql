@@ -1,4 +1,4 @@
 insert into users values (1,'adminLand','admin','admin','$2a$10$0Qt1oivg3MLKpwhDosIsmecVSYyjCC4xZNrSX2/tt1WoPMbVl1yVW','admin.jpg','ADMIN','adminic','+admin');
 insert into users values (2,'bulevar','stefanium@mail.com','stefan','$2a$10$0Qt1oivg3MLKpwhDosIsmecVSYyjCC4xZNrSX2/tt1WoPMbVl1yVW','stefan.jpg','USER','stefanic','+3810641234567');
-insert into users values (33,'livade','vlafa@mail.com','vlafimir','$2a$10$0Qt1oivg3MLKpwhDosIsmecVSYyjCC4xZNrSX2/tt1WoPMbVl1yVW','vlafa.jpg','DRIVER','golosin','+3810641234567');
+insert into users values (3,'livade','vlafa@mail.com','vlafimir','$2a$10$0Qt1oivg3MLKpwhDosIsmecVSYyjCC4xZNrSX2/tt1WoPMbVl1yVW','vlafa.jpg','DRIVER','golosin','+3810641234567');
 insert into users values (4,'liman','rxx@mail.com','rxlja','$2a$10$0Qt1oivg3MLKpwhDosIsmecVSYyjCC4xZNrSX2/tt1WoPMbVl1yVW','rxlja.jpg','USER','rad','+3810639734467');

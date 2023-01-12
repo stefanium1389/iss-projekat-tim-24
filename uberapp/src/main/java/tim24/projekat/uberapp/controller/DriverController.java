@@ -31,6 +31,7 @@ import tim24.projekat.uberapp.DTO.UserRequestDTO;
 import tim24.projekat.uberapp.DTO.VehicleDTO;
 import tim24.projekat.uberapp.DTO.VehicleRequestDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourDTO;
+import tim24.projekat.uberapp.DTO.WorkingHourPostDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourPutDTO;
 import tim24.projekat.uberapp.service.DriverService;
 
@@ -134,7 +135,7 @@ public class DriverController {
 	@PostMapping("/{id}/working-hour")
 	public ResponseEntity<WorkingHourDTO> CreateDriverWorkinghours(
 			@PathVariable("id") Long id ,
-			@RequestBody WorkingHourPutDTO whDTO){
+			@RequestBody WorkingHourPostDTO whDTO){
 		WorkingHourDTO wh = driverService.createDriverWorkinghour(id, whDTO);
 		return new ResponseEntity<WorkingHourDTO>(wh, HttpStatus.OK);
 	}
@@ -156,14 +157,15 @@ public class DriverController {
 	@GetMapping("/working-hour/{working-hour-id}")
 	public ResponseEntity<WorkingHourDTO> GetDriverWorkinghoursDetails(
 			@PathVariable("working-hour-id") Long workinghoursId){
-		WorkingHourDTO wh = driverService.getDriverWorkinghourDetails(workinghoursId);
+		WorkingHourDTO wh = driverService.getDriverWorkingHourDetails(workinghoursId);
 		return new ResponseEntity<WorkingHourDTO>(wh, HttpStatus.OK);
 	}
 	
 	@PutMapping("/working-hour/{working-hour-id}")
 	public ResponseEntity<WorkingHourDTO> ChangeDriverWorkinghoursDetails(
-			@PathVariable("working-hour-id") Long workinghoursId){
-		WorkingHourDTO wh = driverService.changeDriverWorkinghourDetails(workinghoursId);
+			@PathVariable("working-hour-id") Long workinghoursId,
+			@RequestBody WorkingHourPutDTO putDTO ){
+		WorkingHourDTO wh = driverService.changeDriverWorkingHourDetails(workinghoursId,putDTO);
 		return new ResponseEntity<WorkingHourDTO>(wh, HttpStatus.OK);
 	}
 	

@@ -1,27 +1,24 @@
 package tim24.projekat.uberapp.DTO;
 
 public class WorkingHourPutDTO {
+	
+	private String end;
 
-	private String start;
-
-	public WorkingHourPutDTO(String start) {
+	public WorkingHourPutDTO(String end) {
 		super();
-		this.start = start;
+		this.end = end;
 	}
 
 	public WorkingHourPutDTO() {
 		super();
 	}
 
-	public String getStart() {
-		return start;
+	public String getend() {
+		return end;
 	}
 
-	public void setStart(String start) {
-		this.start = start;
+	public void setend(String end) {
+		this.end = end;
 	}
-	
-	
-	
-	
+
 }
