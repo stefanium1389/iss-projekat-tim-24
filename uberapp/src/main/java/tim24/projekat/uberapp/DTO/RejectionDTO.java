@@ -1,5 +1,7 @@
 package tim24.projekat.uberapp.DTO;
 
+import tim24.projekat.uberapp.model.Refusal;
+
 public class RejectionDTO {
 
 	private String reason;
@@ -13,6 +15,12 @@ public class RejectionDTO {
 		super();
 		this.reason = reason;
 		this.timeOfRejection = timeOfRejection;
+	}
+
+	public RejectionDTO(Refusal refusal) {
+		super();
+		this.reason = refusal.getReason();
+		this.timeOfRejection = refusal.getTime().toString();
 	}
 
 	public String getReason() {

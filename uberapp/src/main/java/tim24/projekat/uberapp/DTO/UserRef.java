@@ -1,5 +1,7 @@
 package tim24.projekat.uberapp.DTO;
 
+import tim24.projekat.uberapp.model.User;
+
 public class UserRef {
 	
 	private Long id;
@@ -12,6 +14,11 @@ public class UserRef {
 		super();
 		this.id = id;
 		this.email = email;
+	}
+	public UserRef(User user) {
+		super();
+		this.id=user.getId();
+		this.email=user.getEmail();
 	}
 	public Long getId() {
 		return id;

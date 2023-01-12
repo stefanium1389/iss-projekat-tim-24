@@ -4,11 +4,7 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.Date;
-
-enum RideStatus
-{
-    ACTIVE, FINISHED, ACCEPTED, REJECTED, WAITING
-}
+import java.util.List;
 
 @Table(name = "rides")
 @Entity
@@ -20,16 +16,21 @@ public class Ride
     private Long id;
     private Date startTime;
     private Date endTime;
+    
+    @Enumerated(EnumType.STRING)
     private RideStatus status;
+    
     private boolean panic;
     private boolean babyInVehicle;
     private boolean petInVehicle;
+    @OneToOne
+    private Route route;
     @OneToOne
     private User driver;
     @OneToOne
     private Refusal refusal;
     @OneToMany
-    private ArrayList<User> passengers;    
+    private List<User> passengers;    
 
 	public Ride()
 	{
@@ -37,7 +38,7 @@ public class Ride
 	}
 
 	public Ride(Long id, Date startTime, Date endTime, RideStatus status, boolean panic, boolean babyInVehicle,
-			boolean petInVehicle, User driver, Refusal refusal, ArrayList<User> passengers)
+			boolean petInVehicle, User driver, Refusal refusal, List<User> passengers, Route route)
 	{
 		super();
 		this.id = id;
@@ -50,6 +51,7 @@ public class Ride
 		this.driver = driver;
 		this.refusal = refusal;
 		this.passengers = passengers;
+		this.route = route;
 	}
 	
 	public Long getId() {
@@ -106,11 +108,32 @@ public class Ride
 	public void setRefusal(Refusal refusal) {
 		this.refusal = refusal;
 	}
-	public ArrayList<User> getPassengers() {
+	public List<User> getPassengers() {
 		return passengers;
 	}
 	public void setPassengers(ArrayList<User> passengers) {
 		this.passengers = passengers;
+	}
+
+	public int getCost() {
+		return 0;
+	}
+
+	public int getEstimatedTime() {
+		return this.route.getEstimatedTimeInMinutes();
+	}
+
+	public Route getRoute() {
+		return route;
+	}
+
+	public void setRoute(Route route) {
+		this.route = route;
+	}
+
+	public String getVehicleType() {
+		// TODO Auto-generated method stub
+		return null;
 	}
     
 }

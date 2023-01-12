@@ -7,6 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tim24.projekat.uberapp.DTO.PanicDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
+import tim24.projekat.uberapp.DTO.Error;
+import tim24.projekat.uberapp.exception.InvalidRideStatusException;
+import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.service.RideService;
 
 @RestController
@@ -54,10 +57,27 @@ public class RideController
     @PutMapping("/{id}/panic")
     public ResponseEntity<PanicDTO> panicRide(@PathVariable("id") Long id)
     {
+    	rideService.GenerateRide(id);
         PanicDTO panic = rideService.panicRide(id);
         return new ResponseEntity<>(panic, HttpStatus.OK);
     }
-
+    @PutMapping("/{id}/start")
+    public ResponseEntity<?> startRide(@PathVariable("id") Long id)
+    {
+    	try {
+    		RideDTO ride = rideService.startRide(id);
+            return new ResponseEntity<RideDTO>(ride, HttpStatus.OK);
+    	}
+    	catch(ObjectNotFoundException e) {
+    		Error error = new Error(e.getMessage());
+    		return new ResponseEntity<Error>(error, HttpStatus.NOT_FOUND);
+    	}
+    	catch(InvalidRideStatusException e) {
+    		Error error = new Error(e.getMessage());
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    	}
+        
+    }
     @PutMapping("/{id}/accept")
     public ResponseEntity<RideDTO> acceptRide(@PathVariable("id") Long id)
     {

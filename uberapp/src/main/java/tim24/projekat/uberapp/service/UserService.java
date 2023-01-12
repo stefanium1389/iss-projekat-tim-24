@@ -26,7 +26,7 @@ import tim24.projekat.uberapp.DTO.UnregisteredRequestDTO;
 import tim24.projekat.uberapp.DTO.UnregisteredResponseDTO;
 import tim24.projekat.uberapp.DTO.UserRef;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
-import tim24.projekat.uberapp.exception.UserNotFoundException;
+import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.model.User;
 import tim24.projekat.uberapp.repo.UserRepository;
 
@@ -63,11 +63,11 @@ public class UserService {
 	
 	public User findUserById (Long id) 
 	{
-		return UserRepo.findUserById(id).orElseThrow(()-> new UserNotFoundException("leeeel"));
+		return UserRepo.findUserById(id).orElseThrow(()-> new ObjectNotFoundException("leeeel"));
 	}
 	
 	public User findUserByEmail(String email) {
-		return UserRepo.findUserByEmail(email).orElseThrow(()-> new UserNotFoundException("nema me"));
+		return UserRepo.findUserByEmail(email).orElseThrow(()-> new ObjectNotFoundException("nema me"));
 	}
 	
 	public DTOList<RideDTO> getUserRidesById(Long id, int page, int size, String sort, String from, String to) {
@@ -155,18 +155,10 @@ public class UserService {
 		DTOList<UserResponseDTO> dtoList = this.repackUsersToDTO(foundUsers);
 		return dtoList;
 	}
-	
 	private DTOList<UserResponseDTO> repackUsersToDTO(List<User> usersList){
 		DTOList<UserResponseDTO> returnList = new DTOList<UserResponseDTO>();
 		for(User user: usersList) {
-			UserResponseDTO dto = new UserResponseDTO(
-					user.getId(),
-					user.getName(),
-					user.getSurname(),
-					user.getProfilePicture(),
-					user.getTelephoneNumber(),
-					user.getEmail(),
-					user.getAddress());
+			UserResponseDTO dto = new UserResponseDTO(user);
 			returnList.add(dto);
 		}
 		return returnList;
