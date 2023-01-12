@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
@@ -22,11 +23,15 @@ import tim24.projekat.uberapp.model.Ride;
 import tim24.projekat.uberapp.model.RideStatus;
 import tim24.projekat.uberapp.model.Route;
 import tim24.projekat.uberapp.model.User;
+import tim24.projekat.uberapp.model.Vehicle;
+import tim24.projekat.uberapp.model.VehicleType;
 import tim24.projekat.uberapp.repo.LocationRepository;
 import tim24.projekat.uberapp.repo.RefusalRepository;
 import tim24.projekat.uberapp.repo.RideRepository;
 import tim24.projekat.uberapp.repo.RouteRepository;
 import tim24.projekat.uberapp.repo.UserRepository;
+import tim24.projekat.uberapp.repo.VehicleRepository;
+import tim24.projekat.uberapp.repo.VehicleTypeRepository;
 
 @Service
 public class RideService
@@ -41,6 +46,10 @@ public class RideService
 	private LocationRepository locRepo;
 	@Autowired
 	private RefusalRepository refusalRepo;
+	@Autowired
+	private VehicleRepository vehicleRepo;
+	@Autowired
+	private VehicleTypeRepository vehicleTypeRepo;
 
 	public RideDTO postRide()
 	{
@@ -105,6 +114,7 @@ public class RideService
 
 	public RideDTO startRide(Long id) {
 		this.GenerateRide(id);
+		this.GenerateVehicle();
 		
 		Optional<Ride> ride = rideRepo.findById(id);
 		if(ride.isEmpty()) {
@@ -117,7 +127,20 @@ public class RideService
 		actualRide.setStatus(RideStatus.STARTED);
 		rideRepo.save(actualRide);
 		rideRepo.flush();
-		return new RideDTO(actualRide);
+		Vehicle v = vehicleRepo.findVehicleByDriverId(3L).get();
+		RideDTO dto = new RideDTO(actualRide);
+		dto.setVehicleType(v.getVehicleType().getTypeName());
+		return dto;
+	}
+
+	private void GenerateVehicle() {
+		VehicleType type = new VehicleType(1L,"STANDARDNO",200,100);
+		vehicleTypeRepo.save(type);
+		vehicleTypeRepo.flush();
+		Vehicle vehicle = new Vehicle(1L,"NS-069-XD",userRepo.findById(3L).get(),type,4,false,false);
+		vehicleRepo.save(vehicle);
+		vehicleRepo.flush();
+		
 	}
 
 	public void GenerateRide(Long id) {

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Table(name = "rides")
 @Entity
@@ -129,11 +130,6 @@ public class Ride
 
 	public void setRoute(Route route) {
 		this.route = route;
-	}
-
-	public String getVehicleType() {
-		// TODO Auto-generated method stub
-		return null;
 	}
     
 }
