@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface RideRepository extends JpaRepository<Ride, Long>
 {
     Optional<Ride> findRideById(Long id);
+
+	Optional<Ride> findRideByDriverId(Long id);
 }

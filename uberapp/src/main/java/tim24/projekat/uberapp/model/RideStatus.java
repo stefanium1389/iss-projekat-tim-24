@@ -2,5 +2,5 @@ package tim24.projekat.uberapp.model;
 
 public enum RideStatus
 {
-    ACTIVE, FINISHED, ACCEPTED, REJECTED, WAITING, STARTED
+    PENDING, CANCELED, STARTED, ACCEPTED, FINISHED, REJECTED
 }

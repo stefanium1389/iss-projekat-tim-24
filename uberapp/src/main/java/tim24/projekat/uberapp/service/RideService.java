@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
 import tim24.projekat.uberapp.DTO.GeoCoordinateDTO;
@@ -59,15 +57,14 @@ public class RideService
 
 	public RideDTO getDriverRide(Long id)
 	{
-		UserRef driverDto = new UserRef(userRepo.findById(id).get());
-		List<UserRef> passengers = new ArrayList<UserRef>();
-		passengers.add(new UserRef(userRepo.findById(1L).get()));
-		List<RouteDTO> locations = new ArrayList<RouteDTO>();
-		GeoCoordinateDTO loc1 = (new GeoCoordinateDTO("cirpanova",69,69));
-		GeoCoordinateDTO loc2 =(new GeoCoordinateDTO("donjecka",42,42));
-		locations.add(new RouteDTO(loc1,loc2));
-        RideDTO ride = new RideDTO(0L,"2017-07-21T17:32:28Z","2017-07-21T17:32:28Z",500,driverDto,passengers,5,"STANDARDNO",false,false,null,locations,"PENDING");
-		return ride;
+		this.GenerateRide(1L,RideStatus.PENDING);
+		this.GenerateVehicle();
+		Optional<Ride> ride = rideRepo.findRideByDriverId(id);
+		if(ride.isEmpty()) {
+			throw new ObjectNotFoundException("Ride does not exist!");
+		}
+		RideDTO dto = new RideDTO(ride.get());
+		return dto;
 	}
 
 	public RideDTO getPassengerRide(Long id)
@@ -113,8 +110,8 @@ public class RideService
 	}
 
 	public RideDTO startRide(Long id) {
-		this.GenerateRide(id);
-		this.GenerateVehicle();
+		this.GenerateRide(id,RideStatus.ACCEPTED); 	//generating valid ride because we have none in database, delete later
+		this.GenerateVehicle();						//same for vehicle
 		
 		Optional<Ride> ride = rideRepo.findById(id);
 		if(ride.isEmpty()) {
@@ -127,9 +124,12 @@ public class RideService
 		actualRide.setStatus(RideStatus.STARTED);
 		rideRepo.save(actualRide);
 		rideRepo.flush();
-		Vehicle v = vehicleRepo.findVehicleByDriverId(3L).get();
+		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(3L);
+		if(v.isEmpty()) {
+			throw new ObjectNotFoundException("Vehicle does not exist!");
+		}
 		RideDTO dto = new RideDTO(actualRide);
-		dto.setVehicleType(v.getVehicleType().getTypeName());
+		dto.setVehicleType(v.get().getVehicleType().getTypeName());
 		return dto;
 	}
 
@@ -140,10 +140,9 @@ public class RideService
 		Vehicle vehicle = new Vehicle(1L,"NS-069-XD",userRepo.findById(3L).get(),type,4,false,false);
 		vehicleRepo.save(vehicle);
 		vehicleRepo.flush();
-		
 	}
 
-	public void GenerateRide(Long id) {
+	public void GenerateRide(Long rideId, RideStatus status) {
 		Optional<User> driver = userRepo.findById(3L);
 		List<User> passengers = new ArrayList<User>();
 		passengers.add(userRepo.findById(2L).get());
@@ -159,9 +158,8 @@ public class RideService
 		Refusal refusal = new Refusal(1L,"iks de",new Date(System.currentTimeMillis()),driver.get());
 		refusalRepo.save(refusal);
 		refusalRepo.flush();
-		Ride ride = new Ride(id,new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()+690000),RideStatus.ACCEPTED,false,false,false,driver.get(),refusal,passengers,route);
+		Ride ride = new Ride(rideId,new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()+690000),status,false,false,false,driver.get(),refusal,passengers,route);
 		rideRepo.save(ride);
 		rideRepo.flush();
-		
 	}
 }

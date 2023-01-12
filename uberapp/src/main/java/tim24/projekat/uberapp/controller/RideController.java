@@ -57,7 +57,6 @@ public class RideController
     @PutMapping("/{id}/panic")
     public ResponseEntity<PanicDTO> panicRide(@PathVariable("id") Long id)
     {
-    	rideService.GenerateRide(id);
         PanicDTO panic = rideService.panicRide(id);
         return new ResponseEntity<>(panic, HttpStatus.OK);
     }
