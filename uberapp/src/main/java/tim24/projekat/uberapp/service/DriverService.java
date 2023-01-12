@@ -1,7 +1,9 @@
 package tim24.projekat.uberapp.service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,13 +21,21 @@ import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.DTO.VehicleDTO;
 import tim24.projekat.uberapp.DTO.VehicleRequestDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourDTO;
+import tim24.projekat.uberapp.DTO.WorkingHourPutDTO;
+import tim24.projekat.uberapp.exception.ObjectNotFoundException;
+import tim24.projekat.uberapp.model.User;
+import tim24.projekat.uberapp.model.WorkingHour;
 import tim24.projekat.uberapp.repo.UserRepository;
+import tim24.projekat.uberapp.repo.WorkingHourRepo;
 
 @Service
 public class DriverService {
 	
 	@Autowired
 	private UserRepository userRepo;
+	
+	@Autowired
+	private WorkingHourRepo workingHourRepo;
 
 	public UserResponseDTO createDriver(UserRequestDTO newDriver) {
 		return new UserResponseDTO(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
@@ -88,8 +98,23 @@ public class DriverService {
 		return list;
 	}
 
-	public WorkingHourDTO createDriverWorkinghour(Long id) {
-		WorkingHourDTO wh = new WorkingHourDTO(1L,"18.11.1991T19:00","19.11.1991T00:00");
+	public WorkingHourDTO createDriverWorkinghour(Long id, WorkingHourPutDTO whDTO) {
+		
+		Optional<User> driverOpt = userRepo.findUserById(id);
+		if (driverOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Driver does not exist!");
+		}
+		
+		User driver = driverOpt.get();
+		
+		WorkingHour newWorkingHour = new WorkingHour(whDTO.getStart(), driver);
+		workingHourRepo.save(newWorkingHour);
+		workingHourRepo.flush();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		String startDate = sdf.format(newWorkingHour.getStartTime());
+		String endDate = sdf.format(newWorkingHour.getEndTime());
+		WorkingHourDTO wh = new WorkingHourDTO(newWorkingHour.getId(),startDate,endDate);
 		return wh;
 	}
 

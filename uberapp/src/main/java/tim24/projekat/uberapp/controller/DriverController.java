@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,6 +31,7 @@ import tim24.projekat.uberapp.DTO.UserRequestDTO;
 import tim24.projekat.uberapp.DTO.VehicleDTO;
 import tim24.projekat.uberapp.DTO.VehicleRequestDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourDTO;
+import tim24.projekat.uberapp.DTO.WorkingHourPutDTO;
 import tim24.projekat.uberapp.service.DriverService;
 
 
@@ -115,6 +117,7 @@ public class DriverController {
 		return new ResponseEntity<VehicleDTO>(v, HttpStatus.OK);
 	}
 	
+	
 	@GetMapping("/{id}/working-hour")
 	public ResponseEntity<DTOList<WorkingHourDTO>> GetDriverWorkinghours(
 			@PathVariable("id") Long id, 
@@ -127,10 +130,12 @@ public class DriverController {
 		
 		return new ResponseEntity<DTOList<WorkingHourDTO>>(list, HttpStatus.OK);
 	}
+	
 	@PostMapping("/{id}/working-hour")
 	public ResponseEntity<WorkingHourDTO> CreateDriverWorkinghours(
-			@PathVariable("id") Long id){
-		WorkingHourDTO wh = driverService.createDriverWorkinghour(id);
+			@PathVariable("id") Long id ,
+			@RequestBody WorkingHourPutDTO whDTO){
+		WorkingHourDTO wh = driverService.createDriverWorkinghour(id, whDTO);
 		return new ResponseEntity<WorkingHourDTO>(wh, HttpStatus.OK);
 	}
 	
