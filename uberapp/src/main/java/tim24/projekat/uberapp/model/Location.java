@@ -12,4 +12,36 @@ public class Location
     private Long id;
     private double geoWidth;
     private double geoHeight;
+	public Location() {
+		super();
+	}
+	public Location(Long id, double geoWidth, double geoHeight) {
+		super();
+		this.id = id;
+		this.geoWidth = geoWidth;
+		this.geoHeight = geoHeight;
+	}
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
+	public double getGeoWidth() {
+		return geoWidth;
+	}
+	public void setGeoWidth(double geoWidth) {
+		this.geoWidth = geoWidth;
+	}
+	public double getGeoHeight() {
+		return geoHeight;
+	}
+	public void setGeoHeight(double geoHeight) {
+		this.geoHeight = geoHeight;
+	}
+	public String getAddress() {
+		// TODO Auto-generated method stub
+		return "djole";
+	}
+    
 }

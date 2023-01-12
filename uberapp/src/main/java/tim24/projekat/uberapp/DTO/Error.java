@@ -1,19 +1,19 @@
 package tim24.projekat.uberapp.DTO;
 
 public class Error {
-	private String poruka;
+	private String message;
 
-	public Error(String poruka) {
+	public Error(String message) {
 		super();
-		this.poruka = poruka;
+		this.message = message;
 	}
 
-	public String getPoruka() {
-		return poruka;
+	public String getMessage() {
+		return message;
 	}
 
-	public void setPoruka(String poruka) {
-		this.poruka = poruka;
+	public void setMessage(String message) {
+		this.message = message;
 	}
 	
 }
