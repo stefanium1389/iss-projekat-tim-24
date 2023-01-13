@@ -131,5 +131,12 @@ public class Ride
 	public void setRoute(Route route) {
 		this.route = route;
 	}
+
+	public boolean isActive() {
+		if(this.status==RideStatus.PENDING || this.status==RideStatus.ACCEPTED || this.status==RideStatus.STARTED) {
+			return true;
+		}
+		return false;
+	}
     
 }
