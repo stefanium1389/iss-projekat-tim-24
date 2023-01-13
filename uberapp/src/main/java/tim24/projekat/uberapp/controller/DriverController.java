@@ -132,6 +132,15 @@ public class DriverController {
 		return new ResponseEntity<DTOList<WorkingHourDTO>>(list, HttpStatus.OK);
 	}
 	
+	@GetMapping("/{id}/last-active-working-hour")
+	public ResponseEntity<DTOList<WorkingHourDTO>> GetLastDriverWorkinghour(
+			@PathVariable("id") Long id)
+	{
+		DTOList<WorkingHourDTO> list = driverService.getLastActiveDriverWorkinghour(id);
+		
+		return new ResponseEntity<DTOList<WorkingHourDTO>>(list, HttpStatus.OK);
+	}
+	
 	@PostMapping("/{id}/working-hour")
 	public ResponseEntity<WorkingHourDTO> CreateDriverWorkinghours(
 			@PathVariable("id") Long id ,

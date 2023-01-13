@@ -117,6 +117,29 @@ public class DriverService {
 		list.add(wh);
 		return list;
 	}
+	
+	public DTOList<WorkingHourDTO> getLastActiveDriverWorkinghour(Long id) {
+		DTOList<WorkingHourDTO> list = new DTOList<WorkingHourDTO>();
+		
+		Optional<User> driverOpt = userRepo.findUserById(id);
+		if (driverOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("There is no driver by the given id!");
+		}
+		
+		Optional<WorkingHour> whOpt = workingHourRepo.findLastWorkingHourByDriverId(id);
+		if (whOpt.isEmpty()) 
+		{
+			return list;
+		}
+		
+		WorkingHour wh = whOpt.get();
+		String startTime = formatDate(wh.getStartTime());
+		String endTime = formatDate(wh.getEndTime());
+		WorkingHourDTO dto = new WorkingHourDTO(wh.getId(),startTime, endTime);
+		list.add(dto);
+		return list;
+	}
 
 	public WorkingHourDTO createDriverWorkinghour(Long id, WorkingHourPostDTO whDTO) {
 		
