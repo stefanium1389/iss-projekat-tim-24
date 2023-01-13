@@ -1,13 +1,10 @@
 package tim24.projekat.uberapp.controller;
 
 import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,18 +18,17 @@ import org.springframework.web.bind.annotation.RestController;
 import tim24.projekat.uberapp.DTO.DriverDocumentDTO;
 import tim24.projekat.uberapp.DTO.DriverDocumentRequestDTO;
 import tim24.projekat.uberapp.DTO.DTOList;
-import tim24.projekat.uberapp.DTO.GeoCoordinateDTO;
-import tim24.projekat.uberapp.DTO.RejectionDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
-import tim24.projekat.uberapp.DTO.RouteDTO;
+import tim24.projekat.uberapp.DTO.Error;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
-import tim24.projekat.uberapp.DTO.UserRef;
 import tim24.projekat.uberapp.DTO.UserRequestDTO;
 import tim24.projekat.uberapp.DTO.VehicleDTO;
 import tim24.projekat.uberapp.DTO.VehicleRequestDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourPostDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourPutDTO;
+import tim24.projekat.uberapp.exception.ObjectAlreadyPresentException;
+import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.service.DriverService;
 
 
@@ -118,9 +114,24 @@ public class DriverController {
 		return new ResponseEntity<VehicleDTO>(v, HttpStatus.OK);
 	}
 	
-	
+	/* @PutMapping("/{id}/withdraw")
+    public ResponseEntity<?> withdrawRide(@PathVariable("id") Long id)
+    {
+    	try {
+    		RideDTO ride = rideService.withdrawRide(id);
+            return new ResponseEntity<RideDTO>(ride, HttpStatus.OK);
+    	}
+    	catch(ObjectNotFoundException e) {
+    		Error error = new Error(e.getMessage());
+    		return new ResponseEntity<Error>(error, HttpStatus.NOT_FOUND);
+    	}
+    	catch(InvalidRideStatusException e) {
+    		Error error = new Error(e.getMessage());
+    		return new ResponseEntity<Error>(error, HttpStatus.BAD_REQUEST);
+    	}
+    }*/
 	@GetMapping("/{id}/working-hour")
-	public ResponseEntity<DTOList<WorkingHourDTO>> GetDriverWorkinghours(
+	public ResponseEntity<?> GetDriverWorkinghours(
 			@PathVariable("id") Long id, 
 			@RequestParam("page") int page, 
 			@RequestParam("size") int size,
@@ -142,11 +153,22 @@ public class DriverController {
 	}
 	
 	@PostMapping("/{id}/working-hour")
-	public ResponseEntity<WorkingHourDTO> CreateDriverWorkinghours(
+	public ResponseEntity<?> CreateDriverWorkinghours(
 			@PathVariable("id") Long id ,
 			@RequestBody WorkingHourPostDTO whDTO){
-		WorkingHourDTO wh = driverService.createDriverWorkinghour(id, whDTO);
-		return new ResponseEntity<WorkingHourDTO>(wh, HttpStatus.OK);
+		try {
+			WorkingHourDTO wh = driverService.createDriverWorkinghour(id, whDTO);
+			return new ResponseEntity<WorkingHourDTO>(wh, HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e) {
+    		Error error = new Error(e.getMessage());
+    		return new ResponseEntity<Error>(error, HttpStatus.NOT_FOUND);
+    	}
+		catch(ObjectAlreadyPresentException e) {
+    		Error error = new Error(e.getMessage());
+    		return new ResponseEntity<Error>(error, HttpStatus.BAD_REQUEST);
+    	}
+		
 	}
 	
 	@GetMapping("/{id}/ride")
@@ -171,11 +193,17 @@ public class DriverController {
 	}
 	
 	@PutMapping("/working-hour/{working-hour-id}")
-	public ResponseEntity<WorkingHourDTO> ChangeDriverWorkinghoursDetails(
+	public ResponseEntity<?> ChangeDriverWorkinghoursDetails(
 			@PathVariable("working-hour-id") Long workinghoursId,
 			@RequestBody WorkingHourPutDTO putDTO ){
-		WorkingHourDTO wh = driverService.changeDriverWorkingHourDetails(workinghoursId,putDTO);
-		return new ResponseEntity<WorkingHourDTO>(wh, HttpStatus.OK);
+		try {
+			WorkingHourDTO wh = driverService.changeDriverWorkingHourDetails(workinghoursId,putDTO);
+			return new ResponseEntity<WorkingHourDTO>(wh, HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e) {
+    		Error error = new Error(e.getMessage());
+    		return new ResponseEntity<Error>(error, HttpStatus.NOT_FOUND);
+    	}
 	}
 	
 }

@@ -149,6 +149,15 @@ public class DriverService {
 			throw new ObjectNotFoundException("Driver does not exist!");
 		}
 		
+		Optional<WorkingHour> alreadyOpt = workingHourRepo.findLastWorkingHourByDriverId(id);
+		
+		if (alreadyOpt.isPresent()) 
+		{
+			throw new ObjectNotFoundException("Working hour has already started!");
+		}
+		
+		//fali cant start because 8hr provera
+		
 		User driver = driverOpt.get();
 		
 		WorkingHour newWorkingHour = new WorkingHour(whDTO.getStart(), driver);
