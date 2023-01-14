@@ -160,6 +160,20 @@ public class DriverController {
 		
 	}
 	
+	@GetMapping("/{id}/working-hours-of-last-24h")
+	public ResponseEntity<?> CreateDriverWorkinghours(
+			@PathVariable("id") Long id){
+		try {
+			String duration = driverService.getDriverActiveHoursInLast24h(id);
+			return new ResponseEntity<String>(duration, HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e) {
+    		Error error = new Error(e.getMessage());
+    		return new ResponseEntity<Error>(error, HttpStatus.NOT_FOUND);
+    	}
+		
+	}
+	
 	@GetMapping("/{id}/ride")
 	public ResponseEntity<DTOList<RideDTO>> GetDriverRides(
 			@PathVariable("id") Long id,

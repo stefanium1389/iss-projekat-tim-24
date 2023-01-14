@@ -123,7 +123,7 @@ public class DriverService {
 	public DTOList<WorkingHourDTO> getLastActiveDriverWorkinghour(Long id) {
 		DTOList<WorkingHourDTO> list = new DTOList<WorkingHourDTO>();
 		
-		Optional<User> driverOpt = userRepo.findUserById(id);
+		Optional<User> driverOpt = userRepo.findByIdAndRole(id, Role.DRIVER);
 		if (driverOpt.isEmpty()) 
 		{
 			throw new ObjectNotFoundException("There is no driver by the given id!");
@@ -146,7 +146,7 @@ public class DriverService {
 	public WorkingHourDTO createDriverWorkinghour(Long id, WorkingHourPostDTO whDTO) {
 		
 		//provera da li postoji driver
-		Optional<User> driverOpt = userRepo.findUserById(id);
+		Optional<User> driverOpt = userRepo.findByIdAndRole(id, Role.DRIVER);
 		if (driverOpt.isEmpty()) 
 		{
 			throw new ObjectNotFoundException("Driver does not exist!");
@@ -162,10 +162,7 @@ public class DriverService {
 		
 		//provera da li je vozač premašio 8h
 		Duration todaysDuration = getDurationOfTodaysWorkByDriverId(id);
-		long totalDurationSeconds = todaysDuration.getSeconds();
-		long totalDurationMinutes = totalDurationSeconds / 60;
-		long totalDurationHours = totalDurationMinutes / 60;
-		long remainingMinutes = totalDurationMinutes % 60;
+		long totalDurationHours = todaysDuration.toHours();
 		
 		if (totalDurationHours >= 8)
 		{
@@ -236,6 +233,7 @@ public class DriverService {
 		return sdf.format(date);
 	}
 	
+	
 	public Duration getDurationOfTodaysWorkByDriverId(Long driverId) {
 		Date dayAgo = new Date(System.currentTimeMillis() - (24 * 60 * 60 * 1000));
 	    List<WorkingHour> workingHours = workingHourRepo.findAllByDriverIdAndStartedInLast24Hours(driverId, dayAgo);
@@ -248,6 +246,21 @@ public class DriverService {
 	        totalDuration = totalDuration.plus(duration);
 	    }
 	    return totalDuration;
+	}
+
+	public String getDriverActiveHoursInLast24h(Long id) {
+		
+		//provera da li postoji driver
+		Optional<User> driverOpt = userRepo.findByIdAndRole(id, Role.DRIVER);
+		if (driverOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Driver does not exist!");
+		}
+		
+		Duration todaysDuration = getDurationOfTodaysWorkByDriverId(id);
+		long totalDurationHours = todaysDuration.toHours();
+		long remainingMinutes = todaysDuration.toMinutesPart();
+		return totalDurationHours + " hours " + remainingMinutes +" minutes ";
 	}
 
 }
