@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import tim24.projekat.uberapp.DTO.DriverDocumentDTO;
 import tim24.projekat.uberapp.DTO.DriverDocumentRequestDTO;
+import tim24.projekat.uberapp.DTO.DurationDTO;
 import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.RideDTO;
 import tim24.projekat.uberapp.DTO.Error;
@@ -165,13 +166,13 @@ public class DriverController {
 			@PathVariable("id") Long id){
 		try {
 			String duration = driverService.getDriverActiveHoursInLast24h(id);
-			return new ResponseEntity<String>(duration, HttpStatus.OK);
+			DurationDTO durationDTO = new DurationDTO(duration);
+			return new ResponseEntity<DurationDTO>(durationDTO, HttpStatus.OK);
 		}
 		catch(ObjectNotFoundException e) {
     		Error error = new Error(e.getMessage());
     		return new ResponseEntity<Error>(error, HttpStatus.NOT_FOUND);
     	}
-		
 	}
 	
 	@GetMapping("/{id}/ride")
