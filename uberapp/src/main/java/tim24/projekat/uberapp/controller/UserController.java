@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import tim24.projekat.uberapp.DTO.DTOList;
+import tim24.projekat.uberapp.DTO.ErrorDTO;
 import tim24.projekat.uberapp.DTO.LoginRequestDTO;
 import tim24.projekat.uberapp.DTO.LoginResponseDTO;
 import tim24.projekat.uberapp.DTO.MessageDTO;
@@ -49,8 +51,9 @@ public class UserController {
 	private JwtTokenUtil jwtTokenUtil;
 	
 	@PostMapping ("user/login")
-	public ResponseEntity<LoginResponseDTO> postLogin (@RequestBody LoginRequestDTO loginRequestDTO)
+	public ResponseEntity<?> postLogin (@RequestBody LoginRequestDTO loginRequestDTO)
 	{
+		try {
 		UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(loginRequestDTO.getEmail(),
 				loginRequestDTO.getPassword());
 		Authentication auth = authenticationManager.authenticate(authReq);
@@ -63,8 +66,16 @@ public class UserController {
 		LoginResponseDTO response = new LoginResponseDTO(token, refreshToken);
 		
 //		LoginResponseDTO response = userService.postLogin(loginRequestDTO);
-		return new ResponseEntity<>(response,HttpStatus.OK);
+		
+		return new ResponseEntity<LoginResponseDTO>(response,HttpStatus.OK);
+		}
+		catch(AuthenticationException e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error,HttpStatus.BAD_REQUEST);
+			
+		}
 	}
+	
 	
 	//			GET
 	

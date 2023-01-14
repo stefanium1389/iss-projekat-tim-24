@@ -11,25 +11,23 @@ import org.springframework.stereotype.Service;
 import tim24.projekat.uberapp.DTO.GeoCoordinateDTO;
 import tim24.projekat.uberapp.DTO.PanicDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
+import tim24.projekat.uberapp.DTO.RideRequestDTO;
 import tim24.projekat.uberapp.DTO.RouteDTO;
 import tim24.projekat.uberapp.DTO.UserRef;
+import tim24.projekat.uberapp.exception.ActiveUserRideException;
 import tim24.projekat.uberapp.exception.InvalidRideStatusException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.model.Location;
-import tim24.projekat.uberapp.model.Refusal;
 import tim24.projekat.uberapp.model.Ride;
 import tim24.projekat.uberapp.model.RideStatus;
 import tim24.projekat.uberapp.model.Route;
 import tim24.projekat.uberapp.model.User;
 import tim24.projekat.uberapp.model.Vehicle;
-import tim24.projekat.uberapp.model.VehicleType;
 import tim24.projekat.uberapp.repo.LocationRepository;
-import tim24.projekat.uberapp.repo.RefusalRepository;
 import tim24.projekat.uberapp.repo.RideRepository;
 import tim24.projekat.uberapp.repo.RouteRepository;
 import tim24.projekat.uberapp.repo.UserRepository;
 import tim24.projekat.uberapp.repo.VehicleRepository;
-import tim24.projekat.uberapp.repo.VehicleTypeRepository;
 
 @Service
 public class RideService
@@ -37,52 +35,128 @@ public class RideService
 	@Autowired
 	private RideRepository rideRepo;
 	@Autowired
-	private UserRepository userRepo;
+	private VehicleRepository vehicleRepo;
+	@Autowired
+	private LocationRepository locationRepo;
 	@Autowired
 	private RouteRepository routeRepo;
 	@Autowired
-	private LocationRepository locRepo;
-	@Autowired
-	private RefusalRepository refusalRepo;
-	@Autowired
-	private VehicleRepository vehicleRepo;
-	@Autowired
-	private VehicleTypeRepository vehicleTypeRepo;
-
-	public RideDTO postRide()
+	private UserRepository userRepo;
+	
+	public RideDTO postRide(RideRequestDTO rideRequestDTO)
 	{
-		RideDTO ride = new RideDTO();
-		return ride;
+		Ride ride = new Ride();
+		List<User> passengers = new ArrayList<User>();
+		for(UserRef passengerDTO : rideRequestDTO.getPassengers()) {
+			Optional<User> passenger = userRepo.findUserByEmail(passengerDTO.getEmail());
+			if(passenger.isEmpty()) {
+				throw new ObjectNotFoundException("Putnik ne postoji u bazi! "+passengerDTO.getEmail());
+			}
+			if(rideRepo.findActiveRideByPassengerId(passenger.get().getId()).isPresent()) {
+				throw new ActiveUserRideException("Putnik "+passenger.get().getEmail()+" je vec u aktivnoj voznji");
+			}
+			passengers.add(passenger.get());
+		}
+		if(passengers.size() < 1) {
+			throw new ObjectNotFoundException("Ne mozete zapoceti voznju bez putnika!");
+		}
+		ride.setPassengers(passengers);
+		try {
+			RouteDTO routeDto = rideRequestDTO.getLocations().get(0);
+			GeoCoordinateDTO dep = routeDto.getDeparture();
+			GeoCoordinateDTO dest = routeDto.getDestination();
+			Location departure = new Location();
+			departure.setGeoHeight(dep.getLatitude());
+			departure.setGeoWidth(dep.getLongitude());
+			Location destination = new Location();
+			destination.setGeoHeight(dest.getLatitude());
+			destination.setGeoWidth(dest.getLongitude());
+			locationRepo.save(departure);
+			locationRepo.save(destination);
+			locationRepo.flush();
+			Route route = new Route();
+			route.setStartLocation(departure);
+			route.setEndLocation(destination);
+			routeRepo.save(route);
+			routeRepo.flush();
+			ride.setRoute(route);
+		}
+		catch(RuntimeException e){
+			throw new RuntimeException("Neodgovarajuce lokacije u rideRequestDTO!");
+		}
+		ride.setStartTime(new Date(System.currentTimeMillis()));
+		ride.setEndTime(new Date(System.currentTimeMillis()));
+		ride.setBabyInVehicle(rideRequestDTO.isBabyTransport());
+		ride.setPetInVehicle(rideRequestDTO.isPetTransport());
+		ride.setStatus(RideStatus.PENDING);
+		
+		ride.setDriver(null); //ODRADITI ALGORITAM ZA ODREDJIVANJE VOZACA!
+		
+		rideRepo.save(ride);
+		rideRepo.flush();
+		
+		
+		RideDTO dto = new RideDTO(ride);
+		dto.setVehicleType(rideRequestDTO.getVehicleType());
+		return dto;
 	}
 
 	public RideDTO getDriverRide(Long id)
 	{
-		this.GenerateRide(1L,RideStatus.PENDING);
-		this.GenerateVehicle();
-		Optional<Ride> ride = rideRepo.findRideByDriverId(id);
+		Optional<Ride> ride = rideRepo.findActiveRideByDriverId(id);
 		if(ride.isEmpty()) {
 			throw new ObjectNotFoundException("Ride does not exist!");
 		}
 		RideDTO dto = new RideDTO(ride.get());
+		dto.setVehicleType(vehicleRepo.findVehicleByDriverId(ride.get().getDriver().getId()).get().getVehicleType().getTypeName());
 		return dto;
 	}
 
 	public RideDTO getPassengerRide(Long id)
 	{
-		RideDTO ride = new RideDTO();
-		return ride;
+		Optional<Ride> ride = rideRepo.findActiveRideByPassengerId(id);
+		if(ride.isEmpty()) {
+			throw new ObjectNotFoundException("Ride does not exist!");
+		}
+		if(!ride.get().isActive()) {
+			throw new ObjectNotFoundException("Active ride not found!");
+		}
+		RideDTO dto = new RideDTO(ride.get());
+		dto.setVehicleType(vehicleRepo.findVehicleByDriverId(ride.get().getDriver().getId()).get().getVehicleType().getTypeName());
+		return dto;
 	}
 
-	public RideDTO getRides(Long id)
+	public RideDTO getRide(Long id)
 	{
-		RideDTO ride = new RideDTO();
-		return ride;
+		Optional<Ride> ride = rideRepo.findRideByPassengersId(id);
+		if(ride.isEmpty()) {
+			throw new ObjectNotFoundException("Ride does not exist!");
+		}
+		RideDTO dto = new RideDTO(ride.get());
+		dto.setVehicleType(vehicleRepo.findVehicleByDriverId(ride.get().getDriver().getId()).get().getVehicleType().getTypeName());
+		return dto;
 	}
 
-	public RideDTO withdrawRide(Long id)
+	public RideDTO withdrawRide(Long id) //putnik ubija voznju
 	{
-		RideDTO ride = new RideDTO();
-		return ride;
+		Optional<Ride> ride = rideRepo.findById(id);
+		if(ride.isEmpty()) {
+			throw new ObjectNotFoundException("Ride does not exist!");
+		}
+		if(ride.get().getStatus() != RideStatus.PENDING || ride.get().getStatus() != RideStatus.STARTED) {
+			throw new InvalidRideStatusException("Cannot cancel a ride that is not in status PENDING or STARTED!");
+		}
+		Ride actualRide = ride.get();
+		actualRide.setStatus(RideStatus.CANCELED);
+		rideRepo.save(actualRide);
+		rideRepo.flush();
+		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(3L);
+		if(v.isEmpty()) {
+			throw new ObjectNotFoundException("Vehicle does not exist!");
+		}
+		RideDTO dto = new RideDTO(actualRide);
+		dto.setVehicleType(v.get().getVehicleType().getTypeName());
+		return dto;
 	}
 
 	public PanicDTO panicRide(Long id)
@@ -93,25 +167,74 @@ public class RideService
 
 	public RideDTO acceptRide(Long id)
 	{
-		RideDTO ride = new RideDTO();
-		return ride;
+		Optional<Ride> ride = rideRepo.findById(id);
+		if(ride.isEmpty()) {
+			throw new ObjectNotFoundException("Ride does not exist!");
+		}
+		if(ride.get().getStatus() != RideStatus.PENDING) {
+			throw new InvalidRideStatusException("Cannot accept a ride that is not in status PENDING!");
+		}
+		Ride actualRide = ride.get();
+		actualRide.setStatus(RideStatus.ACCEPTED);
+		rideRepo.save(actualRide);
+		rideRepo.flush();
+		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(3L);
+		if(v.isEmpty()) {
+			throw new ObjectNotFoundException("Vehicle does not exist!");
+		}
+		RideDTO dto = new RideDTO(actualRide);
+		dto.setVehicleType(v.get().getVehicleType().getTypeName());
+		return dto;
 	}
 
 	public RideDTO endRide(Long id)
 	{
-		 RideDTO ride = new RideDTO();
-		 return ride;
+		Optional<Ride> ride = rideRepo.findById(id);
+		if(ride.isEmpty()) {
+			throw new ObjectNotFoundException("Ride does not exist!");
+		}
+		if(ride.get().getStatus() != RideStatus.STARTED) {
+			throw new InvalidRideStatusException("Cannot end a ride that is not in status STARTED!");
+		}
+		Ride actualRide = ride.get();
+		actualRide.setEndTime(new Date(System.currentTimeMillis()));
+		actualRide.setStatus(RideStatus.FINISHED);
+		rideRepo.save(actualRide);
+		rideRepo.flush();
+		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(3L);
+		if(v.isEmpty()) {
+			throw new ObjectNotFoundException("Vehicle does not exist!");
+		}
+		RideDTO dto = new RideDTO(actualRide);
+		dto.setVehicleType(v.get().getVehicleType().getTypeName());
+		return dto;
 	}
 
-	public RideDTO cancelRide(Long id)
+	public RideDTO cancelRide(Long id) //driver ubija voznju
 	{
-		RideDTO ride = new RideDTO();
-		return ride;
+		Optional<Ride> ride = rideRepo.findById(id);
+		if(ride.isEmpty()) {
+			throw new ObjectNotFoundException("Ride does not exist!");
+		}
+		if(ride.get().getStatus() != RideStatus.PENDING) {
+			throw new InvalidRideStatusException("Cannot cancel a ride that is not in status PENDING!");
+		}
+		Ride actualRide = ride.get();
+		actualRide.setStatus(RideStatus.REJECTED);
+		rideRepo.save(actualRide);
+		rideRepo.flush();
+		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(3L);
+		if(v.isEmpty()) {
+			throw new ObjectNotFoundException("Vehicle does not exist!");
+		}
+		RideDTO dto = new RideDTO(actualRide);
+		dto.setVehicleType(v.get().getVehicleType().getTypeName());
+		return dto;
 	}
 
 	public RideDTO startRide(Long id) {
-		this.GenerateRide(id,RideStatus.ACCEPTED); 	//generating valid ride because we have none in database, delete later
-		this.GenerateVehicle();						//same for vehicle
+		//this.GenerateRide(id,RideStatus.ACCEPTED); 	//generating valid ride because we have none in database, delete later
+		//this.GenerateVehicle();						//same for vehicle
 		
 		Optional<Ride> ride = rideRepo.findById(id);
 		if(ride.isEmpty()) {
@@ -121,6 +244,7 @@ public class RideService
 			throw new InvalidRideStatusException("Cannot start a ride that is not in status ACCEPTED!");
 		}
 		Ride actualRide = ride.get();
+		actualRide.setStartTime(new Date(System.currentTimeMillis()));
 		actualRide.setStatus(RideStatus.STARTED);
 		rideRepo.save(actualRide);
 		rideRepo.flush();
@@ -133,33 +257,33 @@ public class RideService
 		return dto;
 	}
 
-	private void GenerateVehicle() {
-		VehicleType type = new VehicleType(1L,"STANDARDNO",200,100);
-		vehicleTypeRepo.save(type);
-		vehicleTypeRepo.flush();
-		Vehicle vehicle = new Vehicle(1L,"NS-069-XD",userRepo.findById(3L).get(),type,4,false,false);
-		vehicleRepo.save(vehicle);
-		vehicleRepo.flush();
-	}
+//	private void GenerateVehicle() {
+//		VehicleType type = new VehicleType(1L,"STANDARDNO",200,100);
+//		vehicleTypeRepo.save(type);
+//		vehicleTypeRepo.flush();
+//		Vehicle vehicle = new Vehicle(1L,"NS-069-XD",userRepo.findById(3L).get(),type,4,false,false);
+//		vehicleRepo.save(vehicle);
+//		vehicleRepo.flush();
+//	}
 
-	public void GenerateRide(Long rideId, RideStatus status) {
-		Optional<User> driver = userRepo.findById(3L);
-		List<User> passengers = new ArrayList<User>();
-		passengers.add(userRepo.findById(2L).get());
-		passengers.add(userRepo.findById(4L).get());
-		Location dep = new Location(1L,69.42,69.42);
-		Location dest = new Location(2L,42.69,42.69);
-		locRepo.save(dep);
-		locRepo.save(dest);
-		locRepo.flush();
-		Route route = new Route(1L, 5.5, 11, dep, dest);
-		routeRepo.save(route);
-		routeRepo.flush();
-		Refusal refusal = new Refusal(1L,"iks de",new Date(System.currentTimeMillis()),driver.get());
-		refusalRepo.save(refusal);
-		refusalRepo.flush();
-		Ride ride = new Ride(rideId,new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()+690000),status,false,false,false,driver.get(),refusal,passengers,route);
-		rideRepo.save(ride);
-		rideRepo.flush();
-	}
+//	public void GenerateRide(Long rideId, RideStatus status) {
+//		Optional<User> driver = userRepo.findById(3L);
+//		List<User> passengers = new ArrayList<User>();
+//		passengers.add(userRepo.findById(2L).get());
+//		passengers.add(userRepo.findById(4L).get());
+//		Location dep = new Location(1L,69.42,69.42);
+//		Location dest = new Location(2L,42.69,42.69);
+//		locRepo.save(dep);
+//		locRepo.save(dest);
+//		locRepo.flush();
+//		Route route = new Route(1L, 5.5, 11, dep, dest);
+//		routeRepo.save(route);
+//		routeRepo.flush();
+//		Refusal refusal = new Refusal(1L,"iks de",new Date(System.currentTimeMillis()),driver.get());
+//		refusalRepo.save(refusal);
+//		refusalRepo.flush();
+//		Ride ride = new Ride(rideId,new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()+690000),status,false,false,false,driver.get(),refusal,passengers,route);
+//		rideRepo.save(ride);
+//		rideRepo.flush();
+//	}
 }
