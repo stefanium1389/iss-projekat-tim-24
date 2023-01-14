@@ -1,6 +1,7 @@
 package tim24.projekat.uberapp.service;
 
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,6 +26,7 @@ import tim24.projekat.uberapp.DTO.VehicleRequestDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourPostDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourPutDTO;
+import tim24.projekat.uberapp.exception.ConditionNotMetException;
 import tim24.projekat.uberapp.exception.InvalidRoleException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.model.Role;
@@ -143,12 +145,14 @@ public class DriverService {
 
 	public WorkingHourDTO createDriverWorkinghour(Long id, WorkingHourPostDTO whDTO) {
 		
+		//provera da li postoji driver
 		Optional<User> driverOpt = userRepo.findUserById(id);
 		if (driverOpt.isEmpty()) 
 		{
 			throw new ObjectNotFoundException("Driver does not exist!");
 		}
 		
+		//provera da li već postoji aktivan wh
 		Optional<WorkingHour> alreadyOpt = workingHourRepo.findLastWorkingHourByDriverId(id);
 		
 		if (alreadyOpt.isPresent()) 
@@ -156,7 +160,18 @@ public class DriverService {
 			throw new ObjectNotFoundException("Working hour has already started!");
 		}
 		
-		//fali cant start because 8hr provera
+		//provera da li je vozač premašio 8h
+		Duration todaysDuration = getDurationOfTodaysWorkByDriverId(id);
+		long totalDurationSeconds = todaysDuration.getSeconds();
+		long totalDurationMinutes = totalDurationSeconds / 60;
+		long totalDurationHours = totalDurationMinutes / 60;
+		long remainingMinutes = totalDurationMinutes % 60;
+		
+		if (totalDurationHours >= 8)
+		{
+			throw new ConditionNotMetException("Cannot start shift because you exceeded the 8 hours limit in last 24 hours!");
+		}
+		
 		
 		User driver = driverOpt.get();
 		
@@ -219,6 +234,20 @@ public class DriverService {
 	{
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 		return sdf.format(date);
+	}
+	
+	public Duration getDurationOfTodaysWorkByDriverId(Long driverId) {
+		Date dayAgo = new Date(System.currentTimeMillis() - (24 * 60 * 60 * 1000));
+	    List<WorkingHour> workingHours = workingHourRepo.findAllByDriverIdAndStartedInLast24Hours(driverId, dayAgo);
+	    
+	    Duration totalDuration = Duration.ZERO;
+	    for (WorkingHour workingHour : workingHours) {
+	        Instant startInstant = workingHour.getStartTime().toInstant();
+	        Instant endInstant = workingHour.getEndTime().toInstant();
+	        Duration duration = Duration.between(startInstant, endInstant);
+	        totalDuration = totalDuration.plus(duration);
+	    }
+	    return totalDuration;
 	}
 
 }

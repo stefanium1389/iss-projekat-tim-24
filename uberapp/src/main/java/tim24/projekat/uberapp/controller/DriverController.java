@@ -27,6 +27,7 @@ import tim24.projekat.uberapp.DTO.VehicleRequestDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourPostDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourPutDTO;
+import tim24.projekat.uberapp.exception.ConditionNotMetException;
 import tim24.projekat.uberapp.exception.ObjectAlreadyPresentException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.service.DriverService;
@@ -114,22 +115,6 @@ public class DriverController {
 		return new ResponseEntity<VehicleDTO>(v, HttpStatus.OK);
 	}
 	
-	/* @PutMapping("/{id}/withdraw")
-    public ResponseEntity<?> withdrawRide(@PathVariable("id") Long id)
-    {
-    	try {
-    		RideDTO ride = rideService.withdrawRide(id);
-            return new ResponseEntity<RideDTO>(ride, HttpStatus.OK);
-    	}
-    	catch(ObjectNotFoundException e) {
-    		Error error = new Error(e.getMessage());
-    		return new ResponseEntity<Error>(error, HttpStatus.NOT_FOUND);
-    	}
-    	catch(InvalidRideStatusException e) {
-    		Error error = new Error(e.getMessage());
-    		return new ResponseEntity<Error>(error, HttpStatus.BAD_REQUEST);
-    	}
-    }*/
 	@GetMapping("/{id}/working-hour")
 	public ResponseEntity<?> GetDriverWorkinghours(
 			@PathVariable("id") Long id, 
@@ -165,6 +150,10 @@ public class DriverController {
     		return new ResponseEntity<Error>(error, HttpStatus.NOT_FOUND);
     	}
 		catch(ObjectAlreadyPresentException e) {
+    		Error error = new Error(e.getMessage());
+    		return new ResponseEntity<Error>(error, HttpStatus.BAD_REQUEST);
+    	}
+		catch(ConditionNotMetException e) {
     		Error error = new Error(e.getMessage());
     		return new ResponseEntity<Error>(error, HttpStatus.BAD_REQUEST);
     	}
