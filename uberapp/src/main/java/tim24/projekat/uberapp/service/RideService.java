@@ -1,6 +1,8 @@
 package tim24.projekat.uberapp.service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import tim24.projekat.uberapp.DTO.RideDTO;
 import tim24.projekat.uberapp.DTO.RideRequestDTO;
 import tim24.projekat.uberapp.DTO.RouteDTO;
 import tim24.projekat.uberapp.DTO.UserRef;
+import tim24.projekat.uberapp.exception.ActiveUserRideException;
 import tim24.projekat.uberapp.exception.InvalidRideStatusException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.model.Location;
@@ -43,6 +46,21 @@ public class RideService
 	public RideDTO postRide(RideRequestDTO rideRequestDTO)
 	{
 		Ride ride = new Ride();
+		List<User> passengers = new ArrayList<User>();
+		for(UserRef passengerDTO : rideRequestDTO.getPassengers()) {
+			Optional<User> passenger = userRepo.findUserByEmail(passengerDTO.getEmail());
+			if(passenger.isEmpty()) {
+				throw new ObjectNotFoundException("Putnik ne postoji u bazi! "+passengerDTO.getEmail());
+			}
+			if(rideRepo.findActiveRideByPassengerId(passenger.get().getId()).isPresent()) {
+				throw new ActiveUserRideException("Putnik "+passenger.get().getEmail()+" je vec u aktivnoj voznji");
+			}
+			passengers.add(passenger.get());
+		}
+		if(passengers.size() < 1) {
+			throw new ObjectNotFoundException("Ne mozete zapoceti voznju bez putnika!");
+		}
+		ride.setPassengers(passengers);
 		try {
 			RouteDTO routeDto = rideRequestDTO.getLocations().get(0);
 			GeoCoordinateDTO dep = routeDto.getDeparture();
@@ -66,17 +84,17 @@ public class RideService
 		catch(RuntimeException e){
 			throw new RuntimeException("Neodgovarajuce lokacije u rideRequestDTO!");
 		}
-		for(UserRef passengerDTO : rideRequestDTO.getPassengers()) {
-			Optional<User> passenger = userRepo.findUserByEmail(passengerDTO.getEmail());
-			if(passenger.isEmpty()) {
-				throw new ObjectNotFoundException("Putnik ne postoji u bazi!");
-			}
-			ride.getPassengers().add(passenger.get());
-		}
+		ride.setStartTime(new Date(System.currentTimeMillis()));
+		ride.setEndTime(new Date(System.currentTimeMillis()));
 		ride.setBabyInVehicle(rideRequestDTO.isBabyTransport());
 		ride.setPetInVehicle(rideRequestDTO.isPetTransport());
+		ride.setStatus(RideStatus.PENDING);
 		
 		ride.setDriver(null); //ODRADITI ALGORITAM ZA ODREDJIVANJE VOZACA!
+		
+		rideRepo.save(ride);
+		rideRepo.flush();
+		
 		
 		RideDTO dto = new RideDTO(ride);
 		dto.setVehicleType(rideRequestDTO.getVehicleType());
