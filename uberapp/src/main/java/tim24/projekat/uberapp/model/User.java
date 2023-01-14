@@ -24,6 +24,8 @@ public class User {
 	private String email;
 	private String address;
 	private String password;
+	private boolean activated;
+	private boolean blocked;
 	
 	@Enumerated(EnumType.STRING)
 	private Role role;
@@ -34,10 +36,11 @@ public class User {
 	public User() {
 		super();
 	}
-	
-	public User(Long i, String name, String surname, String profilePicture, String telephoneNumber, String email, String address, String password, Role role) {
+
+	public User(Long id, String name, String surname, String profilePicture, String telephoneNumber, String email,
+			String address, String password, boolean activated, boolean blocked, Role role) {
 		super();
-		this.id = i;
+		this.id = id;
 		this.name = name;
 		this.surname = surname;
 		this.profilePicture = profilePicture;
@@ -45,6 +48,8 @@ public class User {
 		this.email = email;
 		this.address = address;
 		this.password = password;
+		this.activated = activated;
+		this.blocked = blocked;
 		this.role = role;
 	}
 
@@ -128,15 +133,27 @@ public class User {
 		this.accessToken = accessToken;
 	}
 
+	public boolean isActivated() {
+		return activated;
+	}
+
+	public void setActivated(boolean activated) {
+		this.activated = activated;
+	}
+
+	public boolean isBlocked() {
+		return blocked;
+	}
+
+	public void setBlocked(boolean blocked) {
+		this.blocked = blocked;
+	}
+
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", name=" + name + ", surname=" + surname + ", profilePicture=" + profilePicture
 				+ ", telephoneNumber=" + telephoneNumber + ", email=" + email + ", address=" + address + ", password="
 				+ password + ", role=" + role + ", accessToken=" + accessToken + "]";
 	}
-
-	
-
-	
 	
 }

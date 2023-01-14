@@ -1,9 +1,10 @@
 package tim24.projekat.uberapp.DTO;
 
-public class Error {
+public class SuccessDTO {
+	
 	private String message;
 
-	public Error(String message) {
+	public SuccessDTO(String message) {
 		super();
 		this.message = message;
 	}
@@ -16,4 +17,6 @@ public class Error {
 		this.message = message;
 	}
 	
+	
+
 }
