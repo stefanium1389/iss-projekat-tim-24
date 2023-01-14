@@ -1,6 +1,8 @@
 package tim24.projekat.uberapp.service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -56,6 +58,8 @@ public class ActivationService {
 		}
 		Optional<User> user = userRepo.findUserByEmail(actual.getEmail());
 		if(user.isEmpty()) {
+			activationRepo.delete(actual);
+			activationRepo.flush();
 			throw new ObjectNotFoundException("Email ne postoji!");
 		}
 		user.get().setActivated(true);
@@ -65,6 +69,18 @@ public class ActivationService {
 		activationRepo.flush();
 		SuccessDTO dto = new SuccessDTO("Successful account activation!");
 		return dto;
+	}
+	public List<String> regenerateActivation(String token) {
+		Optional<Activation> activation = activationRepo.findActivationByToken(token);
+		if(activation.isEmpty()) {
+			throw new ObjectNotFoundException("Nema te aktivacije");
+		}
+		List<String> lista = new ArrayList<String>();
+		String newToken = this.generateActivation(activation.get().getEmail());
+		lista.add(newToken);
+		lista.add(activation.get().getEmail());
+		return lista;
+		
 	}
 	
 }

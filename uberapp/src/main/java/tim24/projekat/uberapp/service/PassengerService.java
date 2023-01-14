@@ -1,5 +1,6 @@
 package tim24.projekat.uberapp.service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,6 +15,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.RideDTO;
+import tim24.projekat.uberapp.DTO.SuccessDTO;
 import tim24.projekat.uberapp.DTO.UserRegistrationDTO;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.exception.EmailAlreadyExistsException;
@@ -94,6 +96,17 @@ public class PassengerService {
         RideDTO ride = new RideDTO();
         list.add(ride);
         return list;
+	}
+
+	public SuccessDTO resendActivation(String id) {
+		
+		List<String> lista = activationService.regenerateActivation(id);
+		try {
+			mailService.sendActivationEmail(lista.get(1), lista.get(0)); //lista[1] je mail, a lista[0] je token
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		}
+		return new SuccessDTO("Uspesno poslato opet");
 	}
 	
 

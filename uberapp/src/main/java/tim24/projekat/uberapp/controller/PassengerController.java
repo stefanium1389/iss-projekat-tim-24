@@ -58,9 +58,21 @@ public class PassengerController
     	}
     	catch(ActionExpiredException e) {
     		ErrorDTO dto = new ErrorDTO(e.getMessage());
-            return new ResponseEntity<ErrorDTO>(dto, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<ErrorDTO>(dto, HttpStatus.BAD_REQUEST);
     	}
     	
+    }
+    @GetMapping("/activate/resend/{activationId}")
+    public ResponseEntity<?> activatePassengerResend(@PathVariable("activationId") String id)
+    {
+    	try {
+    		SuccessDTO dto = passengerService.resendActivation(id);
+            return new ResponseEntity<SuccessDTO>(dto, HttpStatus.OK);
+    	}
+    	catch(ObjectNotFoundException e) {
+    		ErrorDTO dto = new ErrorDTO(e.getMessage());
+            return new ResponseEntity<ErrorDTO>(dto, HttpStatus.NOT_FOUND);
+    	}    	
     }
 
     @GetMapping("/{id}")
