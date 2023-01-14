@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import tim24.projekat.uberapp.DTO.SuccessDTO;
 import tim24.projekat.uberapp.exception.ActionExpiredException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.model.Activation;
@@ -43,7 +44,7 @@ public class ActivationService {
 		return token;
 	}
 	
-	public void activatePassenger(String token)
+	public SuccessDTO activatePassenger(String token)
 	{
 		Optional<Activation> activation = activationRepo.findActivationByToken(token);
 		if(activation.isEmpty()) {
@@ -62,6 +63,8 @@ public class ActivationService {
 		activationRepo.delete(actual);
 		userRepo.flush();
 		activationRepo.flush();
+		SuccessDTO dto = new SuccessDTO("Successful account activation!");
+		return dto;
 	}
 	
 }

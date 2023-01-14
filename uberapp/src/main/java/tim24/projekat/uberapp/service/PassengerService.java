@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import jakarta.mail.MessagingException;
@@ -35,6 +36,9 @@ public class PassengerService {
 	
 	@Autowired
 	private MailingService mailService;
+	
+	@Autowired
+    private PasswordEncoder passwordEncoder;
 
 	public UserResponseDTO postPassenger(UserRegistrationDTO userRegistrationDTO) {
 		
@@ -47,7 +51,7 @@ public class PassengerService {
 		newUser.setEmail(userRegistrationDTO.getEmail());
 		newUser.setAddress(userRegistrationDTO.getAddress());
 		newUser.setSurname(userRegistrationDTO.getSurname());
-		newUser.setPassword(userRegistrationDTO.getPassword());
+		newUser.setPassword(passwordEncoder.encode(userRegistrationDTO.getPassword()));
 		newUser.setTelephoneNumber(userRegistrationDTO.getTelephoneNumber());
 		newUser.setProfilePicture(userRegistrationDTO.getProfilePicture());
 		newUser.setRole(Role.USER);

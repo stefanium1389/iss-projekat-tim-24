@@ -33,7 +33,7 @@ public class MailingService {
 	}
 	
 	public void sendActivationEmail(String email, String token) throws MessagingException {		
-		String body = "To verify your email click on the following link http://localhost:8000/api/passenger/activate/"+token;
+		String body = "To verify your email click on the following link http://localhost:4200/activate?token="+token;
 		sendEmail(email,"UberApp Tim24 Email Validation",body);
 	}
 	

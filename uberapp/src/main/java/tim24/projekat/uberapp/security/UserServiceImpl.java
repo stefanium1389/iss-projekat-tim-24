@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import tim24.projekat.uberapp.exception.UserNotActivatedException;
 import tim24.projekat.uberapp.model.User;
 import tim24.projekat.uberapp.repo.UserRepository;
 
@@ -22,6 +23,10 @@ public class UserServiceImpl implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		Optional<User> ret = allUsers.findUserByEmail(username);
 		if (!ret.isEmpty() ) {
+			if(!ret.get().isActivated()) {
+				throw new UserNotActivatedException("User is not activated with this username: "+username);
+			}
+			
 			return org.springframework.security.core.userdetails.User
 					.withUsername(username)
 					.password(ret.get().getPassword())

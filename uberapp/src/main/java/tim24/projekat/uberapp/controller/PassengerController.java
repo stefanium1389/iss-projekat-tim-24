@@ -7,9 +7,12 @@ import org.springframework.web.bind.annotation.*;
 import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.ErrorDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
+import tim24.projekat.uberapp.DTO.SuccessDTO;
 import tim24.projekat.uberapp.DTO.UserRegistrationDTO;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
+import tim24.projekat.uberapp.exception.ActionExpiredException;
 import tim24.projekat.uberapp.exception.EmailAlreadyExistsException;
+import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.service.ActivationService;
 import tim24.projekat.uberapp.service.PassengerService;
 
@@ -43,10 +46,21 @@ public class PassengerController
     }
 
     @GetMapping("/activate/{activationId}")
-    public ResponseEntity<UserResponseDTO> activatePassenger(@PathVariable("activationId") String id)
+    public ResponseEntity<?> activatePassenger(@PathVariable("activationId") String id)
     {
-    	activationService.activatePassenger(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+    	try {
+    		SuccessDTO dto = activationService.activatePassenger(id);
+            return new ResponseEntity<SuccessDTO>(dto, HttpStatus.OK);
+    	}
+    	catch(ObjectNotFoundException e) {
+    		ErrorDTO dto = new ErrorDTO(e.getMessage());
+            return new ResponseEntity<ErrorDTO>(dto, HttpStatus.NOT_FOUND);
+    	}
+    	catch(ActionExpiredException e) {
+    		ErrorDTO dto = new ErrorDTO(e.getMessage());
+            return new ResponseEntity<ErrorDTO>(dto, HttpStatus.NOT_FOUND);
+    	}
+    	
     }
 
     @GetMapping("/{id}")
