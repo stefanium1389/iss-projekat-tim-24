@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Table(name = "rides")
 @Entity
@@ -29,6 +28,7 @@ public class Ride
     @OneToOne
     private User driver;
     @OneToOne
+    @JoinColumn(nullable = true)
     private Refusal refusal;
     @OneToMany
     private List<User> passengers;    

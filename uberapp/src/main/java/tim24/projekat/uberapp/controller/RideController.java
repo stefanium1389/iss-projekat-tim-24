@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import tim24.projekat.uberapp.DTO.PanicDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
 import tim24.projekat.uberapp.DTO.RideRequestDTO;
-import tim24.projekat.uberapp.DTO.Error;
+import tim24.projekat.uberapp.DTO.ErrorDTO;
 import tim24.projekat.uberapp.exception.InvalidRideStatusException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.service.RideService;
@@ -35,8 +35,8 @@ public class RideController
         return new ResponseEntity<RideDTO>(ride, HttpStatus.OK);
     	}
     	catch(ObjectNotFoundException e) {
-    		Error error = new Error(e.getMessage());
-    		return new ResponseEntity<Error>(error, HttpStatus.NOT_FOUND);
+    		ErrorDTO error = new ErrorDTO(e.getMessage());
+    		return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
     	}
     }
 
@@ -48,8 +48,8 @@ public class RideController
         return new ResponseEntity<RideDTO>(ride, HttpStatus.OK);
         }
     	catch(ObjectNotFoundException e) {
-    		Error error = new Error(e.getMessage());
-    		return new ResponseEntity<Error>(error, HttpStatus.NOT_FOUND);
+    		ErrorDTO error = new ErrorDTO(e.getMessage());
+    		return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
     	}
     }
 
@@ -68,12 +68,12 @@ public class RideController
             return new ResponseEntity<RideDTO>(ride, HttpStatus.OK);
     	}
     	catch(ObjectNotFoundException e) {
-    		Error error = new Error(e.getMessage());
-    		return new ResponseEntity<Error>(error, HttpStatus.NOT_FOUND);
+    		ErrorDTO error = new ErrorDTO(e.getMessage());
+    		return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
     	}
     	catch(InvalidRideStatusException e) {
-    		Error error = new Error(e.getMessage());
-    		return new ResponseEntity<Error>(error, HttpStatus.BAD_REQUEST);
+    		ErrorDTO error = new ErrorDTO(e.getMessage());
+    		return new ResponseEntity<ErrorDTO>(error, HttpStatus.BAD_REQUEST);
     	}
     }
 
@@ -91,12 +91,12 @@ public class RideController
             return new ResponseEntity<RideDTO>(ride, HttpStatus.OK);
     	}
     	catch(ObjectNotFoundException e) {
-    		Error error = new Error(e.getMessage());
-    		return new ResponseEntity<Error>(error, HttpStatus.NOT_FOUND);
+    		ErrorDTO error = new ErrorDTO(e.getMessage());
+    		return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
     	}
     	catch(InvalidRideStatusException e) {
-    		Error error = new Error(e.getMessage());
-    		return new ResponseEntity<Error>(error, HttpStatus.BAD_REQUEST);
+    		ErrorDTO error = new ErrorDTO(e.getMessage());
+    		return new ResponseEntity<ErrorDTO>(error, HttpStatus.BAD_REQUEST);
     	}
         
     }
@@ -108,12 +108,12 @@ public class RideController
         return new ResponseEntity<RideDTO>(ride, HttpStatus.OK);
     	}
     	catch(ObjectNotFoundException e) {
-    		Error error = new Error(e.getMessage());
-    		return new ResponseEntity<Error>(error, HttpStatus.NOT_FOUND);
+    		ErrorDTO error = new ErrorDTO(e.getMessage());
+    		return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
     	}
     	catch(InvalidRideStatusException e) {
-    		Error error = new Error(e.getMessage());
-    		return new ResponseEntity<Error>(error, HttpStatus.BAD_REQUEST);
+    		ErrorDTO error = new ErrorDTO(e.getMessage());
+    		return new ResponseEntity<ErrorDTO>(error, HttpStatus.BAD_REQUEST);
     	}
     }
 
@@ -125,12 +125,12 @@ public class RideController
             return new ResponseEntity<RideDTO>(ride, HttpStatus.OK);
     	}
         catch(ObjectNotFoundException e) {
-    		Error error = new Error(e.getMessage());
-    		return new ResponseEntity<Error>(error, HttpStatus.NOT_FOUND);
+    		ErrorDTO error = new ErrorDTO(e.getMessage());
+    		return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
     	}
     	catch(InvalidRideStatusException e) {
-    		Error error = new Error(e.getMessage());
-    		return new ResponseEntity<Error>(error, HttpStatus.BAD_REQUEST);
+    		ErrorDTO error = new ErrorDTO(e.getMessage());
+    		return new ResponseEntity<ErrorDTO>(error, HttpStatus.BAD_REQUEST);
     	}
     }
 
@@ -142,12 +142,12 @@ public class RideController
             return new ResponseEntity<RideDTO>(ride, HttpStatus.OK);
     	}
         catch(ObjectNotFoundException e) {
-    		Error error = new Error(e.getMessage());
-    		return new ResponseEntity<Error>(error, HttpStatus.NOT_FOUND);
+    		ErrorDTO error = new ErrorDTO(e.getMessage());
+    		return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
     	}
     	catch(InvalidRideStatusException e) {
-    		Error error = new Error(e.getMessage());
-    		return new ResponseEntity<Error>(error, HttpStatus.BAD_REQUEST);
+    		ErrorDTO error = new ErrorDTO(e.getMessage());
+    		return new ResponseEntity<ErrorDTO>(error, HttpStatus.BAD_REQUEST);
     	}
     }
 }
