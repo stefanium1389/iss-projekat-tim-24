@@ -5,7 +5,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import tim24.projekat.uberapp.model.Ride;
+import tim24.projekat.uberapp.model.RideStatus;
+import tim24.projekat.uberapp.model.User;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface RideRepository extends JpaRepository<Ride, Long>
@@ -23,4 +26,8 @@ public interface RideRepository extends JpaRepository<Ride, Long>
 	
 	@Query("SELECT r FROM Ride r WHERE r.driver.id = :driverId AND (r.status = 'PENDING' OR r.status = 'STARTED' OR r.status = 'ACCEPTED')")
     Optional<Ride> findActiveRideByDriverId(@Param("driverId") Long driverId);
+	
+	@Query("SELECT DISTINCT r.driver FROM Ride r WHERE r.status NOT IN ('PENDING', 'ACCEPTED', 'STARTED')")
+    List<User> findDriversWithRidesNotActive();
+
 }

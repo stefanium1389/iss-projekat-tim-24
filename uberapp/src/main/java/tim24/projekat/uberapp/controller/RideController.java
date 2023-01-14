@@ -9,6 +9,7 @@ import tim24.projekat.uberapp.DTO.PanicDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
 import tim24.projekat.uberapp.DTO.RideRequestDTO;
 import tim24.projekat.uberapp.DTO.ErrorDTO;
+import tim24.projekat.uberapp.exception.ActiveUserRideException;
 import tim24.projekat.uberapp.exception.InvalidRideStatusException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.service.RideService;
@@ -23,8 +24,15 @@ public class RideController
     @PostMapping
     public ResponseEntity<?> postRide(@RequestBody RideRequestDTO rideRequestDTO)
     {
-        RideDTO ride = rideService.postRide(rideRequestDTO);
-        return new ResponseEntity<RideDTO>(ride, HttpStatus.OK);
+    	try {
+	        RideDTO ride = rideService.postRide(rideRequestDTO);
+	        return new ResponseEntity<RideDTO>(ride, HttpStatus.OK);
+    	}
+    	catch(ActiveUserRideException e) 
+    	{
+    		ErrorDTO error = new ErrorDTO(e.getMessage());
+    		return new ResponseEntity<ErrorDTO>(error,HttpStatus.BAD_REQUEST);
+    	}
     }
 
     @GetMapping("/driver/{driverId}/active")

@@ -26,11 +26,12 @@ public class Ride
     @OneToOne
     private Route route;
     @OneToOne
+    @JoinColumn(nullable = true)
     private User driver;
     @OneToOne
     @JoinColumn(nullable = true)
     private Refusal refusal;
-    @OneToMany
+    @ManyToMany
     private List<User> passengers;    
 
 	public Ride()
@@ -112,7 +113,7 @@ public class Ride
 	public List<User> getPassengers() {
 		return passengers;
 	}
-	public void setPassengers(ArrayList<User> passengers) {
+	public void setPassengers(List<User> passengers) {
 		this.passengers = passengers;
 	}
 
