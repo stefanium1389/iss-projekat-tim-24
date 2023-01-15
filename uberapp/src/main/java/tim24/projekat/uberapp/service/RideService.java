@@ -108,7 +108,9 @@ public class RideService
 			throw new ObjectNotFoundException("Ride does not exist!");
 		}
 		RideDTO dto = new RideDTO(ride.get());
-		dto.setVehicleType(vehicleRepo.findVehicleByDriverId(ride.get().getDriver().getId()).get().getVehicleType().getTypeName());
+		if(ride.get().getDriver()!=null) {
+			dto.setVehicleType(vehicleRepo.findVehicleByDriverId(ride.get().getDriver().getId()).get().getVehicleType().getTypeName());
+		}
 		return dto;
 	}
 
@@ -122,7 +124,9 @@ public class RideService
 			throw new ObjectNotFoundException("Active ride not found!");
 		}
 		RideDTO dto = new RideDTO(ride.get());
-		dto.setVehicleType(vehicleRepo.findVehicleByDriverId(ride.get().getDriver().getId()).get().getVehicleType().getTypeName());
+		if(ride.get().getDriver()!=null) {
+			dto.setVehicleType(vehicleRepo.findVehicleByDriverId(ride.get().getDriver().getId()).get().getVehicleType().getTypeName());
+		}
 		return dto;
 	}
 
