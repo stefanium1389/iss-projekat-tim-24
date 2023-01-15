@@ -1,25 +1,34 @@
 package tim24.projekat.uberapp.service;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import tim24.projekat.uberapp.DTO.GeoCoordinateDTO;
+import tim24.projekat.uberapp.DTO.OsrmResponse;
 import tim24.projekat.uberapp.DTO.PanicDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
 import tim24.projekat.uberapp.DTO.RideRequestDTO;
 import tim24.projekat.uberapp.DTO.RouteDTO;
 import tim24.projekat.uberapp.DTO.UserRef;
 import tim24.projekat.uberapp.exception.ActiveUserRideException;
+import tim24.projekat.uberapp.exception.ConditionNotMetException;
 import tim24.projekat.uberapp.exception.InvalidRideStatusException;
+import tim24.projekat.uberapp.exception.InvalidTimeException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
+import tim24.projekat.uberapp.model.DurationDistance;
 import tim24.projekat.uberapp.model.Location;
 import tim24.projekat.uberapp.model.Ride;
 import tim24.projekat.uberapp.model.RideStatus;
+import tim24.projekat.uberapp.model.Role;
 import tim24.projekat.uberapp.model.Route;
 import tim24.projekat.uberapp.model.User;
 import tim24.projekat.uberapp.model.Vehicle;
@@ -71,14 +80,9 @@ public class RideService
 			Location destination = new Location();
 			destination.setGeoHeight(dest.getLatitude());
 			destination.setGeoWidth(dest.getLongitude());
-			locationRepo.save(departure);
-			locationRepo.save(destination);
-			locationRepo.flush();
 			Route route = new Route();
 			route.setStartLocation(departure);
 			route.setEndLocation(destination);
-			routeRepo.save(route);
-			routeRepo.flush();
 			ride.setRoute(route);
 		}
 		catch(RuntimeException e){
@@ -89,16 +93,132 @@ public class RideService
 		ride.setBabyInVehicle(rideRequestDTO.isBabyTransport());
 		ride.setPetInVehicle(rideRequestDTO.isPetTransport());
 		ride.setStatus(RideStatus.PENDING);
+		User driver = getBestDriverForRide(rideRequestDTO);
+		ride.setDriver(driver); 
 		
-		ride.setDriver(null); //ODRADITI ALGORITAM ZA ODREDJIVANJE VOZACA!
-		
-		rideRepo.save(ride);
-		rideRepo.flush();
-		
-		
+		//ovde se podrazumeva da je sve poslo po redu
+		saveRideDetailsOnDatabase(ride);
 		RideDTO dto = new RideDTO(ride);
 		dto.setVehicleType(rideRequestDTO.getVehicleType());
 		return dto;
+	}
+	
+	public void saveRideDetailsOnDatabase(Ride ride) 
+	{
+		locationRepo.save(ride.getRoute().getStartLocation());
+		locationRepo.save(ride.getRoute().getEndLocation());
+		locationRepo.flush();
+		
+		routeRepo.save(ride.getRoute());
+		routeRepo.flush();
+		
+		rideRepo.save(ride);
+		rideRepo.flush();
+	}
+	
+	public User getBestDriverForRide(RideRequestDTO requestDTO) 
+	{
+		Optional<List<User>> optDrivers = userRepo.findAllByRole(Role.DRIVER);
+		if (optDrivers.isEmpty()) 
+		{
+			throw new ConditionNotMetException("There are no drivers!");
+		}
+		
+		Optional<List<Vehicle>> optVehicles = Optional.of(vehicleRepo.findAll());
+		if (optVehicles.isEmpty()) 
+		{
+			throw new ConditionNotMetException("There are no vehicles!");
+		}
+		
+		List<Vehicle> vehicles = optVehicles.get();
+		List<Vehicle> suitableVehicles = new ArrayList<Vehicle>();
+		
+		//provera za vozila
+		for(Vehicle vehicle : vehicles) //i cant do sql
+		{
+			if (!(vehicle.getVehicleType().toString().equals(requestDTO.getVehicleType())))  //ovde mozda zezne
+			{
+				continue;
+			}
+			if (vehicle.getNumberOfSeats() < requestDTO.getPassengers().size())
+			{
+				continue;
+			}
+			if (requestDTO.isBabyTransport() && !vehicle.isAllowedBabyInVehicle())
+			{
+				continue;
+			}
+			if (requestDTO.isPetTransport() && !vehicle.isAllowedPetInVehicle())
+			{
+				continue;
+			}
+			suitableVehicles.add(vehicle);
+		}
+		
+		HashMap<User, Integer> minutesMap = new HashMap<User,Integer>();
+		//provera za vozače, PROVERITI DA LI IMA ZAKAZANE
+		for(Vehicle vehicle : vehicles) 
+		{
+			
+			User driver = vehicle.getDriver();
+			Optional<Ride> activeOpt = rideRepo.findActiveRideByDriverId(driver.getId());
+			int additionalMinutes = 0;
+			if (activeOpt.isPresent()) 
+			{
+				Ride activeRide = activeOpt.get();
+				additionalMinutes = getMinutesUntilRideCompletion(activeRide);
+			}
+			//todo: provera za zakazane
+			
+			RouteDTO routeDto = requestDTO.getLocations().get(0);
+			GeoCoordinateDTO dep = routeDto.getDeparture();
+			GeoCoordinateDTO dest = routeDto.getDestination();
+			
+			DurationDistance dd = getDurationDistance(dep.getLatitude(),dep.getLongitude(),dest.getLatitude(),dest.getLongitude());
+			
+			int sum = (int)(dd.getDuration()/60) + additionalMinutes;
+			minutesMap.put(driver, sum);
+			
+		}
+		
+		User bestUser = null;
+		int bestMinutes = 99999; //veoma glupavo, znam
+		for (Map.Entry<User, Integer> set :
+            minutesMap.entrySet()) {
+			if (set.getValue() < bestMinutes) 
+			{
+				bestUser = set.getKey();
+				bestMinutes = set.getValue();
+			}
+       }
+		if (bestUser == null) 
+		{
+			throw new RuntimeException("Cant find best user!");
+		}
+		return bestUser;
+
+	}
+	
+	//zovi samo za aktivne voznje
+	public int getMinutesUntilRideCompletion(Ride ride) 
+	{
+		
+		if (ride.getStartTime().after(new Date())) 
+		{
+			throw new InvalidTimeException("Start time is after current time!");
+		}
+		
+		Duration duration = Duration.between(ride.getStartTime().toInstant(), new Date().toInstant());
+		int minutes = (int)duration.toMinutes();
+		
+		if (minutes >= ride.getEstimatedTime()) 
+		{
+
+			return ride.getEstimatedTime();
+		}
+		
+		return ride.getEstimatedTime() - minutes;
+		
 	}
 
 	public RideDTO getDriverRide(Long id)
@@ -260,6 +380,19 @@ public class RideService
 		dto.setVehicleType(v.get().getVehicleType().getTypeName());
 		return dto;
 	}
+	
+	  public DurationDistance getDurationDistance(double startLat, double startLng, double endLat, double endLng) {
+		  
+		  	RestTemplate restTemplate = new RestTemplate();
+	        String url = String.format("http://router.project-osrm.org/route/v1/driving/%s,%s;%s,%s", startLng, startLat, endLng, endLat);
+	        OsrmResponse response = restTemplate.getForObject(url, OsrmResponse.class);
+
+	        double duration = response.getRoutes().get(0).getDuration();
+	        double distance = response.getRoutes().get(0).getDistance();
+
+	        return new DurationDistance(duration, distance);
+	    }
+	}
 
 //	private void GenerateVehicle() {
 //		VehicleType type = new VehicleType(1L,"STANDARDNO",200,100);
@@ -290,4 +423,3 @@ public class RideService
 //		rideRepo.save(ride);
 //		rideRepo.flush();
 //	}
-}
