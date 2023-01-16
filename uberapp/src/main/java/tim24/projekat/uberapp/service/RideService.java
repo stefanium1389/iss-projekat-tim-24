@@ -25,6 +25,7 @@ import tim24.projekat.uberapp.exception.ConditionNotMetException;
 import tim24.projekat.uberapp.exception.InvalidRideStatusException;
 import tim24.projekat.uberapp.exception.InvalidTimeException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
+import tim24.projekat.uberapp.model.CreateRideResult;
 import tim24.projekat.uberapp.model.DurationDistance;
 import tim24.projekat.uberapp.model.Location;
 import tim24.projekat.uberapp.model.Ride;
@@ -52,6 +53,8 @@ public class RideService
 	private RouteRepository routeRepo;
 	@Autowired
 	private UserRepository userRepo;
+	@Autowired
+	private DriverService driverService;
 	
 	public RideDTO postRide(RideRequestDTO rideRequestDTO)
 	{
@@ -92,7 +95,7 @@ public class RideService
 		
 		
 		Date now = new Date(System.currentTimeMillis());
-		if (rideRequestDTO.getScheduledTime().equals("-1")) 
+		if (rideRequestDTO.getScheduledTime() == null) //MOZDA BUDE PROBLEMA OVDE 
 		{
 			ride.setStartTime(now);
 			ride.setEndTime(now);
@@ -109,8 +112,8 @@ public class RideService
 		ride.setBabyInVehicle(rideRequestDTO.isBabyTransport());
 		ride.setPetInVehicle(rideRequestDTO.isPetTransport());
 		ride.setStatus(RideStatus.PENDING);
-		User driver = getBestDriverForRide(rideRequestDTO);
-		ride.setDriver(driver); 
+		CreateRideResult driverEstimation = getBestDriverForRide(rideRequestDTO);
+		ride.setDriver(driverEstimation.getDriver()); 
 		
 		//ovde se podrazumeva da je sve poslo po redu
 		saveRideDetailsOnDatabase(ride);
@@ -132,7 +135,7 @@ public class RideService
 		rideRepo.flush();
 	}
 	
-	public User getBestDriverForRide(RideRequestDTO requestDTO) 
+	public CreateRideResult getBestDriverForRide(RideRequestDTO requestDTO) 
 	{
 		Optional<List<User>> optDrivers = userRepo.findAllByRole(Role.DRIVER);
 		if (optDrivers.isEmpty()) 
@@ -183,6 +186,8 @@ public class RideService
 			Optional<Ride> activeOpt = rideRepo.findActiveRideByDriverId(driver.getId());
 			Optional<List<Ride>> scheduledOpt = rideRepo.findPendingScheduledRidesByDriverId(driver.getId());
 			int minutes = 0;
+			Duration driverTodaysTime = driverService.getDurationOfTodaysWorkByDriverId(v.getDriver().getId());
+			
 			
 			//slucaj 1
 			if (activeOpt.isEmpty() && scheduledOpt.isEmpty())
@@ -233,6 +238,11 @@ public class RideService
 				throw new RuntimeException ("Error while checking for optimal driver!");
 			}
 			
+			if (driverTodaysTime.toMinutes() + (long)minutes < 8*60) 
+			{
+				minutesMap.put(driver, minutes);
+			}
+			
 		}
 		
 		//od odgovarajućih naći koji je najbolji
@@ -250,7 +260,7 @@ public class RideService
 		{
 			throw new RuntimeException("Cant find best user!");
 		}
-		return bestUser;
+		return new CreateRideResult(bestUser, bestMinutes);
 
 	}
 	
