@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,6 +25,7 @@ import tim24.projekat.uberapp.DTO.RideDTO;
 import tim24.projekat.uberapp.DTO.UserRegistrationDTO;
 import tim24.projekat.uberapp.DTO.ErrorDTO;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
+import tim24.projekat.uberapp.DTO.UserUpdateRequestDTO;
 import tim24.projekat.uberapp.DTO.UserRequestDTO;
 import tim24.projekat.uberapp.DTO.VehicleDTO;
 import tim24.projekat.uberapp.DTO.VehicleRequestDTO;
@@ -65,6 +67,7 @@ public class DriverController {
 		DTOList<UserResponseDTO> list = driverService.GetAllDrivers(page, size);
 		return new ResponseEntity<DTOList<UserResponseDTO>>(list, HttpStatus.OK);
 	}
+	
 	@GetMapping("/{id}")
 	public ResponseEntity<?> GetDriverDetails(
 			@PathVariable("id") Long id){
@@ -80,7 +83,7 @@ public class DriverController {
 	}
 	@PutMapping("/{id}")
 	public ResponseEntity<?> UpdateDriverDetails(
-			@RequestBody UserRequestDTO updatedDriver, 
+			@RequestBody UserUpdateRequestDTO updatedDriver, 
 			@PathVariable("id") Long id)
 	{
 		try {
@@ -98,25 +101,42 @@ public class DriverController {
 		
 	}
 	@GetMapping("/{id}/documents")
-	public ResponseEntity<ArrayList<DriverDocumentDTO>> GetDriverDocuments(
+	public ResponseEntity<?> GetDriverDocuments(
 			@PathVariable("id") Long id){
-		ArrayList<DriverDocumentDTO> list = driverService.getDriverDocuments(id);
-		return new ResponseEntity<>(list, HttpStatus.OK);
+		try {
+			ArrayList<DriverDocumentDTO> list = driverService.getDriverDocuments(id);
+			return new ResponseEntity<ArrayList<DriverDocumentDTO>>(list, HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
+		
 	}
 	@PostMapping("/{id}/documents")
-	public ResponseEntity<DriverDocumentDTO> CreateDriverDocuments(
+	public ResponseEntity<?> CreateDriverDocuments(
 			@RequestBody DriverDocumentRequestDTO ddrq, 
 			@PathVariable("id") Long id){
-		
-		DriverDocumentDTO dd = driverService.createDriverDocuments(id, ddrq);
-		return new ResponseEntity<>(dd, HttpStatus.OK);
+		try {
+			DriverDocumentDTO dd = driverService.createDriverDocuments(id, ddrq);
+			return new ResponseEntity<DriverDocumentDTO>(dd, HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
 	}
 	@DeleteMapping("/document/{id}")
-	public ResponseEntity<Error> DeleteDriverDocuments(
+	public ResponseEntity<?> DeleteDriverDocuments(
 			@PathVariable("id") Long id){
+		try {
 		driverService.DeleteDriver(id);
-		
-		return new ResponseEntity<>( HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		catch(ObjectNotFoundException e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
 	}
 	
 	@GetMapping("/{id}/vehicle")

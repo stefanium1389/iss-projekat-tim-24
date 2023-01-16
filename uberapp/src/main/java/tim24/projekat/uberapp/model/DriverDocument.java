@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Table;
+import tim24.projekat.uberapp.DTO.DriverDocumentRequestDTO;
 import jakarta.persistence.Id;
 
 @Table(name="driver_documents")
@@ -30,6 +31,13 @@ public class DriverDocument {
 		this.driverId = driverId;
 	}
 	
+	public DriverDocument(DriverDocumentRequestDTO ddrq, Long driverId) {
+		super();
+		this.name = ddrq.getName();
+		this.documentImage = ddrq.getDocumentImage();
+		this.driverId = driverId;
+	}
+
 	public Long getId() {
 		return id;
 	}

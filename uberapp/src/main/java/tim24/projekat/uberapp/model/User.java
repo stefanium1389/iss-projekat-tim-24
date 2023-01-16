@@ -14,6 +14,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import tim24.projekat.uberapp.DTO.UserRegistrationDTO;
 import tim24.projekat.uberapp.DTO.UserRequestDTO;
+import tim24.projekat.uberapp.DTO.UserUpdateRequestDTO;
 
 @Table(name="users")
 @Entity
@@ -177,6 +178,15 @@ public class User {
 		return "User [id=" + id + ", name=" + name + ", surname=" + surname + ", profilePicture=" + profilePicture
 				+ ", telephoneNumber=" + telephoneNumber + ", email=" + email + ", address=" + address + ", password="
 				+ password + ", role=" + role + ", accessToken=" + accessToken + "]";
+	}
+
+	public void update(UserUpdateRequestDTO updated) {
+		this.setEmail(updated.getEmail());
+		this.setAddress(updated.getAddress());
+		this.setName(updated.getName());
+		this.setSurname(updated.getSurname());
+		this.setTelephoneNumber(updated.getTelephoneNumber());
+		this.setAddress(updated.getAddress());
 	}
 	
 }

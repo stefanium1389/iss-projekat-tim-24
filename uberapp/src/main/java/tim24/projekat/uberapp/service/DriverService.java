@@ -26,6 +26,7 @@ import tim24.projekat.uberapp.DTO.UserRef;
 import tim24.projekat.uberapp.DTO.UserRegistrationDTO;
 import tim24.projekat.uberapp.DTO.UserRequestDTO;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
+import tim24.projekat.uberapp.DTO.UserUpdateRequestDTO;
 import tim24.projekat.uberapp.DTO.VehicleDTO;
 import tim24.projekat.uberapp.DTO.VehicleRequestDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourDTO;
@@ -35,10 +36,14 @@ import tim24.projekat.uberapp.exception.ConditionNotMetException;
 import tim24.projekat.uberapp.exception.InvalidRoleException;
 import tim24.projekat.uberapp.exception.ObjectAlreadyPresentException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
+import tim24.projekat.uberapp.model.DriverDocument;
 import tim24.projekat.uberapp.model.Role;
 import tim24.projekat.uberapp.model.User;
+import tim24.projekat.uberapp.model.Vehicle;
 import tim24.projekat.uberapp.model.WorkingHour;
+import tim24.projekat.uberapp.repo.DriverDocumentRepository;
 import tim24.projekat.uberapp.repo.UserRepository;
+import tim24.projekat.uberapp.repo.VehicleRepository;
 import tim24.projekat.uberapp.repo.WorkingHourRepo;
 
 @Service
@@ -52,6 +57,12 @@ public class DriverService {
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	
+	@Autowired
+	private DriverDocumentRepository driverDocumentRepo;
+	
+	@Autowired
+	private VehicleRepository vehicleRepo;
 
 	public UserResponseDTO createDriver(UserRegistrationDTO newDriver) {
 		Optional<User> existing = userRepo.findUserByEmail(newDriver.getEmail());
@@ -93,36 +104,69 @@ public class DriverService {
 		
 	}
 
-	public UserResponseDTO updateDriver(Long id, UserRequestDTO updatedDriver) {
+	public UserResponseDTO updateDriver(Long id, UserUpdateRequestDTO updatedDriver) {
 		Optional<User> driverOpt = userRepo.findByIdAndRole(id, Role.DRIVER);
 		if (driverOpt.isEmpty()) 
 		{
 			throw new ObjectNotFoundException("Driver does not exist!");
 		}
 		User driver = driverOpt.get();
+		driver.update(updatedDriver);
 		
-		return new UserResponseDTO(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
+		userRepo.save(driver);
+		userRepo.flush();
+		
+		return new UserResponseDTO(driver);
 	}
 
 	public ArrayList<DriverDocumentDTO> getDriverDocuments(Long id) {
-		ArrayList<DriverDocumentDTO> list = new ArrayList<DriverDocumentDTO>();
-		DriverDocumentDTO dd = new DriverDocumentDTO(1L,"stefanova vozacka","slika.png",1L);
-		list.add(dd);
+		Optional<User> driverOpt = userRepo.findByIdAndRole(id, Role.DRIVER);
+		if (driverOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Driver does not exist!");
+		}
+		List<DriverDocument> documents = driverDocumentRepo.findAllByDriverId(id);
+		ArrayList<DriverDocumentDTO> list = new ArrayList<>();
+		for(DriverDocument d : documents) {
+			list.add(new DriverDocumentDTO(d));
+		}
 		return list;
 	}
 
 	public DriverDocumentDTO createDriverDocuments(Long id, DriverDocumentRequestDTO ddrq) {
-		DriverDocumentDTO dd = new DriverDocumentDTO(1L,"stefanova vozacka","slika.png",1L);
-		return dd;
+		Optional<User> driverOpt = userRepo.findByIdAndRole(id, Role.DRIVER);
+		if (driverOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Driver does not exist!");
+		}
+		DriverDocument dd = new DriverDocument(ddrq, id);
+		driverDocumentRepo.save(dd);
+		driverDocumentRepo.flush();
+		DriverDocumentDTO dddto = new DriverDocumentDTO(dd);
+		return dddto;
 	}
 
 	public void DeleteDriver(Long id) {
-		
+		Optional<User> driverOpt = userRepo.findByIdAndRole(id, Role.DRIVER);
+		if (driverOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Driver does not exist!");
+		}
+		driverDocumentRepo.deleteById(id);		
 		
 	}
 
 	public VehicleDTO getDriverVehicle(Long id) {
-		VehicleDTO v = new VehicleDTO(1L, 1L,"STANDARD","Ford Mondeo","NS-42069", new GeoCoordinateDTO("Kraj sveta",1,1), 4,false,false );
+		Optional<User> driverOpt = userRepo.findByIdAndRole(id, Role.DRIVER);
+		if (driverOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Driver does not exist!");
+		}
+		Optional<Vehicle> vehicle = vehicleRepo.findVehicleByDriverId(id);
+		if (vehicle.isEmpty()) {
+			throw new ObjectNotFoundException("Vehicle does not exist!");
+		}
+		VehicleDTO v = new VehicleDTO(vehicle.get());
 		return v;
 	}
 

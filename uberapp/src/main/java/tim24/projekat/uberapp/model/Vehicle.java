@@ -18,14 +18,15 @@ public class Vehicle
     private int numberOfSeats;
     private boolean allowedBabyInVehicle;
     private boolean allowedPetInVehicle;
-
+    private String model;
+    
     public Vehicle()
     {
         super();
     }
 
 	public Vehicle(Long id, String regPlates, User driver, VehicleType vehicleType, int numberOfSeats,
-			boolean allowedBabyInVehicle, boolean allowedPetInVehicle) {
+			boolean allowedBabyInVehicle, boolean allowedPetInVehicle, String model) {
 		super();
 		this.id = id;
 		this.regPlates = regPlates;
@@ -34,6 +35,7 @@ public class Vehicle
 		this.numberOfSeats = numberOfSeats;
 		this.allowedBabyInVehicle = allowedBabyInVehicle;
 		this.allowedPetInVehicle = allowedPetInVehicle;
+		this.setModel(model);
 	}
 
 	public Long getId() {
@@ -90,6 +92,14 @@ public class Vehicle
 
 	public void setAllowedPetInVehicle(boolean allowedPetInVehicle) {
 		this.allowedPetInVehicle = allowedPetInVehicle;
+	}
+
+	public String getModel() {
+		return model;
+	}
+
+	public void setModel(String model) {
+		this.model = model;
 	}
     
     
