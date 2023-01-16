@@ -8,26 +8,12 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import tim24.projekat.uberapp.DTO.GeoCoordinateDTO;
-import tim24.projekat.uberapp.DTO.PanicDTO;
-import tim24.projekat.uberapp.DTO.RideDTO;
-import tim24.projekat.uberapp.DTO.RideRequestDTO;
-import tim24.projekat.uberapp.DTO.RouteDTO;
-import tim24.projekat.uberapp.DTO.UserRef;
+import tim24.projekat.uberapp.DTO.*;
 import tim24.projekat.uberapp.exception.ActiveUserRideException;
 import tim24.projekat.uberapp.exception.InvalidRideStatusException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
-import tim24.projekat.uberapp.model.Location;
-import tim24.projekat.uberapp.model.Ride;
-import tim24.projekat.uberapp.model.RideStatus;
-import tim24.projekat.uberapp.model.Route;
-import tim24.projekat.uberapp.model.User;
-import tim24.projekat.uberapp.model.Vehicle;
-import tim24.projekat.uberapp.repo.LocationRepository;
-import tim24.projekat.uberapp.repo.RideRepository;
-import tim24.projekat.uberapp.repo.RouteRepository;
-import tim24.projekat.uberapp.repo.UserRepository;
-import tim24.projekat.uberapp.repo.VehicleRepository;
+import tim24.projekat.uberapp.model.*;
+import tim24.projekat.uberapp.repo.*;
 
 @Service
 public class RideService
@@ -42,7 +28,16 @@ public class RideService
 	private RouteRepository routeRepo;
 	@Autowired
 	private UserRepository userRepo;
-	
+	@Autowired
+	private UserService userService;
+	@Autowired
+	private PanicRepository panicRepository;
+
+	public Ride findRideById (Long id)
+	{
+		return rideRepo.findRideById(id).orElseThrow(()-> new ObjectNotFoundException("Ride not found."));
+	}
+
 	public RideDTO postRide(RideRequestDTO rideRequestDTO)
 	{
 		Ride ride = new Ride();
@@ -159,10 +154,14 @@ public class RideService
 		return dto;
 	}
 
-	public PanicDTO panicRide(Long id)
+	public PanicDTO panicRide(Long id, ReasonDTO reason, String userMail)
 	{
-		 PanicDTO panic = new PanicDTO();
-		 return panic;
+		User user = userService.findUserByEmail(userMail);
+		Ride ride = findRideById(id);
+		Date time = new Date();
+		Panic panic = panicRepository.save(new Panic(time, reason.getReason(), ride, user));
+		PanicDTO panicDTO = new PanicDTO(panic.getId(), new UserRef(user), new RideDTO(ride), time.toString(), reason.getReason());
+		return panicDTO;
 	}
 
 	public RideDTO acceptRide(Long id)

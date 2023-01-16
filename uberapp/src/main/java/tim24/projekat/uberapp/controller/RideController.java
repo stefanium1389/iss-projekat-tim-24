@@ -5,10 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tim24.projekat.uberapp.DTO.PanicDTO;
-import tim24.projekat.uberapp.DTO.RideDTO;
-import tim24.projekat.uberapp.DTO.RideRequestDTO;
-import tim24.projekat.uberapp.DTO.ErrorDTO;
+import tim24.projekat.uberapp.DTO.*;
 import tim24.projekat.uberapp.exception.ActiveUserRideException;
 import tim24.projekat.uberapp.exception.InvalidRideStatusException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
@@ -86,9 +83,10 @@ public class RideController
     }
 
     @PutMapping("/{id}/panic")
-    public ResponseEntity<PanicDTO> panicRide(@PathVariable("id") Long id)
+    public ResponseEntity<PanicDTO> panicRide(@PathVariable("id") Long id, @RequestBody ReasonDTO reason, @RequestHeader("Authorization") String auth)
     {
-        PanicDTO panic = rideService.panicRide(id);
+		String userMail = auth.substring(7);
+        PanicDTO panic = rideService.panicRide(id, reason, userMail);
         return new ResponseEntity<>(panic, HttpStatus.OK);
     }
     @PutMapping("/{id}/start")

@@ -13,6 +13,15 @@ public class PanicDTO
         super();
     }
 
+    public PanicDTO(Long id, UserRef user, RideDTO ride, String time, String reason)
+    {
+        this.id = id;
+        this.user = user;
+        this.ride = ride;
+        this.time = time;
+        this.reason = reason;
+    }
+
     public Long getId()
     {
         return this.id;
