@@ -58,6 +58,23 @@ public class Ride
 		this.setScheduledTime(scheduledTime);
 	}
 	
+	public Ride(Date startTime, Date endTime, Date scheduledTime, RideStatus status, boolean panic,
+			boolean babyInVehicle, boolean petInVehicle, Route route, User driver, Refusal refusal,
+			List<User> passengers) {
+		super();
+		this.startTime = startTime;
+		this.endTime = endTime;
+		this.scheduledTime = scheduledTime;
+		this.status = status;
+		this.panic = panic;
+		this.babyInVehicle = babyInVehicle;
+		this.petInVehicle = petInVehicle;
+		this.route = route;
+		this.driver = driver;
+		this.refusal = refusal;
+		this.passengers = passengers;
+	}
+
 	public Long getId() {
 		return id;
 	}

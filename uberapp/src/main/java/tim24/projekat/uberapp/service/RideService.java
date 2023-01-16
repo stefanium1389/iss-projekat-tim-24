@@ -28,6 +28,7 @@ import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.model.CreateRideResult;
 import tim24.projekat.uberapp.model.DurationDistance;
 import tim24.projekat.uberapp.model.Location;
+import tim24.projekat.uberapp.model.Refusal;
 import tim24.projekat.uberapp.model.Ride;
 import tim24.projekat.uberapp.model.RideStatus;
 import tim24.projekat.uberapp.model.Role;
@@ -58,7 +59,7 @@ public class RideService
 	
 	public RideDTO postRide(RideRequestDTO rideRequestDTO)
 	{
-		Ride ride = new Ride();
+		
 		List<User> passengers = new ArrayList<User>();
 		for(UserRef passengerDTO : rideRequestDTO.getPassengers()) {
 			Optional<User> passenger = userRepo.findUserByEmail(passengerDTO.getEmail());
@@ -73,49 +74,52 @@ public class RideService
 		if(passengers.size() < 1) {
 			throw new ObjectNotFoundException("Ne mozete zapoceti voznju bez putnika!");
 		}
-		ride.setPassengers(passengers);
+		
+		Route route;
 		try {
 			RouteDTO routeDto = rideRequestDTO.getLocations().get(0);
 			GeoCoordinateDTO dep = routeDto.getDeparture();
 			GeoCoordinateDTO dest = routeDto.getDestination();
-			Location departure = new Location();
-			departure.setGeoHeight(dep.getLatitude());
-			departure.setGeoWidth(dep.getLongitude());
-			Location destination = new Location();
-			destination.setGeoHeight(dest.getLatitude());
-			destination.setGeoWidth(dest.getLongitude());
-			Route route = new Route();
-			route.setStartLocation(departure);
-			route.setEndLocation(destination);
-			ride.setRoute(route);
+			Location departure = new Location(dep.getLatitude(),dep.getLongitude());
+			Location destination = new Location(dest.getLatitude(),dest.getLongitude());
+			DurationDistance dd = getDurationDistance(dep.getLatitude(),dep.getLongitude(),dest.getLatitude(),dest.getLongitude());
+			route = new Route(dd.getDistance(), (int)(dd.getDuration()/60), departure, destination);
 		}
 		catch(RuntimeException e){
 			throw new RuntimeException("Neodgovarajuce lokacije u rideRequestDTO!");
 		}
 		
-		
+		Date startTime;
+		Date endTime;
+		Date scheduledTime;
 		Date now = new Date(System.currentTimeMillis());
 		if (rideRequestDTO.getScheduledTime() == null) //MOZDA BUDE PROBLEMA OVDE 
 		{
-			ride.setStartTime(now);
-			ride.setEndTime(now);
-			ride.setScheduledTime(null);
+			startTime = now;
+			endTime = now;
+			scheduledTime = null;
 		}
 		else 
 		{
 			Date scheduled = parseDate(rideRequestDTO.getScheduledTime());
-			ride.setStartTime(scheduled);
-			ride.setEndTime(scheduled);
-			ride.setScheduledTime(scheduled);
+			startTime = scheduled;
+			endTime = scheduled;
+			scheduledTime = scheduled;
 		}
-		
-		ride.setBabyInVehicle(rideRequestDTO.isBabyTransport());
-		ride.setPetInVehicle(rideRequestDTO.isPetTransport());
-		ride.setStatus(RideStatus.PENDING);
+		boolean babyInVehicle = rideRequestDTO.isBabyTransport();
+		boolean petInVehicle = rideRequestDTO.isPetTransport();
+		RideStatus status = RideStatus.PENDING;
 		CreateRideResult driverEstimation = getBestDriverForRide(rideRequestDTO);
-		ride.setDriver(driverEstimation.getDriver()); 
+		User driver = driverEstimation.getDriver(); 
+		boolean panic = false;
+		Refusal refusal = null;
 		
 		//ovde se podrazumeva da je sve poslo po redu
+		//public Ride(Date startTime, Date endTime, Date scheduledTime, RideStatus status, boolean panic,
+		//		boolean babyInVehicle, boolean petInVehicle, Route route, User driver, Refusal refusal,
+		//		List<User> passengers) {
+		
+		Ride ride = new Ride(startTime,endTime,scheduledTime,status,panic,babyInVehicle,petInVehicle,route,driver,refusal,passengers);
 		saveRideDetailsOnDatabase(ride);
 		RideDTO dto = new RideDTO(ride);
 		dto.setVehicleType(rideRequestDTO.getVehicleType());

@@ -21,6 +21,14 @@ public class Location
 		this.geoWidth = geoWidth;
 		this.geoHeight = geoHeight;
 	}
+	
+	
+	public Location(double geoWidth, double geoHeight) {
+		super();
+		this.geoWidth = geoWidth;
+		this.geoHeight = geoHeight;
+	}
+	
 	public Long getId() {
 		return id;
 	}
