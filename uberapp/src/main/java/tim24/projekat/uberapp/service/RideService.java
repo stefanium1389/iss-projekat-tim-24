@@ -1,6 +1,7 @@
 package tim24.projekat.uberapp.service;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -88,8 +89,23 @@ public class RideService
 		catch(RuntimeException e){
 			throw new RuntimeException("Neodgovarajuce lokacije u rideRequestDTO!");
 		}
-		ride.setStartTime(new Date(System.currentTimeMillis()));
-		ride.setEndTime(new Date(System.currentTimeMillis()));
+		
+		
+		Date now = new Date(System.currentTimeMillis());
+		if (rideRequestDTO.getScheduledTime().equals("-1")) 
+		{
+			ride.setStartTime(now);
+			ride.setEndTime(now);
+			ride.setScheduledTime(null);
+		}
+		else 
+		{
+			Date scheduled = parseDate(rideRequestDTO.getScheduledTime());
+			ride.setStartTime(scheduled);
+			ride.setEndTime(scheduled);
+			ride.setScheduledTime(scheduled);
+		}
+		
 		ride.setBabyInVehicle(rideRequestDTO.isBabyTransport());
 		ride.setPetInVehicle(rideRequestDTO.isPetTransport());
 		ride.setStatus(RideStatus.PENDING);
@@ -156,31 +172,70 @@ public class RideService
 		}
 		
 		HashMap<User, Integer> minutesMap = new HashMap<User,Integer>();
-		//provera za vozače, PROVERITI DA LI IMA ZAKAZANE
-		for(Vehicle vehicle : vehicles) 
+		//provera za vozače
+		
+		for(Vehicle v : suitableVehicles) 
 		{
-			
-			User driver = vehicle.getDriver();
-			Optional<Ride> activeOpt = rideRepo.findActiveRideByDriverId(driver.getId());
-			int additionalMinutes = 0;
-			if (activeOpt.isPresent()) 
-			{
-				Ride activeRide = activeOpt.get();
-				additionalMinutes = getMinutesUntilRideCompletion(activeRide);
-			}
-			//todo: provera za zakazane
-			
+			User driver = v.getDriver();
 			RouteDTO routeDto = requestDTO.getLocations().get(0);
 			GeoCoordinateDTO dep = routeDto.getDeparture();
 			GeoCoordinateDTO dest = routeDto.getDestination();
+			Optional<Ride> activeOpt = rideRepo.findActiveRideByDriverId(driver.getId());
+			Optional<List<Ride>> scheduledOpt = rideRepo.findPendingScheduledRidesByDriverId(driver.getId());
+			int minutes = 0;
 			
-			DurationDistance dd = getDurationDistance(dep.getLatitude(),dep.getLongitude(),dest.getLatitude(),dest.getLongitude());
-			
-			int sum = (int)(dd.getDuration()/60) + additionalMinutes;
-			minutesMap.put(driver, sum);
+			//slucaj 1
+			if (activeOpt.isEmpty() && scheduledOpt.isEmpty())
+			{
+				Location vehicleLoc = v.getLocation();
+				DurationDistance dd = getDurationDistance(vehicleLoc.getGeoWidth(),vehicleLoc.getGeoHeight(),dep.getLatitude(), dep.getLongitude());
+				minutes = (int) dd.getDuration()/60;
+			}
+			//slucaj 2
+			else if (activeOpt.isPresent() && scheduledOpt.isPresent())
+			{
+				Ride activeRide = activeOpt.get();
+				int minutesUntilEnd = this.getMinutesUntilRideCompletion(activeRide);
+				Location activeEnd = activeRide.getRoute().getEndLocation();
+				DurationDistance dd = getDurationDistance(activeEnd.getGeoWidth(),activeEnd.getGeoHeight(), dep.getLatitude(), dep.getLongitude());
+				minutes = (int) dd.getDuration()/60 + minutesUntilEnd;
+			}
+			//slucaj 3
+			else if (activeOpt.isEmpty() && scheduledOpt.isPresent())
+			{
+				if (getRideIfCanStartBeforeFirstScheduled(requestDTO,scheduledOpt.get().get(0),v) != null) 
+				{
+					Location vehicleLoc = v.getLocation();
+					DurationDistance dd = getDurationDistance(vehicleLoc.getGeoWidth(),vehicleLoc.getGeoHeight(),dep.getLatitude(), dep.getLongitude());
+					minutes = (int) dd.getDuration()/60;
+				}
+				else 
+				{
+					Date whenCanRideBegin = getWhenCanRideBegin(scheduledOpt.get(), requestDTO);
+					minutes = (int)Duration.between(new Date().toInstant(),whenCanRideBegin.toInstant()).toMinutes();
+				}
+			}
+			//slucaj 4
+			else if (activeOpt.isPresent() && scheduledOpt.isPresent())
+			{
+				List<Ride> rides = new ArrayList<Ride>();
+				rides.add(activeOpt.get());
+				for (Ride r : scheduledOpt.get()) 
+				{
+					rides.add(r);
+				}
+				Date whenCanRideBegin = getWhenCanRideBegin(rides, requestDTO);
+				minutes = (int)Duration.between(new Date().toInstant(),whenCanRideBegin.toInstant()).toMinutes();
+			}
+			//nesto ne valja xd
+			else
+			{
+				throw new RuntimeException ("Error while checking for optimal driver!");
+			}
 			
 		}
 		
+		//od odgovarajućih naći koji je najbolji
 		User bestUser = null;
 		int bestMinutes = 99999; //veoma glupavo, znam
 		for (Map.Entry<User, Integer> set :
@@ -219,6 +274,82 @@ public class RideService
 		
 		return ride.getEstimatedTime() - minutes;
 		
+	}
+	
+	public Date getRideIfCanStartBeforeFirstScheduled(RideRequestDTO requestDTO, Ride firstScheduledRide, Vehicle vehicle) 
+	{
+		RouteDTO routeDto = requestDTO.getLocations().get(0);
+		GeoCoordinateDTO dep = routeDto.getDeparture();
+		GeoCoordinateDTO dest = routeDto.getDestination();
+		DurationDistance dd = getDurationDistance(dep.getLatitude(),dep.getLongitude(),dest.getLatitude(),dest.getLongitude());
+		int durationInMinutes = (int) dd.getDuration()/60;
+		Date suitableDate;
+		
+		
+			Date nextStart = firstScheduledRide.getStartTime();
+			Instant currentEndInstant = new Date().toInstant();
+			
+			int fromCurrentEndToStartMinutes = (int)getDurationDistance(vehicle.getLocation().getGeoWidth(), vehicle.getLocation().getGeoHeight(),
+					dep.getLatitude(), dep.getLongitude()).getDuration()/60;
+			Duration fromCurrentEndToStartDuration = Duration.ofMinutes(fromCurrentEndToStartMinutes);
+			
+			Location l = firstScheduledRide.getRoute().getStartLocation();
+			int fromNewEndToStartNextMinutes = (int)getDurationDistance(dest.getLatitude(),dest.getLongitude()
+					,l.getGeoWidth(), l.getGeoHeight()).getDuration()/60;
+			Duration fromNewEndToStartNextDuration = Duration.ofMinutes(fromCurrentEndToStartMinutes);
+			
+			Duration freeTime = Duration.between(currentEndInstant, nextStart.toInstant());
+			
+			if (durationInMinutes < freeTime.minus(fromCurrentEndToStartDuration).minus(fromNewEndToStartNextDuration).toMinutes()) 
+			{
+				Instant ins = currentEndInstant.plus(Duration.ofMinutes(fromCurrentEndToStartMinutes));
+				return Date.from(ins);
+			}
+			
+			return null;
+	}
+	
+	public Date getWhenCanRideBegin(List<Ride> rides, RideRequestDTO requestDTO)
+	{
+		RouteDTO routeDto = requestDTO.getLocations().get(0);
+		GeoCoordinateDTO dep = routeDto.getDeparture();
+		GeoCoordinateDTO dest = routeDto.getDestination();
+		DurationDistance dd = getDurationDistance(dep.getLatitude(),dep.getLongitude(),dest.getLatitude(),dest.getLongitude());
+		int durationInMinutes = (int) dd.getDuration()/60;
+		Date suitableDate;
+		for (int i = 0; i<rides.size()-1; i++) 
+		{
+			Date nextStart = rides.get(i+1).getStartTime();
+			int currentEstimation = rides.get(i).getEstimatedTime();
+			Instant currentStartInstant = rides.get(i).getStartTime().toInstant();
+			Instant currentEndInstant = currentStartInstant.plus(Duration.ofMinutes(currentEstimation));
+			
+			Location currentEndLocation = rides.get(i).getRoute().getEndLocation();
+			Location nextStartLocation = rides.get(i+1).getRoute().getStartLocation();
+			
+			int fromCurrentEndToStartMinutes = (int)getDurationDistance(currentEndLocation.getGeoWidth(), currentEndLocation.getGeoHeight(),
+					dep.getLatitude(), dep.getLongitude()).getDuration()/60;
+			Duration fromCurrentEndToStartDuration = Duration.ofMinutes(fromCurrentEndToStartMinutes);
+			
+			int fromNewEndToStartNextMinutes = (int)getDurationDistance(dest.getLatitude(),dest.getLongitude(),nextStartLocation.getGeoWidth(),
+					nextStartLocation.getGeoHeight()).getDuration()/60;
+			Duration fromNewEndToStartNextDuration = Duration.ofMinutes(fromCurrentEndToStartMinutes);
+			
+			Duration freeTime = Duration.between(currentEndInstant, nextStart.toInstant());
+			
+			if (durationInMinutes < freeTime.minus(fromCurrentEndToStartDuration).minus(fromNewEndToStartNextDuration).toMinutes()) 
+			{
+				Instant ins = currentEndInstant.plus(Duration.ofMinutes(fromCurrentEndToStartMinutes));
+				return Date.from(ins);
+			}
+			
+		}
+		
+		Date lastEnd = rides.get(rides.size()-1).getEndTime();
+		Location lastEndLocation = rides.get(rides.size()-1).getRoute().getEndLocation();
+		int fromLastEndToNewMinutes = (int)getDurationDistance(lastEndLocation.getGeoWidth(), lastEndLocation.getGeoHeight(),
+				dep.getLatitude(), dep.getLongitude()).getDuration()/60;
+		return Date.from(lastEnd.toInstant().plus(Duration.ofMinutes(fromLastEndToNewMinutes)));
 	}
 
 	public RideDTO getDriverRide(Long id)
@@ -392,7 +523,16 @@ public class RideService
 
 	        return new DurationDistance(duration, distance);
 	    }
+	  
+	  	public Date parseDate (String date) 
+		{
+			Instant instant = Instant.parse(date);
+			Date parsedDate = Date.from(instant);
+			return parsedDate;
+		}
 	}
+
+
 
 //	private void GenerateVehicle() {
 //		VehicleType type = new VehicleType(1L,"STANDARDNO",200,100);

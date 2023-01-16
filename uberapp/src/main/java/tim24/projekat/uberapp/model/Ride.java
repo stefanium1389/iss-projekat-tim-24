@@ -16,6 +16,7 @@ public class Ride
     private Long id;
     private Date startTime;
     private Date endTime;
+    private Date scheduledTime;
     
     @Enumerated(EnumType.STRING)
     private RideStatus status;
@@ -40,7 +41,7 @@ public class Ride
 	}
 
 	public Ride(Long id, Date startTime, Date endTime, RideStatus status, boolean panic, boolean babyInVehicle,
-			boolean petInVehicle, User driver, Refusal refusal, List<User> passengers, Route route)
+			boolean petInVehicle, User driver, Refusal refusal, List<User> passengers, Route route, Date scheduledTime)
 	{
 		super();
 		this.id = id;
@@ -54,6 +55,7 @@ public class Ride
 		this.refusal = refusal;
 		this.passengers = passengers;
 		this.route = route;
+		this.setScheduledTime(scheduledTime);
 	}
 	
 	public Long getId() {
@@ -138,6 +140,14 @@ public class Ride
 			return true;
 		}
 		return false;
+	}
+
+	public Date getScheduledTime() {
+		return scheduledTime;
+	}
+
+	public void setScheduledTime(Date scheduledTime) {
+		this.scheduledTime = scheduledTime;
 	}
     
 }
