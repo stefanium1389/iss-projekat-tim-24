@@ -7,8 +7,8 @@ insert into vehicle_type values (1,150,200,'Standardno');
 insert into vehicle_type values (2,175,300,'Luksuzno');
 insert into vehicle_type values (3,200,500,'Kombi');
 
-insert into locations (`GEO_HEIGHT`,`GEO_WIDTH`) values (69.42,69.42);
-insert into locations (`GEO_HEIGHT`,`GEO_WIDTH`) values (42.69,42.69);
+insert into locations (`LATITUDE`,`LONGITUDE`) values (45.4242,15.5555);
+insert into locations (`LATITUDE`,`LONGITUDE`) values (45.4242,15.7575);
 
 insert into vehicles (`ALLOWED_BABY_IN_VEHICLE`,`ALLOWED_PET_IN_VEHICLE`,`NUMBER_OF_SEATS`,`REG_PLATES`,`DRIVER_ID`,`LOCATION_ID`,`VEHICLE_TYPE_ID`) values (false,false,3,'NS-420-BL',3,1,1);
 

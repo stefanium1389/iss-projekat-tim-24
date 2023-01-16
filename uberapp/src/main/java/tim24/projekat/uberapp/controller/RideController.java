@@ -18,6 +18,7 @@ import tim24.projekat.uberapp.service.RideService;
 @RequestMapping("api/ride")
 public class RideController
 {
+	
 	@Autowired
 	private RideService rideService;
 	
