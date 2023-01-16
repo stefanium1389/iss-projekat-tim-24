@@ -20,7 +20,6 @@ import tim24.projekat.uberapp.DTO.DriverDocumentRequestDTO;
 import tim24.projekat.uberapp.DTO.DurationDTO;
 import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.RideDTO;
-import tim24.projekat.uberapp.DTO.Error;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.DTO.UserRequestDTO;
 import tim24.projekat.uberapp.DTO.VehicleDTO;

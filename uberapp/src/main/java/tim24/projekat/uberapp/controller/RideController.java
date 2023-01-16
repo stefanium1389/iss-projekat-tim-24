@@ -9,6 +9,7 @@ import tim24.projekat.uberapp.DTO.*;
 import tim24.projekat.uberapp.exception.ActiveUserRideException;
 import tim24.projekat.uberapp.exception.InvalidRideStatusException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
+import tim24.projekat.uberapp.security.JwtTokenUtil;
 import tim24.projekat.uberapp.service.RideService;
 
 @RestController
@@ -17,6 +18,8 @@ public class RideController
 {
 	@Autowired
 	private RideService rideService;
+	@Autowired
+	private JwtTokenUtil jwtTokenUtil;
 	
     @PostMapping
     public ResponseEntity<?> postRide(@RequestBody RideRequestDTO rideRequestDTO)
@@ -85,7 +88,7 @@ public class RideController
     @PutMapping("/{id}/panic")
     public ResponseEntity<PanicDTO> panicRide(@PathVariable("id") Long id, @RequestBody ReasonDTO reason, @RequestHeader("Authorization") String auth)
     {
-		String userMail = auth.substring(7);
+		String userMail = jwtTokenUtil.getUsernameFromToken(auth.substring(7));
         PanicDTO panic = rideService.panicRide(id, reason, userMail);
         return new ResponseEntity<>(panic, HttpStatus.OK);
     }
