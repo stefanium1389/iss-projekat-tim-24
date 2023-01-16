@@ -115,9 +115,6 @@ public class RideService
 		Refusal refusal = null;
 		
 		//ovde se podrazumeva da je sve poslo po redu
-		//public Ride(Date startTime, Date endTime, Date scheduledTime, RideStatus status, boolean panic,
-		//		boolean babyInVehicle, boolean petInVehicle, Route route, User driver, Refusal refusal,
-		//		List<User> passengers) {
 		
 		Ride ride = new Ride(startTime,endTime,scheduledTime,status,panic,babyInVehicle,petInVehicle,route,driver,refusal,passengers);
 		saveRideDetailsOnDatabase(ride);
@@ -141,6 +138,7 @@ public class RideService
 	
 	public CreateRideResult getBestDriverForRide(RideRequestDTO requestDTO) 
 	{
+		
 		Optional<List<User>> optDrivers = userRepo.findAllByRole(Role.DRIVER);
 		if (optDrivers.isEmpty()) 
 		{
@@ -152,15 +150,16 @@ public class RideService
 		{
 			throw new ConditionNotMetException("There are no vehicles!");
 		}
-		
 		List<Vehicle> vehicles = optVehicles.get();
 		List<Vehicle> suitableVehicles = new ArrayList<Vehicle>();
 		
 		//provera za vozila
 		for(Vehicle vehicle : vehicles) //i cant do sql
 		{
-			if (!(vehicle.getVehicleType().toString().equals(requestDTO.getVehicleType())))  //ovde mozda zezne
+			System.out.println("pre suitable vehicle for-a: "+vehicle.getDriver().getName());
+			if (!(vehicle.getVehicleType().getTypeName().toString().toUpperCase().trim().equals(requestDTO.getVehicleType().toUpperCase().trim())))  //ovde mozda zezne
 			{
+				System.out.println("prosao tip proveru");
 				continue;
 			}
 			if (vehicle.getNumberOfSeats() < requestDTO.getPassengers().size())
@@ -191,18 +190,27 @@ public class RideService
 			Optional<List<Ride>> scheduledOpt = rideRepo.findPendingScheduledRidesByDriverId(driver.getId());
 			int minutes = 0;
 			Duration driverTodaysTime = driverService.getDurationOfTodaysWorkByDriverId(v.getDriver().getId());
-			
+			System.out.println("da li je scheduled opt prazan: "+scheduledOpt.isEmpty());
+			System.out.println("scheduled veleicina:" + scheduledOpt.get().size());
+			boolean isScheduledOptEmpty = true;
+			if (scheduledOpt.get().size() != 0) 
+			{
+				isScheduledOptEmpty = false;
+			}
 			
 			//slucaj 1
-			if (activeOpt.isEmpty() && scheduledOpt.isEmpty())
+			if (activeOpt.isEmpty() && isScheduledOptEmpty)
 			{
+				System.out.println("desio se slucaj #1");
 				Location vehicleLoc = v.getLocation();
 				DurationDistance dd = getDurationDistance(vehicleLoc.getGeoWidth(),vehicleLoc.getGeoHeight(),dep.getLatitude(), dep.getLongitude());
 				minutes = (int) dd.getDuration()/60;
+				System.out.println("minuti "+minutes);
 			}
 			//slucaj 2
-			else if (activeOpt.isPresent() && scheduledOpt.isPresent())
+			else if (activeOpt.isPresent() && isScheduledOptEmpty)
 			{
+				System.out.println("desio se slucaj #2");
 				Ride activeRide = activeOpt.get();
 				int minutesUntilEnd = this.getMinutesUntilRideCompletion(activeRide);
 				Location activeEnd = activeRide.getRoute().getEndLocation();
@@ -210,8 +218,8 @@ public class RideService
 				minutes = (int) dd.getDuration()/60 + minutesUntilEnd;
 			}
 			//slucaj 3
-			else if (activeOpt.isEmpty() && scheduledOpt.isPresent())
-			{
+			else if (activeOpt.isEmpty() && !isScheduledOptEmpty)
+			{	System.out.println("desio se slucaj #3");
 				if (getRideIfCanStartBeforeFirstScheduled(requestDTO,scheduledOpt.get().get(0),v) != null) 
 				{
 					Location vehicleLoc = v.getLocation();
@@ -225,8 +233,8 @@ public class RideService
 				}
 			}
 			//slucaj 4
-			else if (activeOpt.isPresent() && scheduledOpt.isPresent())
-			{
+			else if (activeOpt.isPresent() && !isScheduledOptEmpty)
+			{	System.out.println("desio se slucaj #4");
 				List<Ride> rides = new ArrayList<Ride>();
 				rides.add(activeOpt.get());
 				for (Ride r : scheduledOpt.get()) 
@@ -242,7 +250,7 @@ public class RideService
 				throw new RuntimeException ("Error while checking for optimal driver!");
 			}
 			
-			if (driverTodaysTime.toMinutes() + (long)minutes < 8*60) 
+			if (true) 
 			{
 				minutesMap.put(driver, minutes);
 			}
@@ -254,6 +262,7 @@ public class RideService
 		int bestMinutes = 99999; //veoma glupavo, znam
 		for (Map.Entry<User, Integer> set :
             minutesMap.entrySet()) {
+			System.out.println(set.getKey().getName());
 			if (set.getValue() < bestMinutes) 
 			{
 				bestUser = set.getKey();

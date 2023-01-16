@@ -18,6 +18,7 @@ public class Vehicle
     private int numberOfSeats;
     private boolean allowedBabyInVehicle;
     private boolean allowedPetInVehicle;
+    @OneToOne
     private Location location;
 
     public Vehicle()

@@ -25,6 +25,7 @@ public class RideController
     public ResponseEntity<?> postRide(@RequestBody RideRequestDTO rideRequestDTO)
     {
     	try {
+    		System.out.println("loc iz requesta" + rideRequestDTO.getLocations().get(0).getDeparture().getLatitude());
 	        RideDTO ride = rideService.postRide(rideRequestDTO);
 	        return new ResponseEntity<RideDTO>(ride, HttpStatus.OK);
     	}

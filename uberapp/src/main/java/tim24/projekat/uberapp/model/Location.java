@@ -12,6 +12,7 @@ public class Location
     private Long id;
     private double geoWidth;
     private double geoHeight;
+    
 	public Location() {
 		super();
 	}
