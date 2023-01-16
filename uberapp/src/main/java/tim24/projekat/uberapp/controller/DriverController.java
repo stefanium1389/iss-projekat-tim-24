@@ -2,6 +2,7 @@ package tim24.projekat.uberapp.controller;
 
 import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +21,7 @@ import tim24.projekat.uberapp.DTO.DriverDocumentRequestDTO;
 import tim24.projekat.uberapp.DTO.DurationDTO;
 import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.RideDTO;
+import tim24.projekat.uberapp.DTO.UserRegistrationDTO;
 import tim24.projekat.uberapp.DTO.ErrorDTO;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.DTO.UserRequestDTO;
@@ -31,6 +33,7 @@ import tim24.projekat.uberapp.DTO.WorkingHourPutDTO;
 import tim24.projekat.uberapp.exception.ConditionNotMetException;
 import tim24.projekat.uberapp.exception.ObjectAlreadyPresentException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
+import tim24.projekat.uberapp.model.User;
 import tim24.projekat.uberapp.service.DriverService;
 
 
@@ -43,32 +46,56 @@ public class DriverController {
 	
 	@PostMapping
 	@PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<UserResponseDTO> CreateDriver(
-			@RequestBody UserRequestDTO newDriver) {
-		
-		UserResponseDTO driver = driverService.createDriver(newDriver);
-		return new ResponseEntity<UserResponseDTO>(driver, HttpStatus.OK);
+	public ResponseEntity<?> CreateDriver(
+			@RequestBody UserRegistrationDTO newDriver) {
+		try {
+			UserResponseDTO driver = driverService.createDriver(newDriver);
+			return new ResponseEntity<UserResponseDTO>(driver, HttpStatus.OK);
+		}
+		catch(ObjectAlreadyPresentException e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.BAD_REQUEST);
+		}
 	}
 	
 	@GetMapping
-	public ResponseEntity<DTOList<UserResponseDTO>> GetAllDrivers(
+	public ResponseEntity<?> GetAllDrivers(
 			@RequestParam("page") int page, 
 			@RequestParam("size") int size) {
 		DTOList<UserResponseDTO> list = driverService.GetAllDrivers(page, size);
 		return new ResponseEntity<DTOList<UserResponseDTO>>(list, HttpStatus.OK);
 	}
 	@GetMapping("/{id}")
-	public ResponseEntity<UserResponseDTO> GetDriverDetails(
+	public ResponseEntity<?> GetDriverDetails(
 			@PathVariable("id") Long id){
-		UserResponseDTO driver = driverService.getDriverById(id);
-		return new ResponseEntity<UserResponseDTO>(driver, HttpStatus.OK);
+		try {
+			UserResponseDTO driver = driverService.getDriverById(id);
+			return new ResponseEntity<UserResponseDTO>(driver, HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e){
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
+		
 	}
 	@PutMapping("/{id}")
-	public ResponseEntity<UserResponseDTO> UpdateDriverDetails(
+	public ResponseEntity<?> UpdateDriverDetails(
 			@RequestBody UserRequestDTO updatedDriver, 
-			@PathVariable("id") Long id){
-		UserResponseDTO driver = driverService.updateDriver(id, updatedDriver);
-		return new ResponseEntity<UserResponseDTO>(driver, HttpStatus.OK);
+			@PathVariable("id") Long id)
+	{
+		try {
+			UserResponseDTO driver = driverService.updateDriver(id, updatedDriver);
+			return new ResponseEntity<UserResponseDTO>(driver, HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
+		catch(Exception e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.BAD_REQUEST);
+		}
+		
 	}
 	@GetMapping("/{id}/documents")
 	public ResponseEntity<ArrayList<DriverDocumentDTO>> GetDriverDocuments(

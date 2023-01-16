@@ -9,6 +9,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import tim24.projekat.uberapp.DTO.DTOList;
@@ -19,6 +23,7 @@ import tim24.projekat.uberapp.DTO.RejectionDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
 import tim24.projekat.uberapp.DTO.RouteDTO;
 import tim24.projekat.uberapp.DTO.UserRef;
+import tim24.projekat.uberapp.DTO.UserRegistrationDTO;
 import tim24.projekat.uberapp.DTO.UserRequestDTO;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.DTO.VehicleDTO;
@@ -28,6 +33,7 @@ import tim24.projekat.uberapp.DTO.WorkingHourPostDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourPutDTO;
 import tim24.projekat.uberapp.exception.ConditionNotMetException;
 import tim24.projekat.uberapp.exception.InvalidRoleException;
+import tim24.projekat.uberapp.exception.ObjectAlreadyPresentException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.model.Role;
 import tim24.projekat.uberapp.model.User;
@@ -43,41 +49,58 @@ public class DriverService {
 	
 	@Autowired
 	private WorkingHourRepo workingHourRepo;
+	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
-	public UserResponseDTO createDriver(UserRequestDTO newDriver) {
-		return new UserResponseDTO(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
+	public UserResponseDTO createDriver(UserRegistrationDTO newDriver) {
+		Optional<User> existing = userRepo.findUserByEmail(newDriver.getEmail());
+		if(existing.isPresent()) {
+			throw new ObjectAlreadyPresentException("Driver with already exists with email: " + existing.get().getEmail());
+		}
+		User driver = new User(newDriver);
+		driver.setRole(Role.DRIVER); //defaultno role je USER a activated je false!
+		driver.setActivated(true);
+		userRepo.save(driver);
+		userRepo.flush();
+		
+		UserResponseDTO dto = new UserResponseDTO(driver);
+		
+		return dto;
 	}
 
 	public DTOList<UserResponseDTO> GetAllDrivers(int page, int size) {
 		DTOList<UserResponseDTO> list = new DTOList<UserResponseDTO>();
-		UserResponseDTO driver1 = new UserResponseDTO(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
-		list.add(driver1);
-		UserResponseDTO driver2 = new UserResponseDTO(1L,"Pero","Perovic","profilePicture.jpg","+3810641235667","mail@email.com","Bulevar Evrope 42");
-		list.add(driver2);
+		Page<User> drivers = userRepo.findAllByRole(Role.DRIVER, PageRequest.of(page,size));
+		for(User d : drivers.getContent()) {
+			list.add(new UserResponseDTO(d));
+		}
+		list.setTotalCount((int) drivers.getTotalElements());
 		return list;
 	}
 
 	public UserResponseDTO getDriverById(Long id) {
 		
-		Optional<User> driverOpt = userRepo.findUserById(id);
+		Optional<User> driverOpt = userRepo.findByIdAndRole(id, Role.DRIVER);
 		if (driverOpt.isEmpty()) 
 		{
 			throw new ObjectNotFoundException("Driver does not exist!");
 		}
 		
 		User driver = driverOpt.get();
+		UserResponseDTO dto = new UserResponseDTO(driver);
+		return dto;
 		
-		if (driver.getRole() == Role.DRIVER) 
-		{
-			UserResponseDTO dto = new UserResponseDTO(driver);
-			return dto;
-		}
-		else {
-			throw new InvalidRoleException("Found user is not a driver!");
-		}
 	}
 
 	public UserResponseDTO updateDriver(Long id, UserRequestDTO updatedDriver) {
+		Optional<User> driverOpt = userRepo.findByIdAndRole(id, Role.DRIVER);
+		if (driverOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Driver does not exist!");
+		}
+		User driver = driverOpt.get();
+		
 		return new UserResponseDTO(1L,"Stefan","Bogdanovic","profilePicture.jpg","+3810641234567","mail@email.com","Bulevar Oslobodjenja 169");
 	}
 

@@ -1,5 +1,8 @@
 package tim24.projekat.uberapp.model;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,6 +12,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import tim24.projekat.uberapp.DTO.UserRegistrationDTO;
+import tim24.projekat.uberapp.DTO.UserRequestDTO;
 
 @Table(name="users")
 @Entity
@@ -33,6 +38,10 @@ public class User {
 	@Transient
 	private String accessToken;
 	
+	@Transient
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	
 	public User() {
 		super();
 	}
@@ -51,6 +60,20 @@ public class User {
 		this.activated = activated;
 		this.blocked = blocked;
 		this.role = role;
+	}
+
+	public User(UserRegistrationDTO dto) {
+		this.name = dto.getName();
+		this.surname = dto.getSurname();
+		this.profilePicture = dto.getProfilePicture();
+		this.telephoneNumber = dto.getTelephoneNumber();
+		this.email = dto.getEmail();
+		this.password = passwordEncoder.encode(dto.getPassword());
+		this.address = dto.getAddress();
+		this.activated = false;
+		this.blocked = false;
+		this.role = Role.USER;
+		
 	}
 
 	public Long getId() {

@@ -48,7 +48,7 @@ public class PassengerService {
 		if(existingUser.isPresent()) {
 			throw new EmailAlreadyExistsException("User with that email already exists!");
 		}
-		User newUser = new User();
+		User newUser = new User(userRegistrationDTO);
 		newUser.setName(userRegistrationDTO.getName());
 		newUser.setEmail(userRegistrationDTO.getEmail());
 		newUser.setAddress(userRegistrationDTO.getAddress());
