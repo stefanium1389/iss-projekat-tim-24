@@ -1,5 +1,6 @@
 package tim24.projekat.uberapp.service;
 
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -497,7 +498,9 @@ public class RideService
 		Panic panic = panicRepository.save(new Panic(time, reason.getReason(), ride, user));
 		ride.setPanic(true);
 		rideRepo.save(ride);
-		PanicDTO panicDTO = new PanicDTO(panic.getId(), new UserRef(user), new RideDTO(ride), time.toString(), reason.getReason());
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		String timeString = sdf.format(time);
+		PanicDTO panicDTO = new PanicDTO(panic.getId(), new UserRef(user), new RideDTO(ride), timeString, reason.getReason());
 		return panicDTO;
 	}
 
