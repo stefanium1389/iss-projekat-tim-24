@@ -67,7 +67,7 @@ public class UserService {
 	}
 	
 	public User findUserByEmail(String email) {
-		return UserRepo.findUserByEmail(email).orElseThrow(()-> new ObjectNotFoundException("nema me"));
+		return UserRepo.findUserByEmail(email).orElseThrow(()-> new ObjectNotFoundException("User not found."));
 	}
 	
 	public DTOList<RideDTO> getUserRidesById(Long id, int page, int size, String sort, String from, String to) {

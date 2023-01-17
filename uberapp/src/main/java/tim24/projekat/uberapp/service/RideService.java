@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import tim24.projekat.uberapp.DTO.*;
 import tim24.projekat.uberapp.DTO.GeoCoordinateDTO;
 import tim24.projekat.uberapp.DTO.OsrmResponse;
 import tim24.projekat.uberapp.DTO.PanicDTO;
@@ -25,6 +26,8 @@ import tim24.projekat.uberapp.exception.ConditionNotMetException;
 import tim24.projekat.uberapp.exception.InvalidRideStatusException;
 import tim24.projekat.uberapp.exception.InvalidTimeException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
+import tim24.projekat.uberapp.model.*;
+import tim24.projekat.uberapp.repo.*;
 import tim24.projekat.uberapp.model.CreateRideResult;
 import tim24.projekat.uberapp.model.DurationDistance;
 import tim24.projekat.uberapp.model.Location;
@@ -59,7 +62,16 @@ public class RideService
 	@Autowired
 	private UserRepository userRepo;
 	@Autowired
+	private UserService userService;
+	@Autowired
 	private DriverService driverService;
+	@Autowired
+	private PanicRepository panicRepository;
+
+	public Ride findRideById (Long id)
+	{
+		return rideRepo.findRideById(id).orElseThrow(()-> new ObjectNotFoundException("Ride not found."));
+	}
 	
 	public RideDTO postRide(RideRequestDTO rideRequestDTO)
 	{
@@ -477,10 +489,20 @@ public class RideService
 		return dto;
 	}
 
-	public PanicDTO panicRide(Long id)
+	public PanicDTO panicRide(Long id, ReasonDTO reason, String userMail)
 	{
-		 PanicDTO panic = new PanicDTO();
-		 return panic;
+		User user = userService.findUserByEmail(userMail);
+		Ride ride = findRideById(id);
+		Date time = new Date();
+		if(ride.getStatus() != RideStatus.STARTED)
+			throw new ConditionNotMetException("You cannot panic in a ride that isn't active.");
+		if(! ride.getPassengers().contains(user))
+			throw new ConditionNotMetException("You cannot panic in a ride that you aren't in.");
+		Panic panic = panicRepository.save(new Panic(time, reason.getReason(), ride, user));
+		ride.setPanic(true);
+		rideRepo.save(ride);
+		PanicDTO panicDTO = new PanicDTO(panic.getId(), new UserRef(user), new RideDTO(ride), time.toString(), reason.getReason());
+		return panicDTO;
 	}
 
 	public RideDTO acceptRide(Long id)
