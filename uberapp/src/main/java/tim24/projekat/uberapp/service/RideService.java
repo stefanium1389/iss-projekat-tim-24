@@ -177,19 +177,13 @@ public class RideService
 	
 	public CreateRideResult getBestDriverForRide(RideRequestDTO requestDTO) 
 	{
-		
-		Optional<List<User>> optDrivers = userRepo.findAllByRole(Role.DRIVER);
-		if (optDrivers.isEmpty()) 
-		{
-			throw new ConditionNotMetException("There are no drivers!");
-		}
-		
-		Optional<List<Vehicle>> optVehicles = Optional.of(vehicleRepo.findAll());
-		if (optVehicles.isEmpty()) 
+		//VRATITI NA OVO!
+		//List<Vehicle> vehicles = vehicleRepo.findDistinctVehiclesWithActiveWorkingHours();
+		List<Vehicle> vehicles = vehicleRepo.findAll();
+		if (vehicles.isEmpty()) 
 		{
 			throw new ConditionNotMetException("There are no vehicles!");
 		}
-		List<Vehicle> vehicles = optVehicles.get();
 		List<Vehicle> suitableVehicles = new ArrayList<Vehicle>();
 		
 		//provera za vozila
