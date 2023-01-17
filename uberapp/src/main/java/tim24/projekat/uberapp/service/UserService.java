@@ -26,9 +26,13 @@ import tim24.projekat.uberapp.DTO.UnregisteredRequestDTO;
 import tim24.projekat.uberapp.DTO.UnregisteredResponseDTO;
 import tim24.projekat.uberapp.DTO.UserRef;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
+import tim24.projekat.uberapp.exception.InvalidArgumentException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
+import tim24.projekat.uberapp.model.DurationDistance;
 import tim24.projekat.uberapp.model.User;
+import tim24.projekat.uberapp.model.VehicleType;
 import tim24.projekat.uberapp.repo.UserRepository;
+import tim24.projekat.uberapp.repo.VehicleTypeRepository;
 
 
 @Service
@@ -129,11 +133,7 @@ public class UserService {
 		return response;
 	}
 
-	public UnregisteredResponseDTO postUnregistered(UnregisteredRequestDTO urd) {
-		UnregisteredResponseDTO u = new UnregisteredResponseDTO(10L, 100L);
-		return u;
-	}
-
+	
 	public void putBlockUserById(Long id) {
 		// TODO Auto-generated method stub
 		

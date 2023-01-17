@@ -36,6 +36,7 @@ import tim24.projekat.uberapp.DTO.UnregisteredResponseDTO;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.model.User;
 import tim24.projekat.uberapp.security.JwtTokenUtil;
+import tim24.projekat.uberapp.service.RideService;
 import tim24.projekat.uberapp.service.UserService;
 
 
@@ -51,6 +52,9 @@ public class UserController {
 	
 	@Autowired
 	private JwtTokenUtil jwtTokenUtil;
+	
+	@Autowired
+	private RideService rideService;
 	
 	@PostMapping ("user/login")
 	public ResponseEntity<?> postLogin (@RequestBody LoginRequestDTO loginRequestDTO)
@@ -157,9 +161,7 @@ public class UserController {
 	@PostMapping ("unregisteredUser/")
 	public ResponseEntity<UnregisteredResponseDTO> postUnregistered ( @RequestBody UnregisteredRequestDTO urd)
 	{
-		
-		
-		UnregisteredResponseDTO u = userService.postUnregistered(urd);
+		UnregisteredResponseDTO u = rideService.postUnregistered(urd);
 		return new ResponseEntity<>(u,HttpStatus.OK);
 	}
 	
