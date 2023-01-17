@@ -11,6 +11,9 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,15 +36,18 @@ import tim24.projekat.uberapp.DTO.WorkingHourDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourPostDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourPutDTO;
 import tim24.projekat.uberapp.exception.ConditionNotMetException;
+import tim24.projekat.uberapp.exception.InvalidArgumentException;
 import tim24.projekat.uberapp.exception.InvalidRoleException;
 import tim24.projekat.uberapp.exception.ObjectAlreadyPresentException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.model.DriverDocument;
+import tim24.projekat.uberapp.model.Ride;
 import tim24.projekat.uberapp.model.Role;
 import tim24.projekat.uberapp.model.User;
 import tim24.projekat.uberapp.model.Vehicle;
 import tim24.projekat.uberapp.model.WorkingHour;
 import tim24.projekat.uberapp.repo.DriverDocumentRepository;
+import tim24.projekat.uberapp.repo.RideRepository;
 import tim24.projekat.uberapp.repo.UserRepository;
 import tim24.projekat.uberapp.repo.VehicleRepository;
 import tim24.projekat.uberapp.repo.WorkingHourRepo;
@@ -63,11 +69,14 @@ public class DriverService {
 	
 	@Autowired
 	private VehicleRepository vehicleRepo;
+	
+	@Autowired
+	private RideRepository rideRepo;
 
 	public UserResponseDTO createDriver(UserRegistrationDTO newDriver) {
 		Optional<User> existing = userRepo.findUserByEmail(newDriver.getEmail());
 		if(existing.isPresent()) {
-			throw new ObjectAlreadyPresentException("Driver with already exists with email: " + existing.get().getEmail());
+			throw new ObjectAlreadyPresentException("User with that email already exists!");
 		}
 		User driver = new User(newDriver);
 		driver.setRole(Role.DRIVER); //defaultno role je USER a activated je false!
@@ -146,11 +155,11 @@ public class DriverService {
 		return dddto;
 	}
 
-	public void DeleteDriver(Long id) {
-		Optional<User> driverOpt = userRepo.findByIdAndRole(id, Role.DRIVER);
-		if (driverOpt.isEmpty()) 
+	public void DeleteDriverDocument(Long id) {
+		Optional<DriverDocument> ddOpt = driverDocumentRepo.findById(id);
+		if (ddOpt.isEmpty()) 
 		{
-			throw new ObjectNotFoundException("Driver does not exist!");
+			throw new ObjectNotFoundException("Document does not exist!");
 		}
 		driverDocumentRepo.deleteById(id);		
 		
@@ -171,20 +180,51 @@ public class DriverService {
 	}
 
 	public VehicleDTO updateVehicle(Long id, VehicleRequestDTO newV) {
-		VehicleDTO v = new VehicleDTO(1L, 1L,"STANDARD","Ford Mondeo","NS-42069", new GeoCoordinateDTO("Kraj sveta",1,1), 4,false,false );
+		Optional<User> driverOpt = userRepo.findByIdAndRole(id, Role.DRIVER);
+		if (driverOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Driver does not exist!");
+		}
+		Vehicle vehicle = new Vehicle(newV, id);
+		vehicleRepo.save(vehicle);
+		vehicleRepo.flush();
+		
+		VehicleDTO v = new VehicleDTO(vehicle);
 		return v;
-	}
+	}	
 
 	public VehicleDTO addDriverVehicle(Long id, VehicleRequestDTO newV) {
-		VehicleDTO v = new VehicleDTO(1L, 1L,"STANDARD","Ford Mondeo","NS-42069", new GeoCoordinateDTO("Kraj sveta",1,1), 4,false,false );
+		Optional<User> driverOpt = userRepo.findByIdAndRole(id, Role.DRIVER);
+		if (driverOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Driver does not exist!");
+		}
+		Vehicle vehicle = new Vehicle(newV, id);
+		vehicleRepo.save(vehicle);
+		vehicleRepo.flush();
+		
+		VehicleDTO v = new VehicleDTO(vehicle);
 		return v;
 	}
 
 	public DTOList<WorkingHourDTO> getDriverWorkinghour(Long id, int page, int size, String fromDate, String toDate) {
-		DTOList<WorkingHourDTO> list = new DTOList<WorkingHourDTO>();
-		WorkingHourDTO wh = new WorkingHourDTO(1L,"18.11.1991T19:00","19.11.1991T00:00");
-		list.add(wh);
-		return list;
+		Optional<User> driverOpt = userRepo.findByIdAndRole(id, Role.DRIVER);
+		if (driverOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Driver does not exist!");
+		}		
+		Date startDate = parseDate(fromDate);
+		Date endDate = parseDate(toDate);
+		Page<WorkingHour> whPage;
+		Pageable pageable = PageRequest.of(page, size, Sort.by(Direction.ASC));
+		whPage = workingHourRepo.findByDriverIdAndRideDateBetween(id, startDate, endDate, pageable);
+		
+		DTOList<WorkingHourDTO> whs = new DTOList<WorkingHourDTO>();
+		for(WorkingHour wh : whPage.getContent()) {
+			whs.add(new WorkingHourDTO(wh.getId(),formatDate(wh.getStartTime()),formatDate(wh.getEndTime())));
+		}
+		whs.setTotalCount((int) whPage.getTotalElements());
+		return whs;
 	}
 	
 	public DTOList<WorkingHourDTO> getLastActiveDriverWorkinghour(Long id) {
@@ -248,20 +288,32 @@ public class DriverService {
 		return wh;
 	}
 
-	public DTOList<RideDTO> getDriverRides(Long id, int page, int size, String sort, String fromDate, String toDate) {
+	public DTOList<RideDTO> getDriverRides(Long id, int page, int size, String sortDirection, String fromDate, String toDate) {
+		Optional<User> driverOpt = userRepo.findByIdAndRole(id, Role.DRIVER);
+		if (driverOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Driver does not exist!");
+		}		
+		Date startDate = parseDate(fromDate);
+		Date endDate = parseDate(toDate);
+		Page<Ride> ridesPage;
+		
+		if(sortDirection.equals("asc")) {
+			Pageable pageable = PageRequest.of(page, size, Sort.by(Direction.ASC));
+			ridesPage = rideRepo.findByDriverIdAndRideDateBetween(id, startDate, endDate, pageable);
+		}
+        if(sortDirection.equals("desc")) {
+        	Pageable pageable = PageRequest.of(page, size, Sort.by(Direction.DESC));
+			ridesPage = rideRepo.findByDriverIdAndRideDateBetween(id, startDate, endDate, pageable);
+        }
+        else {
+        	throw new InvalidArgumentException("Invalid sort argument");
+        }
 		DTOList<RideDTO> rides = new DTOList<RideDTO>();
-		RejectionDTO rej = new RejectionDTO ("neki razlog","datummm");
-		GeoCoordinateDTO gcd1 = new GeoCoordinateDTO ("adresa1",123,321);
-		GeoCoordinateDTO gcd2 = new GeoCoordinateDTO ("adresa2",424,572);
-		
-		ArrayList<RouteDTO> routes = new ArrayList<RouteDTO>();
-		routes.add(new RouteDTO(gcd1,gcd2));
-		
-		ArrayList<UserRef> passengers = new ArrayList<UserRef>();
-		passengers.add(new UserRef(1L, "mailic@mail.com"));
-		
-		RideDTO r = new RideDTO(300L, "18:44", "19:30", 123,new UserRef(2L, "mailicXD@mail.com"),passengers,40,"tip",false,true,rej,routes, "PENDING");
-		rides.add(r);
+		for(Ride r : ridesPage.getContent()) {
+			rides.add(new RideDTO(r));
+		}
+		rides.setTotalCount((int) ridesPage.getTotalElements());
 		return rides;
 	}
 
@@ -283,7 +335,11 @@ public class DriverService {
 	}
 
 	public WorkingHourDTO getDriverWorkingHourDetails(Long workinghoursId) {
-		WorkingHourDTO wh = new WorkingHourDTO(1L,"18.11.1991T19:00","19.11.1991T00:00");
+		Optional<WorkingHour> realWH = workingHourRepo.findById(workinghoursId);
+		if(realWH.isEmpty()) {
+			throw new ObjectNotFoundException("Working hour does not exist!");
+		}
+		WorkingHourDTO wh = new WorkingHourDTO(realWH.get().getId(),formatDate(realWH.get().getStartTime()),formatDate(realWH.get().getEndTime()));
 		return wh;
 	}
 	

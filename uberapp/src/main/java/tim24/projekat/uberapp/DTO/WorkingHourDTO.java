@@ -13,7 +13,7 @@ public class WorkingHourDTO {
 		this.start = start;
 		this.end = end;
 	}
-	
+
 	public Long getId() {
 		return id;
 	}

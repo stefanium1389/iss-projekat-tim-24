@@ -22,6 +22,7 @@ import tim24.projekat.uberapp.DTO.DriverDocumentRequestDTO;
 import tim24.projekat.uberapp.DTO.DurationDTO;
 import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.RideDTO;
+import tim24.projekat.uberapp.DTO.SuccessDTO;
 import tim24.projekat.uberapp.DTO.UserRegistrationDTO;
 import tim24.projekat.uberapp.DTO.ErrorDTO;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
@@ -33,6 +34,7 @@ import tim24.projekat.uberapp.DTO.WorkingHourDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourPostDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourPutDTO;
 import tim24.projekat.uberapp.exception.ConditionNotMetException;
+import tim24.projekat.uberapp.exception.InvalidArgumentException;
 import tim24.projekat.uberapp.exception.ObjectAlreadyPresentException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.model.User;
@@ -130,8 +132,9 @@ public class DriverController {
 	public ResponseEntity<?> DeleteDriverDocuments(
 			@PathVariable("id") Long id){
 		try {
-		driverService.DeleteDriver(id);
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		driverService.DeleteDriverDocument(id);
+		SuccessDTO success = new SuccessDTO("Driver document deleted successfully");
+		return new ResponseEntity<SuccessDTO>(success,HttpStatus.NO_CONTENT);
 		}
 		catch(ObjectNotFoundException e) {
 			ErrorDTO error = new ErrorDTO(e.getMessage());
@@ -140,27 +143,42 @@ public class DriverController {
 	}
 	
 	@GetMapping("/{id}/vehicle")
-	public ResponseEntity<VehicleDTO> GetDriverVehicle(
+	public ResponseEntity<?> GetDriverVehicle(
 			@PathVariable("id") Long id){
-		VehicleDTO v = driverService.getDriverVehicle(id);
-		
-		return new ResponseEntity<VehicleDTO>(v, HttpStatus.OK);
+		try {
+			VehicleDTO v = driverService.getDriverVehicle(id);
+			return new ResponseEntity<VehicleDTO>(v, HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
 	}
 	@PutMapping("/{id}/vehicle")
-	public ResponseEntity<VehicleDTO> UpdateDriverVehicle(
+	public ResponseEntity<?> UpdateDriverVehicle(
 			@RequestBody VehicleRequestDTO newV, 
 			@PathVariable("id") Long id){
-		VehicleDTO v = driverService.updateVehicle(id, newV);
-		
-		return new ResponseEntity<VehicleDTO>(v,HttpStatus.OK);
+		try {
+			VehicleDTO v = driverService.updateVehicle(id, newV);
+			return new ResponseEntity<VehicleDTO>(v,HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
 	}
 	@PostMapping("/{id}/vehicle")
-	public ResponseEntity<VehicleDTO> AddDriverVehicle(
+	public ResponseEntity<?> AddDriverVehicle(
 			@RequestBody VehicleRequestDTO newV, 
 			@PathVariable("id") Long id){
-		VehicleDTO v = driverService.addDriverVehicle(id, newV);
-		
-		return new ResponseEntity<VehicleDTO>(v, HttpStatus.OK);
+		try {
+			VehicleDTO v = driverService.addDriverVehicle(id, newV);
+			return new ResponseEntity<VehicleDTO>(v, HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
 	}
 	
 	@GetMapping("/{id}/working-hour")
@@ -171,18 +189,28 @@ public class DriverController {
 			@RequestParam("from") String fromDate,
 			@RequestParam("to") String toDate)
 	{
-		DTOList<WorkingHourDTO> list = driverService.getDriverWorkinghour(id, page, size, fromDate, toDate);
-		
-		return new ResponseEntity<DTOList<WorkingHourDTO>>(list, HttpStatus.OK);
+		try {
+			DTOList<WorkingHourDTO> list = driverService.getDriverWorkinghour(id, page, size, fromDate, toDate);
+			return new ResponseEntity<DTOList<WorkingHourDTO>>(list, HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e) {
+			Error error = new Error(e.getMessage());
+    		return new ResponseEntity<Error>(error, HttpStatus.NOT_FOUND);
+		}
 	}
 	
 	@GetMapping("/{id}/last-active-working-hour")
-	public ResponseEntity<DTOList<WorkingHourDTO>> GetLastDriverWorkinghour(
+	public ResponseEntity<?> GetLastDriverWorkinghour(
 			@PathVariable("id") Long id)
 	{
-		DTOList<WorkingHourDTO> list = driverService.getLastActiveDriverWorkinghour(id);
-		
-		return new ResponseEntity<DTOList<WorkingHourDTO>>(list, HttpStatus.OK);
+		try {
+			DTOList<WorkingHourDTO> list = driverService.getLastActiveDriverWorkinghour(id);
+			return new ResponseEntity<DTOList<WorkingHourDTO>>(list, HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e) {
+			Error error = new Error(e.getMessage());
+    		return new ResponseEntity<Error>(error, HttpStatus.NOT_FOUND);
+		}
 	}
 	
 	@PostMapping("/{id}/working-hour")
@@ -223,7 +251,7 @@ public class DriverController {
 	}
 	
 	@GetMapping("/{id}/ride")
-	public ResponseEntity<DTOList<RideDTO>> GetDriverRides(
+	public ResponseEntity<?> GetDriverRides(
 			@PathVariable("id") Long id,
 			@RequestParam("page") int page,
 			@RequestParam("size") int size,
@@ -231,16 +259,33 @@ public class DriverController {
 			@RequestParam("from") String fromDate,
 			@RequestParam("to") String toDate)
 			{
-		
-		DTOList<RideDTO> dtoList = driverService.getDriverRides(id,page,size,sort,fromDate,toDate);
-		return new ResponseEntity<DTOList<RideDTO>>(dtoList,HttpStatus.OK);
+		try {
+			DTOList<RideDTO> dtoList = driverService.getDriverRides(id,page,size,sort,fromDate,toDate);
+			return new ResponseEntity<DTOList<RideDTO>>(dtoList,HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e) {
+    		Error error = new Error(e.getMessage());
+    		return new ResponseEntity<Error>(error, HttpStatus.NOT_FOUND);
+    	}	
+		catch(InvalidArgumentException e) {
+    		Error error = new Error(e.getMessage());
+    		return new ResponseEntity<Error>(error, HttpStatus.BAD_REQUEST);
+    	}	
 	}
 	
+	
 	@GetMapping("/working-hour/{working-hour-id}")
-	public ResponseEntity<WorkingHourDTO> GetDriverWorkinghoursDetails(
+	public ResponseEntity<?> GetDriverWorkinghoursDetails(
 			@PathVariable("working-hour-id") Long workinghoursId){
-		WorkingHourDTO wh = driverService.getDriverWorkingHourDetails(workinghoursId);
-		return new ResponseEntity<WorkingHourDTO>(wh, HttpStatus.OK);
+		try {
+			WorkingHourDTO wh = driverService.getDriverWorkingHourDetails(workinghoursId);
+			return new ResponseEntity<WorkingHourDTO>(wh, HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e) {
+    		Error error = new Error(e.getMessage());
+    		return new ResponseEntity<Error>(error, HttpStatus.NOT_FOUND);
+    	}
+		
 	}
 	
 	@PutMapping("/working-hour/{working-hour-id}")

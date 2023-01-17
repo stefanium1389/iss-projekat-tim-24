@@ -1,6 +1,19 @@
 package tim24.projekat.uberapp.model;
 
-import jakarta.persistence.*;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import tim24.projekat.uberapp.DTO.VehicleRequestDTO;
+import tim24.projekat.uberapp.repo.UserRepository;
+import tim24.projekat.uberapp.repo.VehicleTypeRepository;
 
 @Table(name = "vehicles")
 @Entity
@@ -20,6 +33,14 @@ public class Vehicle
     private boolean allowedPetInVehicle;
     private String model;
     
+    @Transient
+    @Autowired
+    private VehicleTypeRepository vtRepo;
+    
+    @Transient
+    @Autowired
+    private UserRepository userRepo;
+    
     public Vehicle()
     {
         super();
@@ -36,6 +57,16 @@ public class Vehicle
 		this.allowedBabyInVehicle = allowedBabyInVehicle;
 		this.allowedPetInVehicle = allowedPetInVehicle;
 		this.setModel(model);
+	}
+
+	public Vehicle(VehicleRequestDTO newV, Long driverId) {
+		this.regPlates = newV.getLicenseNumber();
+		this.driver = userRepo.findByIdAndRole(driverId, Role.DRIVER).get();
+		this.vehicleType = vtRepo.findByTypeName(newV.getVehicleType()).get();
+		this.numberOfSeats = newV.getPassengerSeats();
+		this.allowedBabyInVehicle = newV.isBabyTransport();
+		this.allowedPetInVehicle = newV.isPetTransport();
+		this.setModel(newV.getModel());	
 	}
 
 	public Long getId() {
