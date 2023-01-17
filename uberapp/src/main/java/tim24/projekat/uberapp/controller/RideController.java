@@ -9,6 +9,7 @@ import tim24.projekat.uberapp.DTO.*;
 import tim24.projekat.uberapp.exception.ActiveUserRideException;
 import tim24.projekat.uberapp.exception.ConditionNotMetException;
 import tim24.projekat.uberapp.exception.InvalidRideStatusException;
+import tim24.projekat.uberapp.exception.InvalidTimeException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.security.JwtTokenUtil;
 import tim24.projekat.uberapp.service.RideService;
@@ -32,6 +33,26 @@ public class RideController
 	        return new ResponseEntity<RideDTO>(ride, HttpStatus.OK);
     	}
     	catch(ActiveUserRideException e) 
+    	{
+    		ErrorDTO error = new ErrorDTO(e.getMessage());
+    		return new ResponseEntity<ErrorDTO>(error,HttpStatus.BAD_REQUEST);
+    	}
+    	catch(ObjectNotFoundException e) 
+    	{
+    		ErrorDTO error = new ErrorDTO(e.getMessage());
+    		return new ResponseEntity<ErrorDTO>(error,HttpStatus.NOT_FOUND);
+    	}
+    	catch(InvalidTimeException e) 
+    	{
+    		ErrorDTO error = new ErrorDTO(e.getMessage());
+    		return new ResponseEntity<ErrorDTO>(error,HttpStatus.BAD_REQUEST);
+    	}
+    	catch(ConditionNotMetException e) 
+    	{
+    		ErrorDTO error = new ErrorDTO(e.getMessage());
+    		return new ResponseEntity<ErrorDTO>(error,HttpStatus.BAD_REQUEST);
+    	}
+    	catch(RuntimeException e) 
     	{
     		ErrorDTO error = new ErrorDTO(e.getMessage());
     		return new ResponseEntity<ErrorDTO>(error,HttpStatus.BAD_REQUEST);
