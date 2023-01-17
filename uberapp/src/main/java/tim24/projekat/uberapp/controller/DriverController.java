@@ -62,7 +62,6 @@ public class DriverController {
 			return new ResponseEntity<ErrorDTO>(error, HttpStatus.BAD_REQUEST);
 		}
 	}
-	
 	@GetMapping
 	public ResponseEntity<?> GetAllDrivers(
 			@RequestParam("page") int page, 

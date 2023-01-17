@@ -688,6 +688,27 @@ public class RideService
 			favoriteRideRepo.delete(fav.get());
 			return new SuccessDTO("Successful deletion of favorite location!");
 		}
+		
+		public UnregisteredResponseDTO postUnregistered(UnregisteredRequestDTO urd) {
+			
+			Optional<VehicleType> vtOpt = vehicleTypeRepo.findByTypeName(urd.getVehicleType());
+			if(vtOpt.isEmpty()) {
+				throw new InvalidArgumentException("Invalid vehicle type!");
+			}
+			if(urd.getLocations().size()==0) {
+				throw new InvalidArgumentException("Invalid Locations!");
+			}
+			RouteDTO r = urd.getLocations().get(0);
+			
+			DurationDistance dd = getDurationDistance(
+					r.getDeparture().getLatitude(), r.getDeparture().getLongitude(), 
+					r.getDestination().getLatitude(), r.getDestination().getLongitude()
+			);
+			int price = calculatePrice(urd.getVehicleType(), dd.getDistance());
+			
+			UnregisteredResponseDTO u = new UnregisteredResponseDTO((long) dd.getDuration(),(long) price);
+			return u;
+		}
 
 
 }
