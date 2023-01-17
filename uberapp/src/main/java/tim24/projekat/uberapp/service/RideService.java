@@ -64,6 +64,8 @@ public class RideService
 	private PanicRepository panicRepository;
 	@Autowired
 	private FavoriteRideRepository favoriteRideRepo;
+	@Autowired
+	private RefusalRepository refusalRepo;
 
 	public Ride findRideById (Long id)
 	{
@@ -487,8 +489,9 @@ public class RideService
 		if(ride.isEmpty()) {
 			throw new ObjectNotFoundException("Ride does not exist!");
 		}
-		if(ride.get().getStatus() != RideStatus.PENDING || ride.get().getStatus() != RideStatus.STARTED) {
-			throw new InvalidRideStatusException("Cannot cancel a ride that is not in status PENDING or STARTED!");
+		RideStatus status = ride.get().getStatus();
+		if(!status.equals(RideStatus.PENDING)  && !status.equals(RideStatus.ACCEPTED)) {
+			throw new InvalidRideStatusException("Cannot cancel a ride that is not in status PENDING or ACCEPTED!");
 		}
 		Ride actualRide = ride.get();
 		actualRide.setStatus(RideStatus.CANCELED);
@@ -572,12 +575,16 @@ public class RideService
 		if(ride.isEmpty()) {
 			throw new ObjectNotFoundException("Ride does not exist!");
 		}
-		if(ride.get().getStatus() != RideStatus.PENDING) {
+		RideStatus status = ride.get().getStatus();
+		if(!status.equals(RideStatus.PENDING)  && !status.equals(RideStatus.ACCEPTED)) {
 			throw new InvalidRideStatusException("Cannot cancel a ride that is not in status PENDING!");
 		}
 		Ride actualRide = ride.get();
 		actualRide.setStatus(RideStatus.REJECTED);
-		actualRide.setRefusal(new Refusal(reason));
+		Refusal ref = new Refusal(reason);
+		actualRide.setRefusal(ref);
+		refusalRepo.save(ref);
+		refusalRepo.flush();
 		rideRepo.save(actualRide);
 		rideRepo.flush();
 		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(3L);
