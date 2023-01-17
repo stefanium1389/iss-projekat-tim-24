@@ -121,7 +121,6 @@ public class RideService
 		
 		if (rideRequestDTO.getScheduledTime() == null) //MOZDA BUDE PROBLEMA OVDE 
 		{
-			System.out.println("ušao sam u if lmaooooo");
 			startTime = addMinutesToDate(now,driverEstimation.getMinutes());
 			endTime = addMinutesToDate(now,driverEstimation.getMinutes());;
 			scheduledTime = null;
@@ -165,7 +164,6 @@ public class RideService
 	public int calculatePrice(String type, double distance) 
 	{
 		Optional<VehicleType> typeOpt =vehicleTypeRepo.findOneByTypeName(type);
-		System.out.println("RACUNAM CENU IJOOOJ");
 		if (typeOpt.isEmpty()) 
 		{
 			throw new ObjectNotFoundException("Vehicle type not found!");
@@ -197,22 +195,25 @@ public class RideService
 		//provera za vozila
 		for(Vehicle vehicle : vehicles) //i cant do sql
 		{
-			System.out.println("pre suitable vehicle for-a: "+vehicle.getDriver().getName());
+			
 			if (!(vehicle.getVehicleType().getTypeName().toString().toUpperCase().trim().equals(requestDTO.getVehicleType().toUpperCase().trim())))  //ovde mozda zezne
 			{
-				System.out.println("nije prosao tip proveru");
+				System.out.println(vehicle.getDriver().getName()+" nije prosao TIP proveru");
 				continue;
 			}
 			if (vehicle.getNumberOfSeats() < requestDTO.getPassengers().size())
 			{
+				System.out.println(vehicle.getDriver().getName()+" nije prosao BROJ VOZILA proveru");
 				continue;
 			}
 			if (requestDTO.isBabyTransport() && !vehicle.isAllowedBabyInVehicle())
 			{
+				System.out.println(vehicle.getDriver().getName()+" nije prosao BEBA proveru");
 				continue;
 			}
 			if (requestDTO.isPetTransport() && !vehicle.isAllowedPetInVehicle())
 			{
+				System.out.println(vehicle.getDriver().getName()+" nije prosao LJUBIMAC proveru");
 				continue;
 			}
 			suitableVehicles.add(vehicle);
@@ -231,8 +232,7 @@ public class RideService
 			Optional<List<Ride>> scheduledOpt = rideRepo.findPendingScheduledRidesByDriverId(driver.getId());
 			int minutes = 0;
 			Duration driverTodaysTime = driverService.getDurationOfTodaysWorkByDriverId(v.getDriver().getId());
-			System.out.println("da li je scheduled opt prazan: "+scheduledOpt.isEmpty());
-			System.out.println("scheduled veleicina:" + scheduledOpt.get().size());
+			System.out.println("provera za "+v.getDriver().getName()+" ,scheduled velicina:" + scheduledOpt.get().size());
 			boolean isScheduledOptEmpty = true;
 			if (scheduledOpt.get().size() != 0) 
 			{
@@ -246,7 +246,6 @@ public class RideService
 				Location vehicleLoc = v.getLocation();
 				DurationDistance dd = getDurationDistance(vehicleLoc.getLatitude(),vehicleLoc.getLongitude(),dep.getLatitude(), dep.getLongitude());
 				minutes = (int) dd.getDuration()/60;
-				System.out.println("minuti "+minutes);
 			}
 			//slucaj 2
 			else if (activeOpt.isPresent() && isScheduledOptEmpty)
@@ -310,17 +309,19 @@ public class RideService
 		}
 		
 		//od odgovarajućih naći koji je najbolji
+		System.out.println("                       ");
 		User bestUser = null;
 		int bestMinutes = 99999; //veoma glupavo, znam
 		for (Map.Entry<User, Integer> set :
             minutesMap.entrySet()) {
-			System.out.println("finalni odabir - "+ set.getKey().getName()+" "+set.getValue());
+			System.out.println("#finalni kandidat# "+ set.getKey().getName()+" - "+set.getValue()+ " minuta");
 			if (set.getValue() < bestMinutes) 
 			{
 				bestUser = set.getKey();
 				bestMinutes = set.getValue();
 			}
        }
+		System.out.println("                       ");
 		if (bestUser == null) 
 		{
 			throw new RuntimeException("Cant find best user!");
