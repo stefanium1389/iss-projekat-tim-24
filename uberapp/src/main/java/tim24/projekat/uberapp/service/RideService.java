@@ -110,7 +110,12 @@ public class RideService
 		boolean petInVehicle = rideRequestDTO.isPetTransport();
 		RideStatus status = RideStatus.PENDING;
 		CreateRideResult driverEstimation = getBestDriverForRide(rideRequestDTO);
-		User driver = driverEstimation.getDriver(); 
+		User driver = null;
+		if (rideRequestDTO.getScheduledTime() == null) 
+		{
+			driver = driverEstimation.getDriver(); 
+		}
+		
 		boolean panic = false;
 		Refusal refusal = null;
 		
@@ -131,6 +136,11 @@ public class RideService
 			if (scheduled.before(now)) 
 			{
 				throw new InvalidTimeException("Scheduled date is in past!");
+			}
+			Date fiveHoursAfterNow = Date.from(now.toInstant().plus(Duration.ofHours(5)));
+			if (scheduled.after(fiveHoursAfterNow)) 
+			{
+				throw new InvalidTimeException("Cant schedule more than 5 hours in future!");
 			}
 			startTime = scheduled;
 			endTime = scheduled;
@@ -315,11 +325,14 @@ public class RideService
 				bestMinutes = set.getValue();
 			}
        }
-		System.out.println("                       ");
+		
 		if (bestUser == null) 
 		{
 			throw new RuntimeException("Cant find best user!");
 		}
+		System.out.println("### odabran je ### "+ bestUser.getName()+" - " + bestMinutes + " minuta");
+		System.out.println("                       ");
+		
 		return new CreateRideResult(bestUser, bestMinutes);
 
 	}
