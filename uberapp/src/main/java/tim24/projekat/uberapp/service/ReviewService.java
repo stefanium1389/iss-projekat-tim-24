@@ -1,17 +1,17 @@
 package tim24.projekat.uberapp.service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.ReviewDTO;
 import tim24.projekat.uberapp.DTO.ReviewRequestDTO;
-import tim24.projekat.uberapp.DTO.UserRef;
+import tim24.projekat.uberapp.exception.InvalidArgumentException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.model.Review;
 import tim24.projekat.uberapp.model.ReviewDriver;
@@ -54,9 +54,9 @@ public class ReviewService {
 	public DTOList<ReviewDTO> getDriverReviewsById(Long id) {
 		Optional<User> dOpt = userRepo.findByIdAndRole(id, Role.DRIVER);
 		if(dOpt.isEmpty()) {
-			throw new ObjectNotFoundException("Vehicle does not exist!");
+			throw new ObjectNotFoundException("Driver does not exist!");
 		}
-		List<ReviewDriver> rdList= reviewRepo.findByDriverId(id);
+		List<ReviewDriver> rdList = reviewRepo.findByDriverId(id);
 		DTOList<ReviewDTO> dto = new DTOList<ReviewDTO>();
 		for(ReviewDriver rd : rdList) {
 			dto.add(new ReviewDTO(rd));
@@ -85,12 +85,23 @@ public class ReviewService {
 		}
 		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(rOpt.get().getDriver().getId());
 		ReviewVehicle rv = new ReviewVehicle();
+		rv.setRide(rOpt.get());
 		rv.setComment(reviewRequestDTO.getComment());
 		rv.setGrade(reviewRequestDTO.getRating());
 		rv.setVehicle(v.get());
 		rv.setDate(new Date(System.currentTimeMillis()));
 		rv.setCommenter(commenter);
+		
+//		try {
+			reviewRepo.save(rv);
+			reviewRepo.flush();
+//		}
+//		catch(DataIntegrityViolationException e) {
+//			throw new InvalidArgumentException("Only one comment per user per ride!");
+//		}
+//		
 		return new ReviewDTO(rv);
+	
 	}
 
 	public ReviewDTO postDriverReview(String userMail, Long rideId, ReviewRequestDTO reviewRequestDTO) {
@@ -101,11 +112,21 @@ public class ReviewService {
 		}
 		User d = rOpt.get().getDriver();
 		ReviewDriver rv = new ReviewDriver();
+		rv.setRide(rOpt.get());
 		rv.setComment(reviewRequestDTO.getComment());
 		rv.setGrade(reviewRequestDTO.getRating());
 		rv.setDriver(d);
 		rv.setDate(new Date(System.currentTimeMillis()));
 		rv.setCommenter(commenter);
+		
+//		try {
+			reviewRepo.save(rv);
+			reviewRepo.flush();
+//		}
+//		catch(DataIntegrityViolationException e) {
+//			throw new InvalidArgumentException("Only one comment per user per ride!");
+//		}
+//		
 		return new ReviewDTO(rv);
 	}
 	

@@ -10,6 +10,11 @@ public class ReviewRequestDTO {
 		this.rating = rating;
 		this.comment = comment;
 	}
+	
+	public ReviewRequestDTO() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 
 	public int getRating() {
 		return rating;

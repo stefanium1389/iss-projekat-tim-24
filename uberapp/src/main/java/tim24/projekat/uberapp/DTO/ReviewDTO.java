@@ -1,8 +1,6 @@
 package tim24.projekat.uberapp.DTO;
 
 import tim24.projekat.uberapp.model.Review;
-import tim24.projekat.uberapp.model.ReviewDriver;
-import tim24.projekat.uberapp.model.ReviewVehicle;
 
 public class ReviewDTO {
 	private Long id;

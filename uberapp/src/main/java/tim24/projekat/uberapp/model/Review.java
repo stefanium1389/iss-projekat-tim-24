@@ -11,6 +11,9 @@ import jakarta.persistence.*;
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "review_type", discriminatorType=DiscriminatorType.STRING)
+//@Table(name = "reviews", uniqueConstraints = {
+//	    @UniqueConstraint(columnNames = {"commenter_id", "ride_id"})    //probao sam da ogranicim na jedan komentar po komentatoru po voznji, onda sam 
+//	})																	skontao da ne bih mogao da imam komentar na vozaca i vozilo tako, mislimo dalje
 public abstract class Review
 {
     @Id

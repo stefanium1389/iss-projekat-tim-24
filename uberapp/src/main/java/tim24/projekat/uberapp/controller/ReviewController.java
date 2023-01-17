@@ -1,8 +1,5 @@
 package tim24.projekat.uberapp.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.ErrorDTO;
-import tim24.projekat.uberapp.DTO.LoginRequestDTO;
 import tim24.projekat.uberapp.DTO.ReviewDTO;
 import tim24.projekat.uberapp.DTO.ReviewRequestDTO;
-import tim24.projekat.uberapp.DTO.UserRef;
+import tim24.projekat.uberapp.exception.InvalidArgumentException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.security.JwtTokenUtil;
 import tim24.projekat.uberapp.service.ReviewService;
@@ -76,7 +72,7 @@ public class ReviewController {
 	
 	//			POST
 	
-	@PostMapping ("/{rideId}/vehicle/{id}")
+	@PostMapping ("/{rideId}/vehicle")
 	public ResponseEntity<?> postVehicleReview (@RequestHeader("Authorization") String auth, @PathVariable("rideId") Long rideId, @RequestBody ReviewRequestDTO reviewRequestDTO )
 	{
 		try {
@@ -88,9 +84,13 @@ public class ReviewController {
 			ErrorDTO error = new ErrorDTO(e.getMessage());
 			return new ResponseEntity<ErrorDTO>(error,HttpStatus.NOT_FOUND);
 		}
+		catch(InvalidArgumentException e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error,HttpStatus.BAD_REQUEST);
+		}
 	}
 	
-	@PostMapping ("/{rideId}/driver/{id}")
+	@PostMapping ("/{rideId}/driver")
 	public ResponseEntity<?> postDriverReview (@RequestHeader("Authorization") String auth, @PathVariable("rideId") Long rideId, @RequestBody ReviewRequestDTO reviewRequestDTO)
 	{
 		try {
@@ -101,6 +101,10 @@ public class ReviewController {
 		catch(ObjectNotFoundException e) {
 			ErrorDTO error = new ErrorDTO(e.getMessage());
 			return new ResponseEntity<ErrorDTO>(error,HttpStatus.NOT_FOUND);
+		}
+		catch(InvalidArgumentException e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error,HttpStatus.BAD_REQUEST);
 		}
 	}
 	
