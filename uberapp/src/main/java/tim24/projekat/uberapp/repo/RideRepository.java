@@ -18,8 +18,6 @@ public interface RideRepository extends JpaRepository<Ride, Long>
     Optional<Ride> findRideById(Long id);
 
 	Optional<Ride> findRideByDriverId(Long id);
-
-	
 	
 	Optional<Ride> findRideByPassengersId(Long id);
 	
@@ -41,4 +39,6 @@ public interface RideRepository extends JpaRepository<Ride, Long>
 	@Query("SELECT r FROM Ride r JOIN r.passengers p WHERE p.id = :passengerId AND r.startTime BETWEEN :startDate AND :endDate")
 	Page<Ride> findByPassengerIdAndStartTimeBetween(@Param("passengerId") Long passengerId, @Param("startDate") Date startDate, @Param("endDate") Date endDate, Pageable pageable);
 
+	@Query(value = "SELECT r FROM Ride r WHERE r.status != 'CANCELED' AND r.scheduledTime BETWEEN :startDate AND :endDate AND r.driver IS NULL")
+	List<Ride> findScheduledRidesWithoutDriverInTimePeriod(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
 }
