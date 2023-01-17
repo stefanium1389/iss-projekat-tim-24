@@ -3,6 +3,7 @@ package tim24.projekat.uberapp.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -34,8 +35,11 @@ import tim24.projekat.uberapp.DTO.RideDTO;
 import tim24.projekat.uberapp.DTO.UnregisteredRequestDTO;
 import tim24.projekat.uberapp.DTO.UnregisteredResponseDTO;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
+import tim24.projekat.uberapp.exception.ConditionNotMetException;
+import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.model.User;
 import tim24.projekat.uberapp.security.JwtTokenUtil;
+import tim24.projekat.uberapp.service.RideService;
 import tim24.projekat.uberapp.service.UserService;
 
 
@@ -52,10 +56,14 @@ public class UserController {
 	@Autowired
 	private JwtTokenUtil jwtTokenUtil;
 	
+	@Autowired
+	private RideService rideService;
+	
 	@PostMapping ("user/login")
 	public ResponseEntity<?> postLogin (@RequestBody LoginRequestDTO loginRequestDTO)
 	{
-		try {
+		try
+		{
 		UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(loginRequestDTO.getEmail(),
 				loginRequestDTO.getPassword());
 		Authentication auth = authenticationManager.authenticate(authReq);
@@ -71,10 +79,10 @@ public class UserController {
 		
 		return new ResponseEntity<LoginResponseDTO>(response,HttpStatus.OK);
 		}
-		catch(AuthenticationException e) {
+		catch(AuthenticationException e)
+		{
 			ErrorDTO error = new ErrorDTO(e.getMessage());
 			return new ResponseEntity<ErrorDTO>(error,HttpStatus.BAD_REQUEST);
-			
 		}
 	}
 	
@@ -106,8 +114,8 @@ public class UserController {
 	}
 	@GetMapping("user/search") //Nije po swaggeru, ovaj smo sami dodali jer nam je trebao, pretraga korisnika po imenu i e-mailu
 	public ResponseEntity<DTOList<UserResponseDTO>> findUsers (
-			@RequestParam("querry") String querry
-			){
+			@RequestParam("querry") String querry)
+	{
 		DTOList<UserResponseDTO> dtoList = userService.searchUsers(querry);
 		return new ResponseEntity<>(dtoList,HttpStatus.OK);
 	}
@@ -157,27 +165,52 @@ public class UserController {
 	@PostMapping ("unregisteredUser/")
 	public ResponseEntity<UnregisteredResponseDTO> postUnregistered ( @RequestBody UnregisteredRequestDTO urd)
 	{
-		
-		
-		UnregisteredResponseDTO u = userService.postUnregistered(urd);
+		UnregisteredResponseDTO u = rideService.postUnregistered(urd);
 		return new ResponseEntity<>(u,HttpStatus.OK);
 	}
 	
 	//			PUT
-	
+
+	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping ("user/{id}/block")
-	public ResponseEntity<User> putBlockUserById (@PathVariable("id") Long id) 
+	public ResponseEntity<?> putBlockUserById (@PathVariable("id") Long id)
 	{
-		
-		userService.putBlockUserById(id); // izmeni ovo
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT); 
+		try
+		{
+			userService.putBlockUserById(id);
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		catch(ConditionNotMetException e)
+		{
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+		}
+		catch(ObjectNotFoundException e)
+		{
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+		}
 	}
-	
+
+	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping ("user/{id}/unblock")
-	public ResponseEntity<User> putUnblockUserById (@PathVariable("id") Long id)
+	public ResponseEntity<?> putUnblockUserById (@PathVariable("id") Long id)
 	{
-		userService.putUnblockUserById(id); //izmeni ovo
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT); 
+		try
+		{
+			userService.putUnblockUserById(id);
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		catch(ConditionNotMetException e)
+		{
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+		}
+		catch(ObjectNotFoundException e)
+		{
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+		}
 	}
 	
 	@PostMapping("refreshAccessToken")

@@ -1,6 +1,7 @@
 package tim24.projekat.uberapp.model;
 
 import jakarta.persistence.*;
+import tim24.projekat.uberapp.DTO.ReasonDTO;
 
 import java.util.Date;
 
@@ -14,8 +15,6 @@ public class Refusal
     private Long id;
     private String reason;
     private Date time;
-    @OneToOne
-    private User user;
 
     public Refusal()
     {
@@ -27,7 +26,12 @@ public class Refusal
 		this.id = id;
 		this.reason = reason;
 		this.time = time;
-		this.user = user;
+	}
+
+	public Refusal(ReasonDTO reason2) {
+		super();
+		this.reason = reason2.getReason();
+		this.time = new Date();
 	}
 
 	public Long getId() {
@@ -52,14 +56,6 @@ public class Refusal
 
 	public void setTime(Date time) {
 		this.time = time;
-	}
-
-	public User getUser() {
-		return user;
-	}
-
-	public void setUser(User user) {
-		this.user = user;
 	}
     
 }
