@@ -196,8 +196,8 @@ public class RideService
 	public CreateRideResult getBestDriverForRide(RideRequestDTO requestDTO) 
 	{
 		//VRATITI NA OVO!
-		//List<Vehicle> vehicles = vehicleRepo.findDistinctVehiclesWithActiveWorkingHours();
-		List<Vehicle> vehicles = vehicleRepo.findAll();
+		List<Vehicle> vehicles = vehicleRepo.findDistinctVehiclesWithActiveWorkingHours();
+		//List<Vehicle> vehicles = vehicleRepo.findAll();
 		if (vehicles.isEmpty()) 
 		{
 			throw new ConditionNotMetException("There are no vehicles!");
