@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Import;
 
 import tim24.projekat.uberapp.config.JacksonConfig;
 
+
 @SpringBootApplication
 @Import(JacksonConfig.class)
 public class UberappApplication {
