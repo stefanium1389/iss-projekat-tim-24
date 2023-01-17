@@ -165,6 +165,8 @@ public class RideService
 		if(! ride.getPassengers().contains(user))
 			throw new ConditionNotMetException("You cannot panic in a ride that you aren't in.");
 		Panic panic = panicRepository.save(new Panic(time, reason.getReason(), ride, user));
+		ride.setPanic(true);
+		rideRepo.save(ride);
 		PanicDTO panicDTO = new PanicDTO(panic.getId(), new UserRef(user), new RideDTO(ride), time.toString(), reason.getReason());
 		return panicDTO;
 	}
