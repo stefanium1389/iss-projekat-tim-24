@@ -35,4 +35,7 @@ public interface RideRepository extends JpaRepository<Ride, Long>
 	@Query(value = "SELECT r FROM Ride r JOIN r.driver d WHERE d.id = :driverId AND r.startTime BETWEEN :startDate AND :endDate")
 	Page<Ride> findByDriverIdAndRideDateBetween(@Param("driverId") Long driverId, @Param("startDate") Date startDate, @Param("endDate") Date endDate, Pageable pageable);
 
+	@Query("SELECT r FROM Ride r JOIN r.passengers p WHERE p.id = :passengerId AND r.startTime BETWEEN :startDate AND :endDate")
+	Page<Ride> findByPassengerIdAndStartTimeBetween(@Param("passengerId") Long passengerId, @Param("startDate") Date startDate, @Param("endDate") Date endDate, Pageable pageable);
+
 }

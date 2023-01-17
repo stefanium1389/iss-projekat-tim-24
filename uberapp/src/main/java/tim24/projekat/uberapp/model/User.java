@@ -181,7 +181,7 @@ public class User {
 		this.setName(updated.getName());
 		this.setSurname(updated.getSurname());
 		this.setTelephoneNumber(updated.getTelephoneNumber());
-		this.setAddress(updated.getAddress());
+		this.setProfilePicture(updated.getProfilePicture());
 	}
 	
 }
