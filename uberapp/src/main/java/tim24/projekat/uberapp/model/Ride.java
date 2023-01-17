@@ -34,8 +34,10 @@ public class Ride
     @OneToOne
     @JoinColumn(nullable = true)
     private Refusal refusal;
-    @ManyToMany
-    private List<User> passengers;    
+    @ManyToMany(fetch=FetchType.EAGER)
+    private List<User> passengers;
+    @OneToOne
+    private VehicleType vehicleType;
 
 	public Ride()
 	{
@@ -43,7 +45,7 @@ public class Ride
 	}
 
 	public Ride(Long id, Date startTime, Date endTime, RideStatus status, boolean panic, boolean babyInVehicle,
-			boolean petInVehicle, User driver, Refusal refusal, List<User> passengers, Route route, Date scheduledTime, int totalCost)
+			boolean petInVehicle, User driver, Refusal refusal, List<User> passengers, Route route, Date scheduledTime, int totalCost, VehicleType vehicleType)
 	{
 		super();
 		this.id = id;
@@ -59,11 +61,12 @@ public class Ride
 		this.route = route;
 		this.scheduledTime = scheduledTime;
 		this.totalCost = totalCost;
+		this.vehicleType = vehicleType;
 	}
 	
 	public Ride(Date startTime, Date endTime, Date scheduledTime, RideStatus status, boolean panic,
 			boolean babyInVehicle, boolean petInVehicle, Route route, User driver, Refusal refusal,
-			List<User> passengers , int totalCost) {
+			List<User> passengers , int totalCost, VehicleType vehicleType) {
 		super();
 		this.startTime = startTime;
 		this.endTime = endTime;
@@ -77,6 +80,7 @@ public class Ride
 		this.refusal = refusal;
 		this.passengers = passengers;
 		this.totalCost = totalCost;
+		this.vehicleType = vehicleType;
 	}
 
 	public Long getId() {
@@ -177,6 +181,14 @@ public class Ride
 
 	public void setTotalCost(int totalCost) {
 		this.totalCost = totalCost;
+	}
+
+	public VehicleType getVehicleType() {
+		return vehicleType;
+	}
+
+	public void setVehicleType(VehicleType vehicleType) {
+		this.vehicleType = vehicleType;
 	}
     
 }
