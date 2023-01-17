@@ -62,7 +62,16 @@ public class UserController {
 	@PostMapping ("user/login")
 	public ResponseEntity<?> postLogin (@RequestBody LoginRequestDTO loginRequestDTO)
 	{
-		try {
+		//Ako je korisnik blokiran, ne moze da se uloguje.
+		User user = userService.findUserByEmail(loginRequestDTO.getEmail());
+		if(user.isBlocked())
+		{
+			ErrorDTO error = new ErrorDTO("This user is blocked.");
+			return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+		}
+
+		try
+		{
 		UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(loginRequestDTO.getEmail(),
 				loginRequestDTO.getPassword());
 		Authentication auth = authenticationManager.authenticate(authReq);
@@ -78,10 +87,10 @@ public class UserController {
 		
 		return new ResponseEntity<LoginResponseDTO>(response,HttpStatus.OK);
 		}
-		catch(AuthenticationException e) {
+		catch(AuthenticationException e)
+		{
 			ErrorDTO error = new ErrorDTO(e.getMessage());
 			return new ResponseEntity<ErrorDTO>(error,HttpStatus.BAD_REQUEST);
-			
 		}
 	}
 	
