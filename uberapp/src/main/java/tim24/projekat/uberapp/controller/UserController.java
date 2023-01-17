@@ -152,14 +152,21 @@ public class UserController {
 		MessageSendResponseDTO m = userService.postMessageById(id, messageRequestDTO);
 		return new ResponseEntity<>(m,HttpStatus.OK);
 	}
-	
+
+	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping ("user/{id}/note")
-	public ResponseEntity<NoteResponseDTO> postNoteById (@PathVariable("id") Long id, @RequestBody NoteRequestDTO nrd)
+	public ResponseEntity<?> postNoteById (@PathVariable("id") Long id, @RequestBody NoteRequestDTO noteDTO)
 	{
-		
-		
-		NoteResponseDTO response = userService.postNoteById(id, nrd);
-		return new ResponseEntity<>(response,HttpStatus.OK);
+		try
+		{
+			NoteResponseDTO response = userService.postNoteById(id, noteDTO);
+			return new ResponseEntity<>(response,HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e)
+		{
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+		}
 	}
 	
 	@PostMapping ("unregisteredUser/")

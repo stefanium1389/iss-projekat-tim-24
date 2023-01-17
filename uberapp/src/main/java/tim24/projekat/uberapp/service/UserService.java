@@ -1,10 +1,7 @@
 package tim24.projekat.uberapp.service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,23 +26,22 @@ import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.exception.ConditionNotMetException;
 import tim24.projekat.uberapp.exception.InvalidArgumentException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
-import tim24.projekat.uberapp.model.DurationDistance;
-import tim24.projekat.uberapp.model.Role;
-import tim24.projekat.uberapp.model.User;
-import tim24.projekat.uberapp.model.VehicleType;
+import tim24.projekat.uberapp.model.*;
+import tim24.projekat.uberapp.repo.NoteRepository;
 import tim24.projekat.uberapp.repo.UserRepository;
 import tim24.projekat.uberapp.repo.VehicleTypeRepository;
 
 
 @Service
 public class UserService {
-	
 	private final UserRepository UserRepo;
 	
 	@Autowired
 	public UserService(UserRepository UserRepo) {
 		this.UserRepo = UserRepo;
 	}
+	@Autowired
+	NoteRepository noteRepo;
 
 	public User addUser(User User) 
 	{
@@ -130,9 +126,14 @@ public class UserService {
 		return m;
 	}
 
-	public NoteResponseDTO postNoteById(Long id, NoteRequestDTO nrd) {
-		NoteResponseDTO response = new NoteResponseDTO (101L, LocalDateTime.now(), nrd.getMessage());
-		return response;
+	public NoteResponseDTO postNoteById(Long id, NoteRequestDTO noteDTO)
+	{
+		User user = findUserById(id);
+		Date time = new Date();
+		Note note = new Note(time, noteDTO.getMessage(), user);
+		noteRepo.save(note);
+		NoteResponseDTO noteResponseDTO = new NoteResponseDTO(note);
+		return noteResponseDTO;
 	}
 
 	
