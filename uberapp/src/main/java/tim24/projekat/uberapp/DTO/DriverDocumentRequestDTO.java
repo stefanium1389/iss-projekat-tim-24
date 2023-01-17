@@ -13,6 +13,10 @@ public class DriverDocumentRequestDTO { //otpakujes iz request body
 		this.driverId = driverId;
 	}
 	
+	public DriverDocumentRequestDTO() {
+		super();
+	}
+
 	public String getName() {
 		return name;
 	}

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +29,7 @@ import tim24.projekat.uberapp.DTO.MessageSendResponseDTO;
 import tim24.projekat.uberapp.DTO.NoteDTO;
 import tim24.projekat.uberapp.DTO.NoteRequestDTO;
 import tim24.projekat.uberapp.DTO.NoteResponseDTO;
+import tim24.projekat.uberapp.DTO.RefreshDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
 import tim24.projekat.uberapp.DTO.UnregisteredRequestDTO;
 import tim24.projekat.uberapp.DTO.UnregisteredResponseDTO;
@@ -178,5 +180,21 @@ public class UserController {
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT); 
 	}
 	
-	
+	@PostMapping("refreshAccessToken")
+	private ResponseEntity<?> refreshAccessToken(@RequestHeader("Authorization") String auth, @RequestBody RefreshDTO refreshDTO) {
+			
+		String oldAccessToken = auth.substring(7); //sklonimo "Bearer " da dobijemo samo token
+		String email = jwtTokenUtil.getUsernameFromToken(oldAccessToken);
+		System.err.println(email);
+		String refreshToken = refreshDTO.getRefreshToken();
+		System.err.println(jwtTokenUtil.getUsernameFromToken(refreshToken));
+		if(!jwtTokenUtil.validateRefreshToken(refreshToken,email)) {
+			ErrorDTO error = new ErrorDTO("Invalid refreshToken!");
+			return new ResponseEntity<ErrorDTO>(error,HttpStatus.BAD_REQUEST);
+		}
+		String newAccessToken = jwtTokenUtil.generateToken(email);
+		String newRefreshToken = jwtTokenUtil.generateRefrshToken(email);
+		LoginResponseDTO dto = new LoginResponseDTO(newAccessToken,newRefreshToken);
+		return new ResponseEntity<LoginResponseDTO>(dto ,HttpStatus.OK);
+	}
 }

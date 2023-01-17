@@ -9,6 +9,7 @@ public class RideRequestDTO {
 	private String vehicleType;
 	private boolean babyTransport;
 	private boolean petTransport;
+	private String scheduledTime;
 	
 
 	public RideRequestDTO() {
@@ -17,13 +18,14 @@ public class RideRequestDTO {
 
 
 	public RideRequestDTO(List<RouteDTO> locations, List<UserRef> passengers, String vehicleType, boolean babyTransport,
-			boolean petTransport) {
+			boolean petTransport, String scheduledTime) {
 		super();
 		this.locations = locations;
 		this.passengers = passengers;
 		this.vehicleType = vehicleType;
 		this.babyTransport = babyTransport;
 		this.petTransport = petTransport;
+		this.scheduledTime = scheduledTime;
 	}
 
 
@@ -74,6 +76,16 @@ public class RideRequestDTO {
 
 	public void setPetTransport(boolean petTransport) {
 		this.petTransport = petTransport;
+	}
+
+
+	public String getScheduledTime() {
+		return scheduledTime;
+	}
+
+
+	public void setScheduledTime(String scheduledTime) {
+		this.scheduledTime = scheduledTime;
 	}
 	
 

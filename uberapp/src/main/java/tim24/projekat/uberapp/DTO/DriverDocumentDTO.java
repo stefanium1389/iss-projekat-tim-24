@@ -1,5 +1,6 @@
 package tim24.projekat.uberapp.DTO;
 
+import tim24.projekat.uberapp.model.DriverDocument;
 
 public class DriverDocumentDTO { //saljes u response
 	
@@ -15,6 +16,13 @@ public class DriverDocumentDTO { //saljes u response
 		this.driverId = driverId;
 	}
 	
+	public DriverDocumentDTO(DriverDocument d) {
+		this.id = d.getId();
+		this.name = d.getName();
+		this.documentImage = d.getDocumentImage();
+		this.driverId = d.getDriverId();
+	}
+
 	public Long getId() {
 		return id;
 	}

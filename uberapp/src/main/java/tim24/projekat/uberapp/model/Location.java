@@ -10,38 +10,65 @@ public class Location
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false, unique = true)
     private Long id;
-    private double geoWidth;
-    private double geoHeight;
+    @Column(precision=15)
+    private double latitude;
+    @Column(precision=15)
+    private double longitude;
+    private String address;
+    
 	public Location() {
 		super();
 	}
-	public Location(Long id, double geoWidth, double geoHeight) {
+	
+	public Location(Long id, double latitude, double longitude, String address) {
 		super();
 		this.id = id;
-		this.geoWidth = geoWidth;
-		this.geoHeight = geoHeight;
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.setAddress(address);
 	}
+	
+	public Location(double latitude, double longitude, String address) {
+		super();
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.setAddress(address);
+	}
+
+	public double getLatitude() {
+		return latitude;
+	}
+
+
+	public void setLatitude(double latitude) {
+		this.latitude = latitude;
+	}
+
+
+	public double getLongitude() {
+		return longitude;
+	}
+
+
+	public void setLongitude(double longitude) {
+		this.longitude = longitude;
+	}
+
+
 	public Long getId() {
 		return id;
 	}
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public double getGeoWidth() {
-		return geoWidth;
-	}
-	public void setGeoWidth(double geoWidth) {
-		this.geoWidth = geoWidth;
-	}
-	public double getGeoHeight() {
-		return geoHeight;
-	}
-	public void setGeoHeight(double geoHeight) {
-		this.geoHeight = geoHeight;
-	}
+
 	public String getAddress() {
-		// TODO Auto-generated method stub
-		return "djole";
+		return address;
 	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	
     
 }

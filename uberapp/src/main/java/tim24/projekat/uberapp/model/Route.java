@@ -30,6 +30,15 @@ public class Route
 		this.startLocation = startLocation;
 		this.endLocation = endLocation;
 	}
+	
+
+	public Route(double lenght, int estimatedTimeInMinutes, Location startLocation, Location endLocation) {
+		super();
+		this.lenght = lenght;
+		this.estimatedTimeInMinutes = estimatedTimeInMinutes;
+		this.startLocation = startLocation;
+		this.endLocation = endLocation;
+	}
 
 	public Long getId() {
 		return id;
