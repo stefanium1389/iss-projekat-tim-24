@@ -32,6 +32,9 @@ public interface RideRepository extends JpaRepository<Ride, Long>
 	@Query("SELECT DISTINCT r.driver FROM Ride r WHERE r.status NOT IN ('PENDING', 'ACCEPTED', 'STARTED')")
     List<User> findDriversWithRidesNotActive();
 	
+	@Query("SELECT r FROM Ride r WHERE r.driver.id = ?1 AND r.scheduledTime IS NOT NULL AND r.scheduledTime > CURRENT_TIMESTAMP ORDER BY r.scheduledTime ASC")
+	Optional<List<Ride>> findPendingScheduledRidesByDriverId(@Param("driverId") Long driverId);
+
 	@Query(value = "SELECT r FROM Ride r JOIN r.driver d WHERE d.id = :driverId AND r.startTime BETWEEN :startDate AND :endDate")
 	Page<Ride> findByDriverIdAndRideDateBetween(@Param("driverId") Long driverId, @Param("startDate") Date startDate, @Param("endDate") Date endDate, Pageable pageable);
 

@@ -18,6 +18,7 @@ import tim24.projekat.uberapp.service.RideService;
 @RequestMapping("api/ride")
 public class RideController
 {
+	
 	@Autowired
 	private RideService rideService;
 	
@@ -25,6 +26,7 @@ public class RideController
     public ResponseEntity<?> postRide(@RequestBody RideRequestDTO rideRequestDTO)
     {
     	try {
+    		
 	        RideDTO ride = rideService.postRide(rideRequestDTO);
 	        return new ResponseEntity<RideDTO>(ride, HttpStatus.OK);
     	}

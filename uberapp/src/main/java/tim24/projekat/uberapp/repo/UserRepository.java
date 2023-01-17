@@ -1,5 +1,6 @@
 package tim24.projekat.uberapp.repo;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -17,6 +18,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	Optional<User> findUserById(Long id);
 	Optional<User> findUserByEmail(String email);
 	Optional<User> findByIdAndRole(Long id, Role role);
+
+	Optional<List<User>> findAllByRole(Role role);
 	
 	Page<User> findAllByRole(Role role, Pageable pageable);
 

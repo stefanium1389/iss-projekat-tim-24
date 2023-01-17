@@ -18,12 +18,13 @@ public class GeoCoordinateDTO {
 		this.address = address;
 		this.latitude = latitude;
 		this.longitude = longitude;
+		
 	}
 	public GeoCoordinateDTO(Location loc) {
 		super();
 		this.address = loc.getAddress();
-		this.latitude = loc.getGeoWidth();
-		this.longitude = loc.getGeoHeight();
+		this.latitude = loc.getLatitude();
+		this.longitude = loc.getLongitude();
 	}
 
 	public String getAddress() {
@@ -35,13 +36,13 @@ public class GeoCoordinateDTO {
 	public double getLatitude() {
 		return latitude;
 	}
-	public void setLatitude(int latitude) {
+	public void setLatitude(double latitude) {
 		this.latitude = latitude;
 	}
 	public double getLongitude() {
 		return longitude;
 	}
-	public void setLongitude(int longitude) {
+	public void setLongitude(double longitude) {
 		this.longitude = longitude;
 	}
 	@Override

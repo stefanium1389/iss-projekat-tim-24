@@ -31,15 +31,18 @@ public class Vehicle
     private int numberOfSeats;
     private boolean allowedBabyInVehicle;
     private boolean allowedPetInVehicle;
+    @OneToOne
+    private Location location;
+
     private String model;
-    
     public Vehicle()
     {
         super();
     }
 
-	public Vehicle(Long id, String regPlates, User driver, VehicleType vehicleType, int numberOfSeats,
-			boolean allowedBabyInVehicle, boolean allowedPetInVehicle, String model) {
+	public Vehicle(Long id, String regPlates, User driver, VehicleType vehicleType, int numberOfSeats, 
+			boolean allowedBabyInVehicle, boolean allowedPetInVehicle, Location location, String model) {
+
 		super();
 		this.id = id;
 		this.regPlates = regPlates;
@@ -48,6 +51,7 @@ public class Vehicle
 		this.numberOfSeats = numberOfSeats;
 		this.allowedBabyInVehicle = allowedBabyInVehicle;
 		this.allowedPetInVehicle = allowedPetInVehicle;
+		this.setLocation(location);
 		this.setModel(model);
 	}
 
@@ -117,6 +121,14 @@ public class Vehicle
 		this.allowedPetInVehicle = allowedPetInVehicle;
 	}
 
+
+	public Location getLocation() {
+		return location;
+	}
+
+	public void setLocation(Location location) {
+		this.location = location;
+	}
 	public String getModel() {
 		return model;
 	}
