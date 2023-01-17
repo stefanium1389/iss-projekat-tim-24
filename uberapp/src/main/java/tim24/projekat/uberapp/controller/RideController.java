@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tim24.projekat.uberapp.DTO.*;
 import tim24.projekat.uberapp.exception.ActiveUserRideException;
+import tim24.projekat.uberapp.exception.ConditionNotMetException;
 import tim24.projekat.uberapp.exception.InvalidRideStatusException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.security.JwtTokenUtil;
@@ -86,11 +87,24 @@ public class RideController
     }
 
     @PutMapping("/{id}/panic")
-    public ResponseEntity<PanicDTO> panicRide(@PathVariable("id") Long id, @RequestBody ReasonDTO reason, @RequestHeader("Authorization") String auth)
+    public ResponseEntity<?> panicRide(@PathVariable("id") Long id, @RequestBody ReasonDTO reason, @RequestHeader("Authorization") String auth)
     {
-		String userMail = jwtTokenUtil.getUsernameFromToken(auth.substring(7));
-        PanicDTO panic = rideService.panicRide(id, reason, userMail);
-        return new ResponseEntity<>(panic, HttpStatus.OK);
+		try
+		{
+			String userMail = jwtTokenUtil.getUsernameFromToken(auth.substring(7));
+			PanicDTO panic = rideService.panicRide(id, reason, userMail);
+			return new ResponseEntity<>(panic, HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e)
+		{
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+		}
+		catch(ConditionNotMetException e)
+		{
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+		}
     }
     @PutMapping("/{id}/start")
     public ResponseEntity<?> startRide(@PathVariable("id") Long id)

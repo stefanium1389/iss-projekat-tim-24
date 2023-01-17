@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import tim24.projekat.uberapp.DTO.*;
 import tim24.projekat.uberapp.exception.ActiveUserRideException;
+import tim24.projekat.uberapp.exception.ConditionNotMetException;
 import tim24.projekat.uberapp.exception.InvalidRideStatusException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.model.*;
@@ -159,6 +160,10 @@ public class RideService
 		User user = userService.findUserByEmail(userMail);
 		Ride ride = findRideById(id);
 		Date time = new Date();
+		if(ride.getStatus() != RideStatus.STARTED)
+			throw new ConditionNotMetException("You cannot panic in a ride that isn't active.");
+		if(! ride.getPassengers().contains(user))
+			throw new ConditionNotMetException("You cannot panic in a ride that you aren't in.");
 		Panic panic = panicRepository.save(new Panic(time, reason.getReason(), ride, user));
 		PanicDTO panicDTO = new PanicDTO(panic.getId(), new UserRef(user), new RideDTO(ride), time.toString(), reason.getReason());
 		return panicDTO;
