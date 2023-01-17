@@ -2,20 +2,25 @@ package tim24.projekat.uberapp.DTO;
 
 public class ReviewRequestDTO {
 
-	private Long rating;
+	private int rating;
 	private String comment;
 	
-	public ReviewRequestDTO(Long rating, String comment) {
+	public ReviewRequestDTO(int rating, String comment) {
 		super();
 		this.rating = rating;
 		this.comment = comment;
 	}
+	
+	public ReviewRequestDTO() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 
-	public Long getRating() {
+	public int getRating() {
 		return rating;
 	}
 
-	public void setRating(Long rating) {
+	public void setRating(int rating) {
 		this.rating = rating;
 	}
 

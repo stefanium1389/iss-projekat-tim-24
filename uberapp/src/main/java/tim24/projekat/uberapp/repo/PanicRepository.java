@@ -6,5 +6,5 @@ import tim24.projekat.uberapp.model.Panic;
 
 public interface PanicRepository extends JpaRepository<Panic, Long>
 {
-    
+
 }

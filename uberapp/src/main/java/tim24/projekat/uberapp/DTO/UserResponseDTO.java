@@ -1,5 +1,7 @@
 package tim24.projekat.uberapp.DTO;
 
+import tim24.projekat.uberapp.model.User;
+
 public class UserResponseDTO { //ovog usera vracas u responsu
 
 	private Long id;
@@ -27,6 +29,16 @@ public class UserResponseDTO { //ovog usera vracas u responsu
 		this.address = address;
 	}
 
+
+	public UserResponseDTO(User user) {
+		this.id = user.getId();
+		this.name = user.getName();
+		this.surname = user.getSurname();
+		this.profilePicture = user.getProfilePicture();
+		this.telephoneNumber = user.getTelephoneNumber();
+		this.email=user.getEmail();
+		this.address=user.getAddress();
+	}
 
 	public Long getId() {
 		return id;

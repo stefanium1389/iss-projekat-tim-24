@@ -3,6 +3,10 @@ package tim24.projekat.uberapp.DTO;
 import java.util.ArrayList;
 import java.util.List;
 
+import tim24.projekat.uberapp.model.Location;
+import tim24.projekat.uberapp.model.Ride;
+import tim24.projekat.uberapp.model.User;
+
 public class RideDTO {
 	
 	private Long id;
@@ -40,6 +44,39 @@ public class RideDTO {
 		this.rejection = rejection;
 		this.locations = locations;
 		this.status = status;
+	}
+
+	public RideDTO(Ride ride) {
+		super();
+		this.id = ride.getId();
+		this.startTime = ride.getStartTime().toString();
+		this.endTime = ride.getEndTime().toString();
+		this.totalCost = ride.getCost();
+		if(ride.getDriver() == null) {
+			this.driver=null;
+		}
+		else {			
+			this.driver = new UserRef(ride.getDriver());
+		}
+		ArrayList<UserRef> dtoPassengers = new ArrayList<UserRef>();
+		for(User passenger : ride.getPassengers()) {
+			dtoPassengers.add(new UserRef(passenger));
+		}
+		this.passengers = dtoPassengers;
+		this.estimatedTimeInMinutes = ride.getEstimatedTime();
+		this.vehicleType = null;
+		this.babyTransport = ride.isBabyInVehicle();
+		this.petTransport = ride.isPetInVehicle();
+		if(ride.getRefusal() == null) {
+			this.rejection = null;
+		}
+		else {
+			this.rejection = new RejectionDTO (ride.getRefusal());
+		}
+		List<RouteDTO> routes = new ArrayList<RouteDTO>();
+		routes.add(new RouteDTO(ride.getRoute()));
+		this.locations = routes;
+		this.status = ride.getStatus().toString();
 	}
 
 	public Long getId() {

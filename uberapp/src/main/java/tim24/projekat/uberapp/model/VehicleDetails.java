@@ -12,4 +12,9 @@ public class VehicleDetails
     private Long id;
     private String brand;
     private String model;
+
+    public VehicleDetails()
+    {
+        super();
+    }
 }

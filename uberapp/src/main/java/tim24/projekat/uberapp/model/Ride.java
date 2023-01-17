@@ -4,11 +4,7 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.Date;
-
-enum RideStatus
-{
-    ACTIVE, FINISHED, ACCEPTED, REJECTED, WAITING
-}
+import java.util.List;
 
 @Table(name = "rides")
 @Entity
@@ -18,51 +14,92 @@ public class Ride
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false, unique = true)
     private Long id;
-    private Date start;
-    private Date end;
+    private Date startTime;
+    private Date endTime;
+    private Date scheduledTime;
+    
+    @Enumerated(EnumType.STRING)
     private RideStatus status;
+    
     private boolean panic;
     private boolean babyInVehicle;
     private boolean petInVehicle;
+    @Column(nullable = true, updatable = true, unique = false)
+    private int totalCost;
     @OneToOne
+    private Route route;
+    @OneToOne
+    @JoinColumn(nullable = true)
     private User driver;
     @OneToOne
-    private Refusal rafusal;
-    @OneToMany
-    private ArrayList<User> passengers;    
-    
-	public Ride(Long id, Date start, Date end, RideStatus status, boolean panic, boolean babyInVehicle,
-			boolean petInVehicle, User driver, Refusal rafusal, ArrayList<User> passengers) {
+    @JoinColumn(nullable = true)
+    private Refusal refusal;
+    @ManyToMany(fetch=FetchType.EAGER)
+    private List<User> passengers;
+    @OneToOne
+    private VehicleType vehicleType;
+
+	public Ride()
+	{
+		super();
+	}
+
+	public Ride(Long id, Date startTime, Date endTime, RideStatus status, boolean panic, boolean babyInVehicle,
+			boolean petInVehicle, User driver, Refusal refusal, List<User> passengers, Route route, Date scheduledTime, int totalCost, VehicleType vehicleType)
+	{
 		super();
 		this.id = id;
-		this.start = start;
-		this.end = end;
+		this.startTime = startTime;
+		this.endTime = endTime;
 		this.status = status;
 		this.panic = panic;
 		this.babyInVehicle = babyInVehicle;
 		this.petInVehicle = petInVehicle;
 		this.driver = driver;
-		this.rafusal = rafusal;
+		this.refusal = refusal;
 		this.passengers = passengers;
+		this.route = route;
+		this.scheduledTime = scheduledTime;
+		this.totalCost = totalCost;
+		this.vehicleType = vehicleType;
 	}
 	
+	public Ride(Date startTime, Date endTime, Date scheduledTime, RideStatus status, boolean panic,
+			boolean babyInVehicle, boolean petInVehicle, Route route, User driver, Refusal refusal,
+			List<User> passengers , int totalCost, VehicleType vehicleType) {
+		super();
+		this.startTime = startTime;
+		this.endTime = endTime;
+		this.scheduledTime = scheduledTime;
+		this.status = status;
+		this.panic = panic;
+		this.babyInVehicle = babyInVehicle;
+		this.petInVehicle = petInVehicle;
+		this.route = route;
+		this.driver = driver;
+		this.refusal = refusal;
+		this.passengers = passengers;
+		this.totalCost = totalCost;
+		this.vehicleType = vehicleType;
+	}
+
 	public Long getId() {
 		return id;
 	}
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public Date getStart() {
-		return start;
+	public Date getStartTime() {
+		return startTime;
 	}
-	public void setStart(Date start) {
-		this.start = start;
+	public void setStartTime(Date start) {
+		this.startTime = start;
 	}
-	public Date getEnd() {
-		return end;
+	public Date getEndTime() {
+		return endTime;
 	}
-	public void setEnd(Date end) {
-		this.end = end;
+	public void setEndTime(Date end) {
+		this.endTime = end;
 	}
 	public RideStatus getStatus() {
 		return status;
@@ -94,17 +131,64 @@ public class Ride
 	public void setDriver(User driver) {
 		this.driver = driver;
 	}
-	public Refusal getRafusal() {
-		return rafusal;
+	public Refusal getRefusal() {
+		return refusal;
 	}
-	public void setRafusal(Refusal rafusal) {
-		this.rafusal = rafusal;
+	public void setRefusal(Refusal refusal) {
+		this.refusal = refusal;
 	}
-	public ArrayList<User> getPassengers() {
+	public List<User> getPassengers() {
 		return passengers;
 	}
-	public void setPassengers(ArrayList<User> passengers) {
+	public void setPassengers(List<User> passengers) {
 		this.passengers = passengers;
+	}
+
+	public int getCost() {
+		return totalCost;
+	}
+
+	public int getEstimatedTime() {
+		return this.route.getEstimatedTimeInMinutes();
+	}
+
+	public Route getRoute() {
+		return route;
+	}
+
+	public void setRoute(Route route) {
+		this.route = route;
+	}
+
+	public boolean isActive() {
+		if(this.status==RideStatus.PENDING || this.status==RideStatus.ACCEPTED || this.status==RideStatus.STARTED) {
+			return true;
+		}
+		return false;
+	}
+
+	public Date getScheduledTime() {
+		return scheduledTime;
+	}
+
+	public void setScheduledTime(Date scheduledTime) {
+		this.scheduledTime = scheduledTime;
+	}
+
+	public int getTotalCost() {
+		return totalCost;
+	}
+
+	public void setTotalCost(int totalCost) {
+		this.totalCost = totalCost;
+	}
+
+	public VehicleType getVehicleType() {
+		return vehicleType;
+	}
+
+	public void setVehicleType(VehicleType vehicleType) {
+		this.vehicleType = vehicleType;
 	}
     
 }

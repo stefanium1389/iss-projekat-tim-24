@@ -1,23 +1,27 @@
 package tim24.projekat.uberapp.controller;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import tim24.projekat.uberapp.DTO.DTOList;
-import tim24.projekat.uberapp.DTO.GeoCoordinateDTO;
+import tim24.projekat.uberapp.DTO.ErrorDTO;
 import tim24.projekat.uberapp.DTO.LoginRequestDTO;
 import tim24.projekat.uberapp.DTO.LoginResponseDTO;
 import tim24.projekat.uberapp.DTO.MessageDTO;
@@ -26,14 +30,16 @@ import tim24.projekat.uberapp.DTO.MessageSendResponseDTO;
 import tim24.projekat.uberapp.DTO.NoteDTO;
 import tim24.projekat.uberapp.DTO.NoteRequestDTO;
 import tim24.projekat.uberapp.DTO.NoteResponseDTO;
-import tim24.projekat.uberapp.DTO.RejectionDTO;
+import tim24.projekat.uberapp.DTO.RefreshDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
-import tim24.projekat.uberapp.DTO.RouteDTO;
 import tim24.projekat.uberapp.DTO.UnregisteredRequestDTO;
 import tim24.projekat.uberapp.DTO.UnregisteredResponseDTO;
-import tim24.projekat.uberapp.DTO.UserRef;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
+import tim24.projekat.uberapp.exception.ConditionNotMetException;
+import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.model.User;
+import tim24.projekat.uberapp.security.JwtTokenUtil;
+import tim24.projekat.uberapp.service.RideService;
 import tim24.projekat.uberapp.service.UserService;
 
 
@@ -43,6 +49,43 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private AuthenticationManager authenticationManager;
+	
+	@Autowired
+	private JwtTokenUtil jwtTokenUtil;
+	
+	@Autowired
+	private RideService rideService;
+	
+	@PostMapping ("user/login")
+	public ResponseEntity<?> postLogin (@RequestBody LoginRequestDTO loginRequestDTO)
+	{
+		try
+		{
+		UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(loginRequestDTO.getEmail(),
+				loginRequestDTO.getPassword());
+		Authentication auth = authenticationManager.authenticate(authReq);
+
+		SecurityContext sc = SecurityContextHolder.getContext();
+		sc.setAuthentication(auth);
+
+		String token = jwtTokenUtil.generateToken(loginRequestDTO.getEmail());
+		String refreshToken = jwtTokenUtil.generateRefrshToken(loginRequestDTO.getEmail());
+		LoginResponseDTO response = new LoginResponseDTO(token, refreshToken);
+		
+//		LoginResponseDTO response = userService.postLogin(loginRequestDTO);
+		
+		return new ResponseEntity<LoginResponseDTO>(response,HttpStatus.OK);
+		}
+		catch(AuthenticationException e)
+		{
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error,HttpStatus.BAD_REQUEST);
+		}
+	}
+	
 	
 	//			GET
 	
@@ -69,6 +112,13 @@ public class UserController {
 		DTOList<UserResponseDTO> dtoList = userService.getUsers(page,size);
 		return new ResponseEntity<>(dtoList,HttpStatus.OK);
 	}
+	@GetMapping("user/search") //Nije po swaggeru, ovaj smo sami dodali jer nam je trebao, pretraga korisnika po imenu i e-mailu
+	public ResponseEntity<DTOList<UserResponseDTO>> findUsers (
+			@RequestParam("querry") String querry)
+	{
+		DTOList<UserResponseDTO> dtoList = userService.searchUsers(querry);
+		return new ResponseEntity<>(dtoList,HttpStatus.OK);
+	}
 	
 	@GetMapping ("user/{id}/message")
 	public ResponseEntity<DTOList<MessageDTO>> getUserMessagesById (@PathVariable("id") Long id)
@@ -92,14 +142,7 @@ public class UserController {
 	
 	//			POST
 	
-	@PostMapping ("user/login")
-	public ResponseEntity<LoginResponseDTO> postLogin (@RequestBody LoginRequestDTO loginRequestDTO)
-	{
-		
-		
-		LoginResponseDTO response = userService.postLogin(loginRequestDTO);
-		return new ResponseEntity<>(response,HttpStatus.OK);
-	}
+	
 	
 	@PostMapping ("user/{id}/message")
 	public ResponseEntity<MessageSendResponseDTO> postMessageById (@PathVariable("id") Long id, @RequestBody MessageRequestDTO messageRequestDTO)
@@ -109,41 +152,89 @@ public class UserController {
 		MessageSendResponseDTO m = userService.postMessageById(id, messageRequestDTO);
 		return new ResponseEntity<>(m,HttpStatus.OK);
 	}
-	
+
+	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping ("user/{id}/note")
-	public ResponseEntity<NoteResponseDTO> postNoteById (@PathVariable("id") Long id, @RequestBody NoteRequestDTO nrd)
+	public ResponseEntity<?> postNoteById (@PathVariable("id") Long id, @RequestBody NoteRequestDTO noteDTO)
 	{
-		
-		
-		NoteResponseDTO response = userService.postNoteById(id, nrd);
-		return new ResponseEntity<>(response,HttpStatus.OK);
+		try
+		{
+			NoteResponseDTO response = userService.postNoteById(id, noteDTO);
+			return new ResponseEntity<>(response,HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e)
+		{
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+		}
 	}
 	
 	@PostMapping ("unregisteredUser/")
 	public ResponseEntity<UnregisteredResponseDTO> postUnregistered ( @RequestBody UnregisteredRequestDTO urd)
 	{
-		
-		
-		UnregisteredResponseDTO u = userService.postUnregistered(urd);
+		UnregisteredResponseDTO u = rideService.postUnregistered(urd);
 		return new ResponseEntity<>(u,HttpStatus.OK);
 	}
 	
 	//			PUT
-	
+
+	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping ("user/{id}/block")
-	public ResponseEntity<User> putBlockUserById (@PathVariable("id") Long id) 
+	public ResponseEntity<?> putBlockUserById (@PathVariable("id") Long id)
 	{
-		
-		userService.putBlockUserById(id); // izmeni ovo
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT); 
+		try
+		{
+			userService.putBlockUserById(id);
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		catch(ConditionNotMetException e)
+		{
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+		}
+		catch(ObjectNotFoundException e)
+		{
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+		}
 	}
-	
+
+	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping ("user/{id}/unblock")
-	public ResponseEntity<User> putUnblockUserById (@PathVariable("id") Long id)
+	public ResponseEntity<?> putUnblockUserById (@PathVariable("id") Long id)
 	{
-		userService.putUnblockUserById(id); //izmeni ovo
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT); 
+		try
+		{
+			userService.putUnblockUserById(id);
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		catch(ConditionNotMetException e)
+		{
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+		}
+		catch(ObjectNotFoundException e)
+		{
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+		}
 	}
 	
-	
+	@PostMapping("refreshAccessToken")
+	private ResponseEntity<?> refreshAccessToken(@RequestHeader("Authorization") String auth, @RequestBody RefreshDTO refreshDTO) {
+			
+		String oldAccessToken = auth.substring(7); //sklonimo "Bearer " da dobijemo samo token
+		String email = jwtTokenUtil.getUsernameFromToken(oldAccessToken);
+		System.err.println(email);
+		String refreshToken = refreshDTO.getRefreshToken();
+		System.err.println(jwtTokenUtil.getUsernameFromToken(refreshToken));
+		if(!jwtTokenUtil.validateRefreshToken(refreshToken,email)) {
+			ErrorDTO error = new ErrorDTO("Invalid refreshToken!");
+			return new ResponseEntity<ErrorDTO>(error,HttpStatus.BAD_REQUEST);
+		}
+		String newAccessToken = jwtTokenUtil.generateToken(email);
+		String newRefreshToken = jwtTokenUtil.generateRefrshToken(email);
+		LoginResponseDTO dto = new LoginResponseDTO(newAccessToken,newRefreshToken);
+		return new ResponseEntity<LoginResponseDTO>(dto ,HttpStatus.OK);
+	}
 }
