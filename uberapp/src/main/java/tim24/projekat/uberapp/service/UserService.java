@@ -1,5 +1,6 @@
 package tim24.projekat.uberapp.service;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -132,7 +133,9 @@ public class UserService {
 		Date time = new Date();
 		Note note = new Note(time, noteDTO.getMessage(), user);
 		noteRepo.save(note);
-		NoteResponseDTO noteResponseDTO = new NoteResponseDTO(note);
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		String timeString = sdf.format(time);
+		NoteResponseDTO noteResponseDTO = new NoteResponseDTO(note.getId(), timeString, note.getNote());
 		return noteResponseDTO;
 	}
 

@@ -7,21 +7,14 @@ import java.util.Date;
 public class NoteResponseDTO {
 
 	private Long id;
-	private Date date;
+	private String date;
 	private String message;
-	public NoteResponseDTO(Long id, Date date, String message)
+	public NoteResponseDTO(Long id, String date, String message)
 	{
 		super();
 		this.id = id;
 		this.date = date;
 		this.message = message;
-	}
-	public NoteResponseDTO(Note note)
-	{
-		super();
-		this.id = note.getId();
-		this.date = note.getTime();
-		this.message = note.getNote();
 	}
 
 	public Long getId() {
@@ -32,11 +25,11 @@ public class NoteResponseDTO {
 		this.id = id;
 	}
 
-	public Date getDate() {
+	public String getDate() {
 		return date;
 	}
 
-	public void setDate(Date date) {
+	public void setDate(String date) {
 		this.date = date;
 	}
 
