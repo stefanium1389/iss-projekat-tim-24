@@ -30,6 +30,7 @@ import tim24.projekat.uberapp.exception.ConditionNotMetException;
 import tim24.projekat.uberapp.exception.InvalidArgumentException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.model.DurationDistance;
+import tim24.projekat.uberapp.model.Role;
 import tim24.projekat.uberapp.model.User;
 import tim24.projekat.uberapp.model.VehicleType;
 import tim24.projekat.uberapp.repo.UserRepository;
@@ -140,6 +141,8 @@ public class UserService {
 		User user = findUserById(id);
 		if(user.isBlocked())
 			throw new ConditionNotMetException("This user is already blocked.");
+		if(user.getRole() == Role.ADMIN)
+			throw new ConditionNotMetException("You cannot block an admin.");
 		user.setBlocked(true);
 		UserRepo.save(user);
 	}
@@ -149,6 +152,8 @@ public class UserService {
 		User user = findUserById(id);
 		if(! user.isBlocked())
 			throw new ConditionNotMetException("This user is already unblocked.");
+		if(user.getRole() == Role.ADMIN)
+			throw new ConditionNotMetException("You cannot unblock an admin.");
 		user.setBlocked(false);
 		UserRepo.save(user);
 	}
