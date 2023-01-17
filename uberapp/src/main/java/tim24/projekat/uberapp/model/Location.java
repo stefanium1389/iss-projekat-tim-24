@@ -14,22 +14,25 @@ public class Location
     private double latitude;
     @Column(precision=15)
     private double longitude;
+    private String address;
     
 	public Location() {
 		super();
 	}
 	
-	public Location(Long id, double latitude, double longitude) {
+	public Location(Long id, double latitude, double longitude, String address) {
 		super();
 		this.id = id;
 		this.latitude = latitude;
 		this.longitude = longitude;
+		this.setAddress(address);
 	}
 	
-	public Location(double latitude, double longitude) {
+	public Location(double latitude, double longitude, String address) {
 		super();
 		this.latitude = latitude;
 		this.longitude = longitude;
+		this.setAddress(address);
 	}
 
 	public double getLatitude() {
@@ -58,10 +61,14 @@ public class Location
 	public void setId(Long id) {
 		this.id = id;
 	}
-	
+
 	public String getAddress() {
-		// TODO Auto-generated method stub
-		return "djole";
+		return address;
 	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	
     
 }

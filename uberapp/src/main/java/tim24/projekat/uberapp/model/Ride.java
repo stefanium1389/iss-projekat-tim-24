@@ -24,6 +24,8 @@ public class Ride
     private boolean panic;
     private boolean babyInVehicle;
     private boolean petInVehicle;
+    @Column(nullable = true, updatable = true, unique = false)
+    private int totalCost;
     @OneToOne
     private Route route;
     @OneToOne
@@ -41,7 +43,7 @@ public class Ride
 	}
 
 	public Ride(Long id, Date startTime, Date endTime, RideStatus status, boolean panic, boolean babyInVehicle,
-			boolean petInVehicle, User driver, Refusal refusal, List<User> passengers, Route route, Date scheduledTime)
+			boolean petInVehicle, User driver, Refusal refusal, List<User> passengers, Route route, Date scheduledTime, int totalCost)
 	{
 		super();
 		this.id = id;
@@ -55,12 +57,13 @@ public class Ride
 		this.refusal = refusal;
 		this.passengers = passengers;
 		this.route = route;
-		this.setScheduledTime(scheduledTime);
+		this.scheduledTime = scheduledTime;
+		this.totalCost = totalCost;
 	}
 	
 	public Ride(Date startTime, Date endTime, Date scheduledTime, RideStatus status, boolean panic,
 			boolean babyInVehicle, boolean petInVehicle, Route route, User driver, Refusal refusal,
-			List<User> passengers) {
+			List<User> passengers , int totalCost) {
 		super();
 		this.startTime = startTime;
 		this.endTime = endTime;
@@ -73,6 +76,7 @@ public class Ride
 		this.driver = driver;
 		this.refusal = refusal;
 		this.passengers = passengers;
+		this.totalCost = totalCost;
 	}
 
 	public Long getId() {
@@ -137,7 +141,7 @@ public class Ride
 	}
 
 	public int getCost() {
-		return 0;
+		return totalCost;
 	}
 
 	public int getEstimatedTime() {
@@ -165,6 +169,14 @@ public class Ride
 
 	public void setScheduledTime(Date scheduledTime) {
 		this.scheduledTime = scheduledTime;
+	}
+
+	public int getTotalCost() {
+		return totalCost;
+	}
+
+	public void setTotalCost(int totalCost) {
+		this.totalCost = totalCost;
 	}
     
 }

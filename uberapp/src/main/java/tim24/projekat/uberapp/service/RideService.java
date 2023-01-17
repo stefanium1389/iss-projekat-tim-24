@@ -35,11 +35,13 @@ import tim24.projekat.uberapp.model.Role;
 import tim24.projekat.uberapp.model.Route;
 import tim24.projekat.uberapp.model.User;
 import tim24.projekat.uberapp.model.Vehicle;
+import tim24.projekat.uberapp.model.VehicleType;
 import tim24.projekat.uberapp.repo.LocationRepository;
 import tim24.projekat.uberapp.repo.RideRepository;
 import tim24.projekat.uberapp.repo.RouteRepository;
 import tim24.projekat.uberapp.repo.UserRepository;
 import tim24.projekat.uberapp.repo.VehicleRepository;
+import tim24.projekat.uberapp.repo.VehicleTypeRepository;
 
 @Service
 public class RideService
@@ -48,6 +50,8 @@ public class RideService
 	private RideRepository rideRepo;
 	@Autowired
 	private VehicleRepository vehicleRepo;
+	@Autowired
+	private VehicleTypeRepository vehicleTypeRepo;
 	@Autowired
 	private LocationRepository locationRepo;
 	@Autowired
@@ -76,36 +80,20 @@ public class RideService
 		}
 		
 		Route route;
+		DurationDistance dd;
 		try {
 			RouteDTO routeDto = rideRequestDTO.getLocations().get(0);
 			GeoCoordinateDTO dep = routeDto.getDeparture();
 			GeoCoordinateDTO dest = routeDto.getDestination();
-			Location departure = new Location(dep.getLatitude(),dep.getLongitude());
-			Location destination = new Location(dest.getLatitude(),dest.getLongitude());
-			DurationDistance dd = getDurationDistance(dep.getLatitude(),dep.getLongitude(),dest.getLatitude(),dest.getLongitude());
+			Location departure = new Location(dep.getLatitude(),dep.getLongitude(), dep.getAddress());
+			Location destination = new Location(dest.getLatitude(),dest.getLongitude(), dest.getAddress());
+			dd = getDurationDistance(dep.getLatitude(),dep.getLongitude(),dest.getLatitude(),dest.getLongitude());
 			route = new Route(dd.getDistance(), (int)(dd.getDuration()/60), departure, destination);
 		}
 		catch(RuntimeException e){
 			throw new RuntimeException("Neodgovarajuce lokacije u rideRequestDTO!");
 		}
 		
-		Date startTime;
-		Date endTime;
-		Date scheduledTime;
-		Date now = new Date(System.currentTimeMillis());
-		if (rideRequestDTO.getScheduledTime() == null) //MOZDA BUDE PROBLEMA OVDE 
-		{
-			startTime = now;
-			endTime = now;
-			scheduledTime = null;
-		}
-		else 
-		{
-			Date scheduled = parseDate(rideRequestDTO.getScheduledTime());
-			startTime = scheduled;
-			endTime = scheduled;
-			scheduledTime = scheduled;
-		}
 		boolean babyInVehicle = rideRequestDTO.isBabyTransport();
 		boolean petInVehicle = rideRequestDTO.isPetTransport();
 		RideStatus status = RideStatus.PENDING;
@@ -114,9 +102,35 @@ public class RideService
 		boolean panic = false;
 		Refusal refusal = null;
 		
+		Date startTime;
+		Date endTime;
+		Date scheduledTime;
+		Date now = new Date(System.currentTimeMillis());
+		
+		if (rideRequestDTO.getScheduledTime() == null) //MOZDA BUDE PROBLEMA OVDE 
+		{
+			System.out.println("ušao sam u if lmaooooo");
+			startTime = addMinutesToDate(now,driverEstimation.getMinutes());
+			endTime = addMinutesToDate(now,driverEstimation.getMinutes());;
+			scheduledTime = null;
+		}
+		else 
+		{
+			Date scheduled = parseDate(rideRequestDTO.getScheduledTime());
+			if (scheduled.before(now)) 
+			{
+				throw new InvalidTimeException("Scheduled date is in past!");
+			}
+			startTime = scheduled;
+			endTime = scheduled;
+			scheduledTime = scheduled;
+		}
+		
+		int totalCost = calculatePrice(rideRequestDTO.getVehicleType(),dd.getDistance());
 		//ovde se podrazumeva da je sve poslo po redu
 		
-		Ride ride = new Ride(startTime,endTime,scheduledTime,status,panic,babyInVehicle,petInVehicle,route,driver,refusal,passengers);
+		
+		Ride ride = new Ride(startTime,endTime,scheduledTime,status,panic,babyInVehicle,petInVehicle,route,driver,refusal,passengers,totalCost);
 		saveRideDetailsOnDatabase(ride);
 		RideDTO dto = new RideDTO(ride);
 		dto.setVehicleType(rideRequestDTO.getVehicleType());
@@ -134,6 +148,21 @@ public class RideService
 		
 		rideRepo.save(ride);
 		rideRepo.flush();
+	}
+	
+	public int calculatePrice(String type, double distance) 
+	{
+		Optional<VehicleType> typeOpt =vehicleTypeRepo.findOneByTypeName(type);
+		System.out.println("RACUNAM CENU IJOOOJ");
+		if (typeOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Vehicle type not found!");
+		}
+		
+		VehicleType vehicleType = typeOpt.get();
+		double costInDouble = vehicleType.getStartingPrice() + (distance/1000)*vehicleType.getPricePerKm();
+		int cost = (int) costInDouble;
+		return cost;
 	}
 	
 	public CreateRideResult getBestDriverForRide(RideRequestDTO requestDTO) 
@@ -159,7 +188,7 @@ public class RideService
 			System.out.println("pre suitable vehicle for-a: "+vehicle.getDriver().getName());
 			if (!(vehicle.getVehicleType().getTypeName().toString().toUpperCase().trim().equals(requestDTO.getVehicleType().toUpperCase().trim())))  //ovde mozda zezne
 			{
-				System.out.println("prosao tip proveru");
+				System.out.println("nije prosao tip proveru");
 				continue;
 			}
 			if (vehicle.getNumberOfSeats() < requestDTO.getPassengers().size())
@@ -211,16 +240,26 @@ public class RideService
 			else if (activeOpt.isPresent() && isScheduledOptEmpty)
 			{
 				System.out.println("desio se slucaj #2");
+				
 				Ride activeRide = activeOpt.get();
-				int minutesUntilEnd = this.getMinutesUntilRideCompletion(activeRide);
 				Location activeEnd = activeRide.getRoute().getEndLocation();
-				DurationDistance dd = getDurationDistance(activeEnd.getLatitude(),activeEnd.getLongitude(), dep.getLatitude(), dep.getLongitude());
-				minutes = (int) dd.getDuration()/60 + minutesUntilEnd;
+				DurationDistance ddToNew = getDurationDistance(activeEnd.getLatitude(),activeEnd.getLongitude(), dep.getLatitude(), dep.getLongitude());
+				if (activeRide.getStatus() == RideStatus.PENDING || activeRide.getStatus() == RideStatus.ACCEPTED) 
+				{
+					Duration timeToGetToPassenger = Duration.between(new Date().toInstant(),activeRide.getStartTime().toInstant()); //problematicno
+					minutes = (int) timeToGetToPassenger.toMinutes() + activeRide.getEstimatedTime() +(int)ddToNew.getDuration()/60;
+				}
+				else
+				{
+					int minutesUntilEnd = this.getMinutesUntilRideCompletion(activeRide);
+					minutes = minutesUntilEnd + (int) ddToNew.getDuration()/60;
+				}
+				
 			}
 			//slucaj 3
 			else if (activeOpt.isEmpty() && !isScheduledOptEmpty)
 			{	System.out.println("desio se slucaj #3");
-				if (getRideIfCanStartBeforeFirstScheduled(requestDTO,scheduledOpt.get().get(0),v) != null) 
+				if (getRideDateIfCanStartBeforeFirstScheduled(requestDTO,scheduledOpt.get().get(0),v) != null) 
 				{
 					Location vehicleLoc = v.getLocation();
 					DurationDistance dd = getDurationDistance(vehicleLoc.getLatitude(),vehicleLoc.getLongitude(),dep.getLatitude(), dep.getLongitude());
@@ -263,7 +302,7 @@ public class RideService
 		int bestMinutes = 99999; //veoma glupavo, znam
 		for (Map.Entry<User, Integer> set :
             minutesMap.entrySet()) {
-			System.out.println(set.getKey().getName());
+			System.out.println("finalni odabir - "+ set.getKey().getName()+" "+set.getValue());
 			if (set.getValue() < bestMinutes) 
 			{
 				bestUser = set.getKey();
@@ -278,7 +317,7 @@ public class RideService
 
 	}
 	
-	//zovi samo za aktivne voznje
+	//zovi samo za started voznje
 	public int getMinutesUntilRideCompletion(Ride ride) 
 	{
 		
@@ -300,7 +339,7 @@ public class RideService
 		
 	}
 	
-	public Date getRideIfCanStartBeforeFirstScheduled(RideRequestDTO requestDTO, Ride firstScheduledRide, Vehicle vehicle) 
+	public Date getRideDateIfCanStartBeforeFirstScheduled(RideRequestDTO requestDTO, Ride firstScheduledRide, Vehicle vehicle) 
 	{
 		RouteDTO routeDto = requestDTO.getLocations().get(0);
 		GeoCoordinateDTO dep = routeDto.getDeparture();
@@ -554,7 +593,16 @@ public class RideService
 			Date parsedDate = Date.from(instant);
 			return parsedDate;
 		}
-	}
+	
+	  	public Date addMinutesToDate(Date date, int minutes) 
+		{
+			Instant ins = date.toInstant();
+			ins = ins.plus(Duration.ofMinutes(minutes));
+			return Date.from(ins);
+		}
+
+
+}
 
 
 
