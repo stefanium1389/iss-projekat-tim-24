@@ -39,10 +39,6 @@ public class User {
 	@Transient
 	private String accessToken;
 	
-	@Transient
-	@Autowired
-	private PasswordEncoder passwordEncoder;
-	
 	public User() {
 		super();
 	}
@@ -63,18 +59,17 @@ public class User {
 		this.role = role;
 	}
 
-	public User(UserRegistrationDTO dto) {
+	public User(UserRegistrationDTO dto, String password) {
 		this.name = dto.getName();
 		this.surname = dto.getSurname();
 		this.profilePicture = dto.getProfilePicture();
 		this.telephoneNumber = dto.getTelephoneNumber();
 		this.email = dto.getEmail();
-		this.password = passwordEncoder.encode(dto.getPassword());
+		this.password = password;
 		this.address = dto.getAddress();
 		this.activated = false;
 		this.blocked = false;
 		this.role = Role.USER;
-		
 	}
 
 	public Long getId() {

@@ -21,6 +21,10 @@ public class VehicleRequestDTO {
 		this.petTransport = petTransport;
 	}
 	
+	public VehicleRequestDTO() {
+		super();
+	}
+
 	public String getVehicleType() {
 		return vehicleType;
 	}

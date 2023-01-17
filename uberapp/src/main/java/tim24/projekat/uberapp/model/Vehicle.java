@@ -33,14 +33,6 @@ public class Vehicle
     private boolean allowedPetInVehicle;
     private String model;
     
-    @Transient
-    @Autowired
-    private VehicleTypeRepository vtRepo;
-    
-    @Transient
-    @Autowired
-    private UserRepository userRepo;
-    
     public Vehicle()
     {
         super();
@@ -59,10 +51,10 @@ public class Vehicle
 		this.setModel(model);
 	}
 
-	public Vehicle(VehicleRequestDTO newV, Long driverId) {
+	public Vehicle(VehicleRequestDTO newV, User driver, VehicleType vehicleType) {
 		this.regPlates = newV.getLicenseNumber();
-		this.driver = userRepo.findByIdAndRole(driverId, Role.DRIVER).get();
-		this.vehicleType = vtRepo.findByTypeName(newV.getVehicleType()).get();
+		this.driver = driver;
+		this.vehicleType = vehicleType;
 		this.numberOfSeats = newV.getPassengerSeats();
 		this.allowedBabyInVehicle = newV.isBabyTransport();
 		this.allowedPetInVehicle = newV.isPetTransport();

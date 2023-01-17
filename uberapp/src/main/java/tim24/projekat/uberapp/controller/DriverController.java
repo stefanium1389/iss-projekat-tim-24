@@ -166,6 +166,10 @@ public class DriverController {
 			ErrorDTO error = new ErrorDTO(e.getMessage());
 			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
 		}
+		catch(InvalidArgumentException e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
 	}
 	@PostMapping("/{id}/vehicle")
 	public ResponseEntity<?> AddDriverVehicle(
@@ -176,6 +180,10 @@ public class DriverController {
 			return new ResponseEntity<VehicleDTO>(v, HttpStatus.OK);
 		}
 		catch(ObjectNotFoundException e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
+		catch(ObjectAlreadyPresentException e) {
 			ErrorDTO error = new ErrorDTO(e.getMessage());
 			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
 		}

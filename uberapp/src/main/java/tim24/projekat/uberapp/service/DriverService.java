@@ -45,11 +45,13 @@ import tim24.projekat.uberapp.model.Ride;
 import tim24.projekat.uberapp.model.Role;
 import tim24.projekat.uberapp.model.User;
 import tim24.projekat.uberapp.model.Vehicle;
+import tim24.projekat.uberapp.model.VehicleType;
 import tim24.projekat.uberapp.model.WorkingHour;
 import tim24.projekat.uberapp.repo.DriverDocumentRepository;
 import tim24.projekat.uberapp.repo.RideRepository;
 import tim24.projekat.uberapp.repo.UserRepository;
 import tim24.projekat.uberapp.repo.VehicleRepository;
+import tim24.projekat.uberapp.repo.VehicleTypeRepository;
 import tim24.projekat.uberapp.repo.WorkingHourRepo;
 
 @Service
@@ -72,13 +74,17 @@ public class DriverService {
 	
 	@Autowired
 	private RideRepository rideRepo;
-
+	
+	@Autowired
+	private VehicleTypeRepository viehicleTypeRepo;
+	
 	public UserResponseDTO createDriver(UserRegistrationDTO newDriver) {
 		Optional<User> existing = userRepo.findUserByEmail(newDriver.getEmail());
 		if(existing.isPresent()) {
 			throw new ObjectAlreadyPresentException("User with that email already exists!");
 		}
-		User driver = new User(newDriver);
+		String password = passwordEncoder.encode(newDriver.getPassword());
+		User driver = new User(newDriver, password);
 		driver.setRole(Role.DRIVER); //defaultno role je USER a activated je false!
 		driver.setActivated(true);
 		userRepo.save(driver);
@@ -185,7 +191,12 @@ public class DriverService {
 		{
 			throw new ObjectNotFoundException("Driver does not exist!");
 		}
-		Vehicle vehicle = new Vehicle(newV, id);
+		Optional<VehicleType> type = viehicleTypeRepo.findByTypeName(newV.getVehicleType());
+		if (type.isEmpty()) 
+		{
+			throw new InvalidArgumentException("Invalid vehicle type");
+		}
+		Vehicle vehicle = new Vehicle(newV, driverOpt.get(), type.get());
 		vehicleRepo.save(vehicle);
 		vehicleRepo.flush();
 		
@@ -199,7 +210,16 @@ public class DriverService {
 		{
 			throw new ObjectNotFoundException("Driver does not exist!");
 		}
-		Vehicle vehicle = new Vehicle(newV, id);
+		Optional<Vehicle> vehicleOpt = vehicleRepo.findVehicleByDriverId(id);
+		if(vehicleOpt.isPresent()) {
+			throw new ObjectAlreadyPresentException("Driver already has vehicle");
+		}
+		Optional<VehicleType> type = viehicleTypeRepo.findByTypeName(newV.getVehicleType());
+		if (type.isEmpty()) 
+		{
+			throw new InvalidArgumentException("Invalid vehicle type");
+		}
+		Vehicle vehicle = new Vehicle(newV, driverOpt.get(), type.get());
 		vehicleRepo.save(vehicle);
 		vehicleRepo.flush();
 		
@@ -216,7 +236,7 @@ public class DriverService {
 		Date startDate = parseDate(fromDate);
 		Date endDate = parseDate(toDate);
 		Page<WorkingHour> whPage;
-		Pageable pageable = PageRequest.of(page, size, Sort.by(Direction.ASC));
+		Pageable pageable = PageRequest.of(page, size, Sort.by(Direction.DESC, "endTime"));
 		whPage = workingHourRepo.findByDriverIdAndRideDateBetween(id, startDate, endDate, pageable);
 		
 		DTOList<WorkingHourDTO> whs = new DTOList<WorkingHourDTO>();
@@ -288,7 +308,7 @@ public class DriverService {
 		return wh;
 	}
 
-	public DTOList<RideDTO> getDriverRides(Long id, int page, int size, String sortDirection, String fromDate, String toDate) {
+	public DTOList<RideDTO> getDriverRides(Long id, int page, int size, String sort, String fromDate, String toDate) {
 		Optional<User> driverOpt = userRepo.findByIdAndRole(id, Role.DRIVER);
 		if (driverOpt.isEmpty()) 
 		{
@@ -296,19 +316,16 @@ public class DriverService {
 		}		
 		Date startDate = parseDate(fromDate);
 		Date endDate = parseDate(toDate);
-		Page<Ride> ridesPage;
+		Page<Ride> ridesPage = null;
 		
-		if(sortDirection.equals("asc")) {
-			Pageable pageable = PageRequest.of(page, size, Sort.by(Direction.ASC));
+		try {
+			Pageable pageable = PageRequest.of(page, size, Sort.by(Direction.ASC, sort));
 			ridesPage = rideRepo.findByDriverIdAndRideDateBetween(id, startDate, endDate, pageable);
 		}
-        if(sortDirection.equals("desc")) {
-        	Pageable pageable = PageRequest.of(page, size, Sort.by(Direction.DESC));
-			ridesPage = rideRepo.findByDriverIdAndRideDateBetween(id, startDate, endDate, pageable);
-        }
-        else {
-        	throw new InvalidArgumentException("Invalid sort argument");
-        }
+		catch(RuntimeException e) {
+			throw new InvalidArgumentException(sort+ " is not a valid argument!");
+		}
+        
 		DTOList<RideDTO> rides = new DTOList<RideDTO>();
 		for(Ride r : ridesPage.getContent()) {
 			rides.add(new RideDTO(r));

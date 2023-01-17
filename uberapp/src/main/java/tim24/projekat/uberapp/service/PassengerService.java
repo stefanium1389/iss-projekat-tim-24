@@ -48,17 +48,8 @@ public class PassengerService {
 		if(existingUser.isPresent()) {
 			throw new EmailAlreadyExistsException("User with that email already exists!");
 		}
-		User newUser = new User(userRegistrationDTO);
-		newUser.setName(userRegistrationDTO.getName());
-		newUser.setEmail(userRegistrationDTO.getEmail());
-		newUser.setAddress(userRegistrationDTO.getAddress());
-		newUser.setSurname(userRegistrationDTO.getSurname());
-		newUser.setPassword(passwordEncoder.encode(userRegistrationDTO.getPassword()));
-		newUser.setTelephoneNumber(userRegistrationDTO.getTelephoneNumber());
-		newUser.setProfilePicture(userRegistrationDTO.getProfilePicture());
-		newUser.setRole(Role.USER);
-		newUser.setActivated(false);
-		newUser.setBlocked(false);
+		String password = passwordEncoder.encode(userRegistrationDTO.getPassword());
+		User newUser = new User(userRegistrationDTO,password);
 		userRepo.save(newUser);
 		userRepo.flush();
 		String token = activationService.generateActivation(userRegistrationDTO.getEmail());
