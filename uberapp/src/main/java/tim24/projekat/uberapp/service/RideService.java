@@ -492,7 +492,7 @@ public class RideService
 		Date time = new Date();
 		if(ride.getStatus() != RideStatus.STARTED)
 			throw new ConditionNotMetException("You cannot panic in a ride that isn't active.");
-		if(! ride.getPassengers().contains(user))
+		if((user.getRole() == Role.USER && ! ride.getPassengers().contains(user)) || (user.getRole() == Role.DRIVER && user != ride.getDriver()))
 			throw new ConditionNotMetException("You cannot panic in a ride that you aren't in.");
 		Panic panic = panicRepository.save(new Panic(time, reason.getReason(), ride, user));
 		ride.setPanic(true);
