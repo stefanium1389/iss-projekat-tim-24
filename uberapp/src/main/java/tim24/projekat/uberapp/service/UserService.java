@@ -26,6 +26,7 @@ import tim24.projekat.uberapp.DTO.UnregisteredRequestDTO;
 import tim24.projekat.uberapp.DTO.UnregisteredResponseDTO;
 import tim24.projekat.uberapp.DTO.UserRef;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
+import tim24.projekat.uberapp.exception.ConditionNotMetException;
 import tim24.projekat.uberapp.exception.InvalidArgumentException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.model.DurationDistance;
@@ -67,7 +68,7 @@ public class UserService {
 	
 	public User findUserById (Long id) 
 	{
-		return UserRepo.findUserById(id).orElseThrow(()-> new ObjectNotFoundException("leeeel"));
+		return UserRepo.findUserById(id).orElseThrow(()-> new ObjectNotFoundException("User not found."));
 	}
 	
 	public User findUserByEmail(String email) {
@@ -134,14 +135,22 @@ public class UserService {
 	}
 
 	
-	public void putBlockUserById(Long id) {
-		// TODO Auto-generated method stub
-		
+	public void putBlockUserById(Long id)
+	{
+		User user = findUserById(id);
+		if(user.isBlocked())
+			throw new ConditionNotMetException("This user is already blocked.");
+		user.setBlocked(true);
+		UserRepo.save(user);
 	}
 
-	public void putUnblockUserById(Long id) {
-		// TODO Auto-generated method stub
-		
+	public void putUnblockUserById(Long id)
+	{
+		User user = findUserById(id);
+		if(! user.isBlocked())
+			throw new ConditionNotMetException("This user is already unblocked.");
+		user.setBlocked(false);
+		UserRepo.save(user);
 	}
 
 	public DTOList<UserResponseDTO> searchUsers(String querry) {
