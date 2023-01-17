@@ -62,14 +62,6 @@ public class UserController {
 	@PostMapping ("user/login")
 	public ResponseEntity<?> postLogin (@RequestBody LoginRequestDTO loginRequestDTO)
 	{
-		//Ako je korisnik blokiran, ne moze da se uloguje.
-		User user = userService.findUserByEmail(loginRequestDTO.getEmail());
-		if(user.isBlocked())
-		{
-			ErrorDTO error = new ErrorDTO("This user is blocked.");
-			return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
-		}
-
 		try
 		{
 		UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(loginRequestDTO.getEmail(),
