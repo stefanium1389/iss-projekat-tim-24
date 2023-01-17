@@ -14,15 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import tim24.projekat.uberapp.DTO.*;
-import tim24.projekat.uberapp.DTO.GeoCoordinateDTO;
-import tim24.projekat.uberapp.DTO.OsrmResponse;
-import tim24.projekat.uberapp.DTO.PanicDTO;
-import tim24.projekat.uberapp.DTO.RideDTO;
-import tim24.projekat.uberapp.DTO.RideRequestDTO;
-import tim24.projekat.uberapp.DTO.RouteDTO;
-import tim24.projekat.uberapp.DTO.UserRef;
 import tim24.projekat.uberapp.exception.ActiveUserRideException;
 import tim24.projekat.uberapp.exception.ConditionNotMetException;
+import tim24.projekat.uberapp.exception.InvalidArgumentException;
 import tim24.projekat.uberapp.exception.InvalidRideStatusException;
 import tim24.projekat.uberapp.exception.InvalidTimeException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
@@ -67,6 +61,8 @@ public class RideService
 	private DriverService driverService;
 	@Autowired
 	private PanicRepository panicRepository;
+	@Autowired
+	private FavoriteRideRepository favoriteRideRepo;
 
 	public Ride findRideById (Long id)
 	{
@@ -550,7 +546,7 @@ public class RideService
 		return dto;
 	}
 
-	public RideDTO cancelRide(Long id) //driver ubija voznju
+	public RideDTO cancelRide(Long id, ReasonDTO reason) //driver ubija voznju
 	{
 		Optional<Ride> ride = rideRepo.findById(id);
 		if(ride.isEmpty()) {
@@ -561,6 +557,7 @@ public class RideService
 		}
 		Ride actualRide = ride.get();
 		actualRide.setStatus(RideStatus.REJECTED);
+		actualRide.setRefusal(new Refusal(reason));
 		rideRepo.save(actualRide);
 		rideRepo.flush();
 		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(3L);
@@ -623,37 +620,74 @@ public class RideService
 			return Date.from(ins);
 		}
 
+		public FavoriteRideResponseDTO postFavorite(String userMail, FavoriteRideDTO dto) {
+			
+			Optional<User> optUser = userRepo.findUserByEmail(userMail);
+			if(optUser.isEmpty()) {
+				throw new ObjectNotFoundException("User does not exist!");
+			}
+			
+			List<FavoriteRide> fav = favoriteRideRepo.findAllFavoriteRideByPassengerId(optUser.get().getId());
+			if(fav.size() == 10) {
+				throw new InvalidArgumentException("Number of favorite rides cannot exceed 10!");
+			}
+			Optional<VehicleType> vtOpt = vehicleTypeRepo.findByTypeName(dto.getVehicleType());
+			if(vtOpt.isEmpty()) {
+				throw new InvalidArgumentException("Invalid vehicle type!");
+			}
+			Route route;
+			DurationDistance dd;
+			FavoriteRide favRide = new FavoriteRide(dto, optUser.get());
+			try {
+				RouteDTO routeDto = dto.getLocations().get(0);
+				GeoCoordinateDTO dep = routeDto.getDeparture();
+				GeoCoordinateDTO dest = routeDto.getDestination();
+				Location departure = new Location(dep.getLatitude(),dep.getLongitude(), dep.getAddress());
+				Location destination = new Location(dest.getLatitude(),dest.getLongitude(), dest.getAddress());
+				dd = getDurationDistance(dep.getLatitude(),dep.getLongitude(),dest.getLatitude(),dest.getLongitude());
+				route = new Route(dd.getDistance(), (int)(dd.getDuration()/60), departure, destination);
+			}
+			catch(RuntimeException e){
+				throw new InvalidArgumentException("Neodgovarajuce lokacije u rideRequestDTO!");
+			}
+			favRide.setRoute(route);
+			
+			locationRepo.save(favRide.getRoute().getStartLocation());
+			locationRepo.save(favRide.getRoute().getEndLocation());
+			locationRepo.flush();
+			
+			routeRepo.save(favRide.getRoute());
+			routeRepo.flush();
+			
+			favoriteRideRepo.save(favRide);
+			favoriteRideRepo.flush();
+			
+			FavoriteRideResponseDTO dto2 = new FavoriteRideResponseDTO(favRide);
+			return dto2;
+		}
+
+		public List<FavoriteRideResponseDTO> getFavorites(String userMail) {
+			Optional<User> optUser = userRepo.findUserByEmail(userMail);
+			if(optUser.isEmpty()) {
+				throw new ObjectNotFoundException("User does not exist!");
+			}			
+			List<FavoriteRide> fav = favoriteRideRepo.findAllFavoriteRideByPassengerId(optUser.get().getId());
+			ArrayList<FavoriteRideResponseDTO> favdto = new ArrayList<FavoriteRideResponseDTO>();
+			for(FavoriteRide ride : fav) {
+				favdto.add(new FavoriteRideResponseDTO(ride));
+			}
+			
+			return  favdto;
+		}
+
+		public SuccessDTO deleteFavoriteRide(Long id) {
+			Optional<FavoriteRide> fav = favoriteRideRepo.findById(id);
+			if(fav.isEmpty()) {
+				throw new ObjectNotFoundException("Favorite location does not exist!");
+			}
+			favoriteRideRepo.delete(fav.get());
+			return new SuccessDTO("Successful deletion of favorite location!");
+		}
+
 
 }
-
-
-
-//	private void GenerateVehicle() {
-//		VehicleType type = new VehicleType(1L,"STANDARDNO",200,100);
-//		vehicleTypeRepo.save(type);
-//		vehicleTypeRepo.flush();
-//		Vehicle vehicle = new Vehicle(1L,"NS-069-XD",userRepo.findById(3L).get(),type,4,false,false);
-//		vehicleRepo.save(vehicle);
-//		vehicleRepo.flush();
-//	}
-
-//	public void GenerateRide(Long rideId, RideStatus status) {
-//		Optional<User> driver = userRepo.findById(3L);
-//		List<User> passengers = new ArrayList<User>();
-//		passengers.add(userRepo.findById(2L).get());
-//		passengers.add(userRepo.findById(4L).get());
-//		Location dep = new Location(1L,69.42,69.42);
-//		Location dest = new Location(2L,42.69,42.69);
-//		locRepo.save(dep);
-//		locRepo.save(dest);
-//		locRepo.flush();
-//		Route route = new Route(1L, 5.5, 11, dep, dest);
-//		routeRepo.save(route);
-//		routeRepo.flush();
-//		Refusal refusal = new Refusal(1L,"iks de",new Date(System.currentTimeMillis()),driver.get());
-//		refusalRepo.save(refusal);
-//		refusalRepo.flush();
-//		Ride ride = new Ride(rideId,new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()+690000),status,false,false,false,driver.get(),refusal,passengers,route);
-//		rideRepo.save(ride);
-//		rideRepo.flush();
-//	}
