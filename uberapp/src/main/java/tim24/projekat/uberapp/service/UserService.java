@@ -117,11 +117,6 @@ public class UserService {
 		return dtoList;
 	}
 
-	public LoginResponseDTO postLogin(LoginRequestDTO loginRequestDTO) {
-		LoginResponseDTO response = new LoginResponseDTO("asdasd","ffgdfgfdgfd");
-		return response;
-	}
-
 	public MessageSendResponseDTO postMessageById(Long id, MessageRequestDTO messageRequestDTO) {
 		MessageSendResponseDTO m = new MessageSendResponseDTO(1L, LocalDateTime.now(),4L, 10L,"asdasdsa","tip",101L);
 		return m;
@@ -133,6 +128,7 @@ public class UserService {
 		Date time = new Date();
 		Note note = new Note(time, noteDTO.getMessage(), user);
 		noteRepo.save(note);
+		noteRepo.flush();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 		String timeString = sdf.format(time);
 		NoteResponseDTO noteResponseDTO = new NoteResponseDTO(note.getId(), timeString, note.getNote());

@@ -205,7 +205,7 @@ public class RideService
 		List<Vehicle> suitableVehicles = new ArrayList<Vehicle>();
 		
 		//provera za vozila
-		for(Vehicle vehicle : vehicles) //i cant do sql
+		for(Vehicle vehicle : vehicles) //:)
 		{
 			
 			if (!(vehicle.getVehicleType().getTypeName().toString().toUpperCase().trim().equals(requestDTO.getVehicleType().toUpperCase().trim())))  //ovde mozda zezne
@@ -793,7 +793,7 @@ public class RideService
 			);
 			int price = calculatePrice(urd.getVehicleType(), dd.getDistance());
 			
-			UnregisteredResponseDTO u = new UnregisteredResponseDTO((long) dd.getDuration(),(long) price);
+			UnregisteredResponseDTO u = new UnregisteredResponseDTO((long) dd.getDuration()/60,(long) price);
 			return u;
 		}
 
