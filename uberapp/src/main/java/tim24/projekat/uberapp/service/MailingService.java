@@ -36,7 +36,7 @@ public class MailingService {
 	}
 	
 	public void sendPasswordResetMail(String email, String token) throws MessagingException {
-		String body = "To change your password click on the following link http://localhost:4200/activate?token="+token;
+		String body = "To change your password click on the following link http://localhost:4200/reset-password?token="+token;
 		sendEmail(email,"UberApp Tim24 Reset Password",body);
 	}
 }
