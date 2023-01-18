@@ -4,7 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import tim24.projekat.uberapp.DTO.ErrorDTO;
+import tim24.projekat.uberapp.DTO.PasswordResetRequestDTO;
+import tim24.projekat.uberapp.DTO.SuccessDTO;
 import tim24.projekat.uberapp.DTO.VehicleDTO;
+import tim24.projekat.uberapp.exception.ConditionNotMetException;
+import tim24.projekat.uberapp.exception.ObjectNotFoundException;
+import tim24.projekat.uberapp.service.PasswordResetService;
 import tim24.projekat.uberapp.service.VehicleService;
 
 @RestController
@@ -20,4 +27,5 @@ public class VehicleController
     	vehicleService.putVehicleLocation(id); //izmeni ovo
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+    
 }

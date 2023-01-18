@@ -1,7 +1,5 @@
 package tim24.projekat.uberapp.service;
 
-import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -37,6 +35,8 @@ public class MailingService {
 		sendEmail(email,"UberApp Tim24 Email Validation",body);
 	}
 	
-	
-
+	public void sendPasswordResetMail(String email, String token) throws MessagingException {
+		String body = "To change your password click on the following link http://localhost:4200/activate?token="+token;
+		sendEmail(email,"UberApp Tim24 Reset Password",body);
+	}
 }

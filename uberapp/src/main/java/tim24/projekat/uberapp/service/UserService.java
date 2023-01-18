@@ -37,6 +37,7 @@ import tim24.projekat.uberapp.repo.VehicleTypeRepository;
 public class UserService {
 	private final UserRepository UserRepo;
 	
+	
 	@Autowired
 	public UserService(UserRepository UserRepo) {
 		this.UserRepo = UserRepo;
@@ -178,4 +179,5 @@ public class UserService {
 		return returnList;
 		
 	}
+	
 }
