@@ -2,10 +2,6 @@ package tim24.projekat.uberapp.model;
 
 import java.util.Date;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Size;
-
 import jakarta.persistence.*;
 
 @Entity
@@ -25,10 +21,7 @@ public abstract class Review
     @ManyToOne
     private Ride ride;
     private Date date;
-    @Min(1)
-    @Max(5)
     private int grade;
-    @Size(min=1, max=150) //ConstraintViolationException
     private String comment;
 
     public Review()
