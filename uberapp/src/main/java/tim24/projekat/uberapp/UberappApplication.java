@@ -6,10 +6,11 @@ import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import tim24.projekat.uberapp.config.JacksonConfig;
+import tim24.projekat.uberapp.config.WebSocketConfig;
 
 
 @SpringBootApplication
-@Import(JacksonConfig.class) //verovatno nije potrebno
+@Import({JacksonConfig.class, WebSocketConfig.class}) //verovatno nije potrebno
 @EnableScheduling
 public class UberappApplication {
 
