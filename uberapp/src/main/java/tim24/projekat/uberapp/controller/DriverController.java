@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import tim24.projekat.uberapp.DTO.DriverDocumentDTO;
 import tim24.projekat.uberapp.DTO.DriverDocumentRequestDTO;
+import tim24.projekat.uberapp.DTO.DriverReportResponseDTO;
 import tim24.projekat.uberapp.DTO.DurationDTO;
 import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.DriverChangeDTO;
@@ -208,6 +209,21 @@ public class DriverController {
 			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
 		}
 	}
+	
+	@PostMapping("/{id}/report")
+	public ResponseEntity<?> CreateDriverDocuments(
+			@RequestBody DriverReportDTO drd, 
+			@PathVariable("id") Long id){
+		try {
+			DriverReportResponseDTO dd = driverService.reportDriver(id, drd);
+			return new ResponseEntity<DriverReportResponseDTO>(dd, HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
+	}
+	
 	@DeleteMapping("/document/{id}")
 	public ResponseEntity<?> DeleteDriverDocuments(
 			@PathVariable("id") Long id){
