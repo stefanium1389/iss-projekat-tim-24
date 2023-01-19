@@ -1,9 +1,5 @@
 package tim24.projekat.uberapp.DTO;
 
-import tim24.projekat.uberapp.model.Note;
-
-import java.util.Date;
-
 public class NoteResponseDTO {
 
 	private Long id;

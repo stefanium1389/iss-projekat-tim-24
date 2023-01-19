@@ -5,7 +5,6 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,14 +12,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.RideDTO;
 import tim24.projekat.uberapp.DTO.SuccessDTO;

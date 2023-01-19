@@ -72,22 +72,26 @@ public class RideService
 		return rideRepo.findRideById(id).orElseThrow(()-> new ObjectNotFoundException("Ride not found."));
 	}
 	
-	public RideDTO postRide(RideRequestDTO rideRequestDTO)
+	public RideDTO postRide(String email, RideRequestDTO rideRequestDTO)
 	{
-		
 		List<User> passengers = new ArrayList<User>();
+		User customer = userRepo.findUserByEmail(email).get();
+		if(rideRepo.findActiveRideByPassengerId(customer.getId()).isPresent()) {
+			throw new ActiveUserRideException("Ne mozete poruciti voznju ako imate aktivnu!");
+		}
+		passengers.add(customer);
 		for(UserRef passengerDTO : rideRequestDTO.getPassengers()) {
 			Optional<User> passenger = userRepo.findUserByEmail(passengerDTO.getEmail());
 			if(passenger.isEmpty()) {
 				throw new ObjectNotFoundException("Putnik ne postoji u bazi! "+passengerDTO.getEmail());
 			}
+			if(passenger.get().getEmail().equals(customer.getEmail())) {
+				throw new InvalidArgumentException("Porucilac ne sme biti u listi ulinkovanih korisnika!");
+			}
 			if(rideRepo.findActiveRideByPassengerId(passenger.get().getId()).isPresent()) {
 				throw new ActiveUserRideException("Putnik "+passenger.get().getEmail()+" je vec u aktivnoj voznji");
 			}
 			passengers.add(passenger.get());
-		}
-		if(passengers.size() < 1) {
-			throw new ObjectNotFoundException("Ne mozete zapoceti voznju bez putnika!");
 		}
 		
 		Route route;
@@ -205,7 +209,7 @@ public class RideService
 		List<Vehicle> suitableVehicles = new ArrayList<Vehicle>();
 		
 		//provera za vozila
-		for(Vehicle vehicle : vehicles) //i cant do sql
+		for(Vehicle vehicle : vehicles) //:)
 		{
 			
 			if (!(vehicle.getVehicleType().getTypeName().toString().toUpperCase().trim().equals(requestDTO.getVehicleType().toUpperCase().trim())))  //ovde mozda zezne
@@ -793,7 +797,7 @@ public class RideService
 			);
 			int price = calculatePrice(urd.getVehicleType(), dd.getDistance());
 			
-			UnregisteredResponseDTO u = new UnregisteredResponseDTO((long) dd.getDuration(),(long) price);
+			UnregisteredResponseDTO u = new UnregisteredResponseDTO((long) dd.getDuration()/60,(long) price);
 			return u;
 		}
 

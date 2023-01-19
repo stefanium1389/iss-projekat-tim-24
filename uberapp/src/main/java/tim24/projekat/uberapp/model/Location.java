@@ -1,6 +1,7 @@
 package tim24.projekat.uberapp.model;
 
 import jakarta.persistence.*;
+import tim24.projekat.uberapp.DTO.GeoCoordinateDTO;
 
 @Table(name = "locations")
 @Entity
@@ -32,7 +33,13 @@ public class Location
 		super();
 		this.latitude = latitude;
 		this.longitude = longitude;
-		this.setAddress(address);
+		this.address = address;
+	}
+
+	public Location(GeoCoordinateDTO dto) {
+		this.latitude=dto.getLatitude();
+		this.longitude=dto.getLongitude();
+		this.address=dto.getAddress();
 	}
 
 	public double getLatitude() {

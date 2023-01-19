@@ -36,6 +36,10 @@ public class ReviewService {
 	private UserRepository userRepo;
 	@Autowired
 	private RideRepository rideRepo;
+	@Autowired
+	private DateUtils du;
+	
+	private static int EXPIRE_DAYS = 3;
 
 	public DTOList<ReviewDTO> getVehicleReviewsById(Long id) {
 		
@@ -83,6 +87,9 @@ public class ReviewService {
 		if(rOpt.isEmpty()) {
 			throw new ObjectNotFoundException("Ride does not exist!");
 		}
+		if(new Date().before(du.plusDays(rOpt.get().getEndTime(), EXPIRE_DAYS))) {
+			throw new InvalidArgumentException("Cannot comment on ride older then "+EXPIRE_DAYS+" days");
+		}
 		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(rOpt.get().getDriver().getId());
 		ReviewVehicle rv = new ReviewVehicle();
 		rv.setRide(rOpt.get());
@@ -92,14 +99,14 @@ public class ReviewService {
 		rv.setDate(new Date(System.currentTimeMillis()));
 		rv.setCommenter(commenter);
 		
-//		try {
+		try {
 			reviewRepo.save(rv);
 			reviewRepo.flush();
-//		}
-//		catch(DataIntegrityViolationException e) {
-//			throw new InvalidArgumentException("Only one comment per user per ride!");
-//		}
-//		
+		}
+		catch(DataIntegrityViolationException e) {
+			throw new InvalidArgumentException("Only one comment per user per ride!");
+		}
+		
 		return new ReviewDTO(rv);
 	
 	}
@@ -110,6 +117,9 @@ public class ReviewService {
 		if(rOpt.isEmpty()) {
 			throw new ObjectNotFoundException("Ride does not exist!");
 		}
+		if(new Date().before(du.plusDays(rOpt.get().getEndTime(), EXPIRE_DAYS))) {
+			throw new InvalidArgumentException("Cannot comment on ride older then "+EXPIRE_DAYS+" days");
+		}
 		User d = rOpt.get().getDriver();
 		ReviewDriver rv = new ReviewDriver();
 		rv.setRide(rOpt.get());
@@ -119,14 +129,14 @@ public class ReviewService {
 		rv.setDate(new Date(System.currentTimeMillis()));
 		rv.setCommenter(commenter);
 		
-//		try {
+		try {
 			reviewRepo.save(rv);
 			reviewRepo.flush();
-//		}
-//		catch(DataIntegrityViolationException e) {
-//			throw new InvalidArgumentException("Only one comment per user per ride!");
-//		}
-//		
+		}
+		catch(DataIntegrityViolationException e) {
+			throw new InvalidArgumentException("Only one comment per user per ride!");
+		}
+		
 		return new ReviewDTO(rv);
 	}
 	

@@ -38,7 +38,10 @@ public interface RideRepository extends JpaRepository<Ride, Long>
 
 	@Query("SELECT r FROM Ride r JOIN r.passengers p WHERE p.id = :passengerId AND r.startTime BETWEEN :startDate AND :endDate")
 	Page<Ride> findByPassengerIdAndStartTimeBetween(@Param("passengerId") Long passengerId, @Param("startDate") Date startDate, @Param("endDate") Date endDate, Pageable pageable);
-
+	
+	@Query("SELECT r FROM Ride r WHERE (r.driver.id = :id OR :id MEMBER OF r.passengers) AND r.startTime BETWEEN :startDate AND :endDate")
+    Page<Ride> findAllByDriverIdOrPassengerIdAndStartTimeBetween(@Param("id") Long id, @Param("startDate") Date startDate, @Param("endDate") Date endDate, Pageable pageable);
+	
 	@Query(value = "SELECT r FROM Ride r WHERE r.status != 'CANCELED' AND r.scheduledTime BETWEEN :startDate AND :endDate AND r.driver IS NULL")
 	List<Ride> findScheduledRidesWithoutDriverInTimePeriod(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
 }

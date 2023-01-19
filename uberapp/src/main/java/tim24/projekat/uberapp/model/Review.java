@@ -2,18 +2,14 @@ package tim24.projekat.uberapp.model;
 
 import java.util.Date;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Size;
-
 import jakarta.persistence.*;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "review_type", discriminatorType=DiscriminatorType.STRING)
-//@Table(name = "reviews", uniqueConstraints = {
-//	    @UniqueConstraint(columnNames = {"commenter_id", "ride_id"})    //probao sam da ogranicim na jedan komentar po komentatoru po voznji, onda sam 
-//	})																	skontao da ne bih mogao da imam komentar na vozaca i vozilo tako, mislimo dalje
+@Table(name = "reviews", uniqueConstraints = {
+	    @UniqueConstraint(columnNames = {"commenter_id", "ride_id", "review_type"})  
+})																	
 public abstract class Review
 {
     @Id
@@ -25,10 +21,7 @@ public abstract class Review
     @ManyToOne
     private Ride ride;
     private Date date;
-    @Min(1)
-    @Max(5)
     private int grade;
-    @Size(min=1, max=150) //ConstraintViolationException
     private String comment;
 
     public Review()
