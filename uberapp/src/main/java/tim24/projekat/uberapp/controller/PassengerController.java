@@ -95,11 +95,11 @@ public class PassengerController
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePassenger(@RequestBody UserUpdateRequestDTO dto, @PathVariable("id") Long id)
+    public ResponseEntity<?> updatePassenger(@RequestHeader("Authorization") String auth, @RequestBody UserUpdateRequestDTO dto, @PathVariable("id") Long id)
     {
     	
         try {
-        UserResponseDTO user = passengerService.updatePassenger(id, dto);
+        UserResponseDTO user = passengerService.updatePassenger(id, dto ,auth);
         return new ResponseEntity<UserResponseDTO>(user, HttpStatus.OK);
         }
         catch(ObjectNotFoundException e) {
