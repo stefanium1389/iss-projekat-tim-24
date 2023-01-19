@@ -1,116 +1,129 @@
 package tim24.projekat.uberapp.service;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import tim24.projekat.uberapp.DTO.DTOList;
-import tim24.projekat.uberapp.DTO.GeoCoordinateDTO;
-import tim24.projekat.uberapp.DTO.MessageRequestDTO;
-import tim24.projekat.uberapp.DTO.MessageSendResponseDTO;
-import tim24.projekat.uberapp.DTO.NoteDTO;
 import tim24.projekat.uberapp.DTO.NoteRequestDTO;
 import tim24.projekat.uberapp.DTO.NoteResponseDTO;
-import tim24.projekat.uberapp.DTO.RejectionDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
-import tim24.projekat.uberapp.DTO.RouteDTO;
-import tim24.projekat.uberapp.DTO.UserRef;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.exception.ConditionNotMetException;
+import tim24.projekat.uberapp.exception.InvalidArgumentException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.model.Note;
+import tim24.projekat.uberapp.model.Ride;
 import tim24.projekat.uberapp.model.Role;
 import tim24.projekat.uberapp.model.User;
 import tim24.projekat.uberapp.repo.NoteRepository;
+import tim24.projekat.uberapp.repo.RideRepository;
 import tim24.projekat.uberapp.repo.UserRepository;
 
 
 @Service
 public class UserService {
-	private final UserRepository UserRepo;
+	private final UserRepository userRepo;
 	
 	
 	@Autowired
 	public UserService(UserRepository UserRepo) {
-		this.UserRepo = UserRepo;
+		this.userRepo = UserRepo;
 	}
 	@Autowired
 	NoteRepository noteRepo;
+	@Autowired
+	RideRepository rideRepo;
+	@Autowired
+	DateUtils du;
 
 	public User addUser(User User) 
 	{
-		return UserRepo.save(User);
+		return userRepo.save(User);
 	}
 	
 	public List<User> findAllUsers()
 	{
-		return UserRepo.findAll();
+		return userRepo.findAll();
 	}
 	
 	public User updateUser(User User) 
 	{
-		return UserRepo.save(User);
+		return userRepo.save(User);
 	}
 	
 	public void deleteUser(Long id) 
 	{
-		UserRepo.deleteUserById(id);
+		userRepo.deleteUserById(id);
 	}
 	
 	public User findUserById (Long id) 
 	{
-		return UserRepo.findUserById(id).orElseThrow(()-> new ObjectNotFoundException("User not found."));
+		return userRepo.findUserById(id).orElseThrow(()-> new ObjectNotFoundException("User not found."));
 	}
 	
 	public User findUserByEmail(String email) {
-		return UserRepo.findUserByEmail(email).orElseThrow(()-> new ObjectNotFoundException("User not found."));
+		return userRepo.findUserByEmail(email).orElseThrow(()-> new ObjectNotFoundException("User not found."));
 	}
 	
-	public DTOList<RideDTO> getUserRidesById(Long id, int page, int size, String sort, String from, String to) {
-		List<RideDTO> rides = new ArrayList<RideDTO>();
-		RejectionDTO rej = new RejectionDTO ("neki razlog","datummm");
-		GeoCoordinateDTO gcd1 = new GeoCoordinateDTO ("adresa1",123,321);
-		GeoCoordinateDTO gcd2 = new GeoCoordinateDTO ("adresa2",424,572);
+	public DTOList<RideDTO> getUserRidesById(Long id, int page, int size, String sort, String fromDate, String toDate) {
+		Optional<User> opt = userRepo.findById(id);
+		if (opt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("User does not exist!");
+		}		
+		Date startDate = du.parseDate(fromDate);
+		Date endDate = du.parseDate(toDate);
+		Page<Ride> ridesPage = null;
 		
-		ArrayList<RouteDTO> routes = new ArrayList<RouteDTO>();
-		routes.add(new RouteDTO(gcd1,gcd2));
-		
-		ArrayList<UserRef> passengers = new ArrayList<UserRef>();
-		passengers.add(new UserRef(1L, "mailic@mail.com"));
-		
-		RideDTO r = new RideDTO(300L, "18:44", "19:30", 123,new UserRef(2L, "mailicXD@mail.com"),passengers,40,"tip",false,true,rej,routes, "PENDING");
-		rides.add(r);
-		DTOList<RideDTO> dtoList = new DTOList<RideDTO>(rides.size(), rides);
-		return dtoList;
+		try {
+			Pageable pageable = PageRequest.of(page, size, Sort.by(Direction.ASC, sort));
+			ridesPage = rideRepo.findAllByDriverIdOrPassengerIdAndStartTimeBetween(id, startDate, endDate, pageable);
+		}
+		catch(RuntimeException e) {
+			throw new InvalidArgumentException(sort+ " is not a valid argument!");
+		}
+        
+		DTOList<RideDTO> rides = new DTOList<RideDTO>();
+		for(Ride r : ridesPage.getContent()) {
+			rides.add(new RideDTO(r));
+		}
+		rides.setTotalCount((int) ridesPage.getTotalElements());
+		return rides;
 	}
 
 	public DTOList<UserResponseDTO> getUsers(int page, int size) {
-		ArrayList<UserResponseDTO> list = new ArrayList<UserResponseDTO>();
-		UserResponseDTO u1 = new UserResponseDTO (1L,"vladimir","golosin","url","123213","mail","adresa");
-		UserResponseDTO u2 = new UserResponseDTO (2L,"hladimir","golosin","url","565656","mail","adresa");
-		list.add(u1);
-		list.add(u2);
-		DTOList<UserResponseDTO> dtoList = new DTOList<UserResponseDTO>(list.size(),list);
-		return dtoList;
+		DTOList<UserResponseDTO> list = new DTOList<UserResponseDTO>();
+		Page<User> users = userRepo.findAll(PageRequest.of(page,size));
+		for(User d : users.getContent()) {
+			list.add(new UserResponseDTO(d));
+		}
+		list.setTotalCount((int) users.getTotalElements());
+		return list;
 	}
 
 
-	public DTOList<NoteDTO> getUserNotesById(Long id, int page, int size) {
-		ArrayList<NoteDTO> list = new ArrayList<NoteDTO>();
-		NoteDTO n1 = new NoteDTO(1L, LocalDateTime.now(),"asdasd");
-		list.add(n1);
-		DTOList<NoteDTO> dtoList = new DTOList<NoteDTO>(list.size(),list);
-		return dtoList;
-	}
-
-	public MessageSendResponseDTO postMessageById(Long id, MessageRequestDTO messageRequestDTO) {
-		MessageSendResponseDTO m = new MessageSendResponseDTO(1L, LocalDateTime.now(),4L, 10L,"asdasdsa","tip",101L);
-		return m;
+	public DTOList<NoteResponseDTO> getUserNotesById(Long id, int page, int size) {
+		Optional<User> opt = userRepo.findById(id);
+		if(opt.isEmpty()) {
+			throw new ObjectNotFoundException("User does not exist!");
+		}
+		DTOList<NoteResponseDTO> list = new DTOList<NoteResponseDTO>();
+		Page<Note> notes = noteRepo.findAllByUserId(id, PageRequest.of(page,size));
+		for(Note d : notes.getContent()) {
+			list.add(new NoteResponseDTO(d.getId(), du.formatDate(d.getTime()), d.getNote()));
+		}
+		list.setTotalCount((int) notes.getTotalElements());
+		return list;
 	}
 
 	public NoteResponseDTO postNoteById(Long id, NoteRequestDTO noteDTO)
@@ -135,7 +148,8 @@ public class UserService {
 		if(user.getRole() == Role.ADMIN)
 			throw new ConditionNotMetException("You cannot block an admin.");
 		user.setBlocked(true);
-		UserRepo.save(user);
+		userRepo.save(user);
+		userRepo.flush();
 	}
 
 	public void putUnblockUserById(Long id)
@@ -146,20 +160,16 @@ public class UserService {
 		if(user.getRole() == Role.ADMIN)
 			throw new ConditionNotMetException("You cannot unblock an admin.");
 		user.setBlocked(false);
-		UserRepo.save(user);
+		userRepo.save(user);
+		userRepo.flush();
 	}
 
 	public DTOList<UserResponseDTO> searchUsers(String querry) {
-		List<User> allUsers = UserRepo.findAll();
-		List<User> foundUsers = new ArrayList<User>();
-		for (User user : allUsers) {
-			if(user.getName().contains(querry) || user.getEmail().contains(querry)) {
-				foundUsers.add(user);
-			}
-		}
+		List<User> foundUsers = userRepo.findByKeyword(querry);
 		DTOList<UserResponseDTO> dtoList = this.repackUsersToDTO(foundUsers);
 		return dtoList;
 	}
+	
 	private DTOList<UserResponseDTO> repackUsersToDTO(List<User> usersList){
 		DTOList<UserResponseDTO> returnList = new DTOList<UserResponseDTO>();
 		for(User user: usersList) {
