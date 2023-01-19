@@ -17,13 +17,14 @@ public class PanicService
 {
 	@Autowired
 	private PanicRepository panicRepo;
-	
+	@Autowired
+	private DateUtils du;
 	public DTOList<PanicDTO> getPanic()
 	{
 		DTOList<PanicDTO> panicList = new DTOList<PanicDTO>();
         List<Panic> panics = panicRepo.findAll();
         for(Panic p : panics) {
-        	panicList.add(new PanicDTO(p.getId(), new UserRef(p.getUser()),new RideDTO(p.getRide()),p.getTime().toString(),p.getReason()));
+        	panicList.add(new PanicDTO(p.getId(), new UserRef(p.getUser()), new RideDTO(p.getRide()), du.formatDate(p.getTime()), p.getReason()));
         }
         return panicList;
 	}

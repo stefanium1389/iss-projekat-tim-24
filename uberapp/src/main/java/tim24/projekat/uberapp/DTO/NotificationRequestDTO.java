@@ -1,7 +1,5 @@
 package tim24.projekat.uberapp.DTO;
 
-import tim24.projekat.uberapp.model.NotificationType;
-
 public class NotificationRequestDTO
 {
     private Long userId;
