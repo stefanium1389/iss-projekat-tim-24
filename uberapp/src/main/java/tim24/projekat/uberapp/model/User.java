@@ -104,6 +104,20 @@ public class User {
 	public byte[] getProfilePicture() {
 		return profilePicture;
 	}
+	
+	public String getProfilePictureAsString() {
+		if (this.profilePicture == null)
+			return null;
+		String encodedString = Base64.getEncoder().encodeToString(this.profilePicture);
+		StringBuilder sb = new StringBuilder(encodedString);
+
+		sb.insert(4, ":");
+		sb.insert(15, ";");
+		sb.insert(22, ",");
+
+		String newString = sb.toString();
+		return encodedString;
+	}
 
 	public void setProfilePicture(byte[] profilePicture) {
 		this.profilePicture = profilePicture;
@@ -193,15 +207,13 @@ public class User {
 	{
 		byte[] decodedBytes = Base64.getMimeDecoder().decode(string);
 		
+			
+		return decodedBytes;
+	}
+
+	public void setProfilePicture(String profilePicture2) {
+		this.profilePicture = convertToByte(profilePicture2);
 		
-		
-			StringBuilder sb = new StringBuilder();  
-			for (byte b : decodedBytes)   
-			{  
-			sb.append(String.format("%02X", b));  
-			}  
-			System.out.println(sb.toString());
-			return decodedBytes;
 	}
 	
 	

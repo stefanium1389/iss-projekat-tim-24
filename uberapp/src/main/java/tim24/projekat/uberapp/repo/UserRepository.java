@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import tim24.projekat.uberapp.model.DriverUpdateDetails;
 import tim24.projekat.uberapp.model.Role;
 import tim24.projekat.uberapp.model.User;
 
@@ -18,6 +19,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	void deleteUserById(Long id);
 
 	Optional<User> findUserById(Long id);
+	
 	Optional<User> findUserByEmail(String email);
 	Optional<User> findByIdAndRole(Long id, Role role);
 
@@ -30,5 +32,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	@Query("SELECT u.email FROM User u")
 	List<String> getAllMail();
+	
 
 }
