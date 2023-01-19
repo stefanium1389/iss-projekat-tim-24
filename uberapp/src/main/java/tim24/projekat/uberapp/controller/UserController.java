@@ -23,7 +23,6 @@ import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.ErrorDTO;
 import tim24.projekat.uberapp.DTO.LoginRequestDTO;
 import tim24.projekat.uberapp.DTO.LoginResponseDTO;
-import tim24.projekat.uberapp.DTO.NoteDTO;
 import tim24.projekat.uberapp.DTO.NoteRequestDTO;
 import tim24.projekat.uberapp.DTO.NoteResponseDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
@@ -83,7 +82,7 @@ public class UserController {
 	//			GET
 	
 	@GetMapping ("user/{id}/ride")
-	public ResponseEntity<DTOList<RideDTO>> getUserRidesById(
+	public ResponseEntity<?> getUserRidesById(
 			@PathVariable("id") Long id,
 			@RequestParam("page") int page, 
 			@RequestParam("size") int size,
@@ -91,9 +90,18 @@ public class UserController {
 			@RequestParam("from") String from,
 			@RequestParam("to") String to)
 	{
-		
+		try {
 		DTOList<RideDTO> dtoList = userService.getUserRidesById(id,page,size,sort,from,to);
 		return new ResponseEntity<DTOList<RideDTO>>(dtoList,HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e) {
+    		Error error = new Error(e.getMessage());
+    		return new ResponseEntity<Error>(error, HttpStatus.NOT_FOUND);
+    	}	
+		catch(InvalidArgumentException e) {
+    		Error error = new Error(e.getMessage());
+    		return new ResponseEntity<Error>(error, HttpStatus.BAD_REQUEST);
+    	}	
 	}
 	
 	@GetMapping ("user")
@@ -101,7 +109,6 @@ public class UserController {
 			@RequestParam("page") int page, 
 			@RequestParam("size") int size)
 	{
-		
 		DTOList<UserResponseDTO> dtoList = userService.getUsers(page,size);
 		return new ResponseEntity<>(dtoList,HttpStatus.OK);
 	}
@@ -114,14 +121,14 @@ public class UserController {
 	}
 	
 	@GetMapping ("user/{id}/note")
-	public ResponseEntity<DTOList<NoteDTO>> getUserNotesById (
+	public ResponseEntity<?> getUserNotesById (
 			@PathVariable("id") Long id,
 			@RequestParam("page") int page, 
 			@RequestParam("size") int size)
 	{
 		
-		DTOList<NoteDTO> dtoList = userService.getUserNotesById(id,page,size);
-		return new ResponseEntity<>(dtoList,HttpStatus.OK);
+		DTOList<NoteResponseDTO> dtoList = userService.getUserNotesById(id,page,size);
+		return new ResponseEntity<DTOList<NoteResponseDTO>>(dtoList,HttpStatus.OK);
 	}
 	
 	//			POST
