@@ -1,6 +1,4 @@
 package tim24.projekat.uberapp.model;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
 
@@ -11,7 +9,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import tim24.projekat.uberapp.DTO.WorkingHourPostDTO;
 
 @Table(name = "working_hours")
 @Entity

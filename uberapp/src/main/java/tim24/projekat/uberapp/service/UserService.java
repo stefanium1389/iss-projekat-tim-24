@@ -2,16 +2,15 @@ package tim24.projekat.uberapp.service;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.GeoCoordinateDTO;
-import tim24.projekat.uberapp.DTO.LoginRequestDTO;
-import tim24.projekat.uberapp.DTO.LoginResponseDTO;
-import tim24.projekat.uberapp.DTO.MessageDTO;
 import tim24.projekat.uberapp.DTO.MessageRequestDTO;
 import tim24.projekat.uberapp.DTO.MessageSendResponseDTO;
 import tim24.projekat.uberapp.DTO.NoteDTO;
@@ -20,22 +19,21 @@ import tim24.projekat.uberapp.DTO.NoteResponseDTO;
 import tim24.projekat.uberapp.DTO.RejectionDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
 import tim24.projekat.uberapp.DTO.RouteDTO;
-import tim24.projekat.uberapp.DTO.UnregisteredRequestDTO;
-import tim24.projekat.uberapp.DTO.UnregisteredResponseDTO;
 import tim24.projekat.uberapp.DTO.UserRef;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.exception.ConditionNotMetException;
-import tim24.projekat.uberapp.exception.InvalidArgumentException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
-import tim24.projekat.uberapp.model.*;
+import tim24.projekat.uberapp.model.Note;
+import tim24.projekat.uberapp.model.Role;
+import tim24.projekat.uberapp.model.User;
 import tim24.projekat.uberapp.repo.NoteRepository;
 import tim24.projekat.uberapp.repo.UserRepository;
-import tim24.projekat.uberapp.repo.VehicleTypeRepository;
 
 
 @Service
 public class UserService {
 	private final UserRepository UserRepo;
+	
 	
 	@Autowired
 	public UserService(UserRepository UserRepo) {
@@ -101,13 +99,6 @@ public class UserService {
 		return dtoList;
 	}
 
-	public DTOList<MessageDTO> getUserMessagesById(Long id) {
-		ArrayList<MessageDTO> list = new ArrayList<MessageDTO>();
-		MessageDTO m1 = new MessageDTO(1L, LocalDateTime.now(),2L,44L,"asdasd","tip",100L);
-		list.add(m1);
-		DTOList<MessageDTO> dtoList = new DTOList<MessageDTO>(list.size(),list);
-		return dtoList;
-	}
 
 	public DTOList<NoteDTO> getUserNotesById(Long id, int page, int size) {
 		ArrayList<NoteDTO> list = new ArrayList<NoteDTO>();
@@ -115,11 +106,6 @@ public class UserService {
 		list.add(n1);
 		DTOList<NoteDTO> dtoList = new DTOList<NoteDTO>(list.size(),list);
 		return dtoList;
-	}
-
-	public LoginResponseDTO postLogin(LoginRequestDTO loginRequestDTO) {
-		LoginResponseDTO response = new LoginResponseDTO("asdasd","ffgdfgfdgfd");
-		return response;
 	}
 
 	public MessageSendResponseDTO postMessageById(Long id, MessageRequestDTO messageRequestDTO) {
@@ -133,6 +119,7 @@ public class UserService {
 		Date time = new Date();
 		Note note = new Note(time, noteDTO.getMessage(), user);
 		noteRepo.save(note);
+		noteRepo.flush();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 		String timeString = sdf.format(time);
 		NoteResponseDTO noteResponseDTO = new NoteResponseDTO(note.getId(), timeString, note.getNote());
@@ -182,4 +169,5 @@ public class UserService {
 		return returnList;
 		
 	}
+	
 }

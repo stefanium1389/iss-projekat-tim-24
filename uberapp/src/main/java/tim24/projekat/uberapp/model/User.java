@@ -1,8 +1,5 @@
 package tim24.projekat.uberapp.model;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,7 +10,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import tim24.projekat.uberapp.DTO.UserRegistrationDTO;
-import tim24.projekat.uberapp.DTO.UserRequestDTO;
 import tim24.projekat.uberapp.DTO.UserUpdateRequestDTO;
 
 @Table(name="users")

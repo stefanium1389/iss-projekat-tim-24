@@ -1,11 +1,9 @@
 package tim24.projekat.uberapp.DTO;
 
-import java.time.LocalDateTime;
-
 public class MessageDTO {
 
 	private Long id;
-	private LocalDateTime timeOfSending;
+	private String timeOfSending;
 	private Long senderId;
 	private Long receiverId;
 	private String message;
@@ -16,7 +14,7 @@ public class MessageDTO {
 		super();
 	}
 
-	public MessageDTO(Long id, LocalDateTime timeOfSending, Long senderId, Long receiverId, String message, String type,
+	public MessageDTO(Long id, String timeOfSending, Long senderId, Long receiverId, String message, String type,
 			Long rideId) {
 		super();
 		this.id = id;
@@ -36,11 +34,11 @@ public class MessageDTO {
 		this.id = id;
 	}
 
-	public LocalDateTime getTimeOfSending() {
+	public String getTimeOfSending() {
 		return timeOfSending;
 	}
 
-	public void setTimeOfSending(LocalDateTime timeOfSending) {
+	public void setTimeOfSending(String timeOfSending) {
 		this.timeOfSending = timeOfSending;
 	}
 

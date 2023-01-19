@@ -92,14 +92,14 @@ public class ReviewService {
 		rv.setDate(new Date(System.currentTimeMillis()));
 		rv.setCommenter(commenter);
 		
-//		try {
+		try {
 			reviewRepo.save(rv);
 			reviewRepo.flush();
-//		}
-//		catch(DataIntegrityViolationException e) {
-//			throw new InvalidArgumentException("Only one comment per user per ride!");
-//		}
-//		
+		}
+		catch(DataIntegrityViolationException e) {
+			throw new InvalidArgumentException("Only one comment per user per ride!");
+		}
+		
 		return new ReviewDTO(rv);
 	
 	}
@@ -119,14 +119,14 @@ public class ReviewService {
 		rv.setDate(new Date(System.currentTimeMillis()));
 		rv.setCommenter(commenter);
 		
-//		try {
+		try {
 			reviewRepo.save(rv);
 			reviewRepo.flush();
-//		}
-//		catch(DataIntegrityViolationException e) {
-//			throw new InvalidArgumentException("Only one comment per user per ride!");
-//		}
-//		
+		}
+		catch(DataIntegrityViolationException e) {
+			throw new InvalidArgumentException("Only one comment per user per ride!");
+		}
+		
 		return new ReviewDTO(rv);
 	}
 	

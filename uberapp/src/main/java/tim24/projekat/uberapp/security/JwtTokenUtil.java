@@ -20,7 +20,7 @@ import tim24.projekat.uberapp.service.UserService;
 @Component
 public class JwtTokenUtil implements Serializable {
 	private static final long serialVersionUID = -2550185165626007488L;
-	public static final long JWT_TOKEN_VALIDITY = 10 * 60;
+	public static final long JWT_TOKEN_VALIDITY = 10 * 60 * 60;
 	public static final long REFRESH_TOKEN_VALIDITY = 1 * 60 * 60;
 	@Value("${jwt.secret}")
 	private String secret;

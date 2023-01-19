@@ -8,6 +8,10 @@ insert into users (`ACTIVATED`,`ADDRESS`,`BLOCKED`,`EMAIL`,`NAME`,`PASSWORD`,`PR
 insert into users (`ACTIVATED`,`ADDRESS`,`BLOCKED`,`EMAIL`,`NAME`,`PASSWORD`,`PROFILE_PICTURE`,`ROLE`,`SURNAME`,`TELEPHONE_NUMBER`) values (true,'kikinda',false,'mirko@mail.com','mirko','$2a$10$0Qt1oivg3MLKpwhDosIsmecVSYyjCC4xZNrSX2/tt1WoPMbVl1yVW','mirko.jpg','USER','vukobrat','+3810639572572');
 insert into users (`ACTIVATED`,`ADDRESS`,`BLOCKED`,`EMAIL`,`NAME`,`PASSWORD`,`PROFILE_PICTURE`,`ROLE`,`SURNAME`,`TELEPHONE_NUMBER`) values (true,'klisa',false,'dex@mail.com','dexter','$2a$10$0Qt1oivg3MLKpwhDosIsmecVSYyjCC4xZNrSX2/tt1WoPMbVl1yVW','dex.jpg','USER','gore jr','+3810639734343');
 
+insert into working_hours (`END_TIME`,`START_TIME`,`DRIVER_ID`) values ('2023-01-18 13:30:54.033','2023-01-18 13:30:54.033',3);
+insert into working_hours (`END_TIME`,`START_TIME`,`DRIVER_ID`) values ('2023-01-18 13:30:54.033','2023-01-18 13:30:54.033',5);
+insert into working_hours (`END_TIME`,`START_TIME`,`DRIVER_ID`) values ('2023-01-18 13:30:54.033','2023-01-18 13:30:54.033',7);
+
 insert into vehicle_type values (1,150,200,'STANDARD');
 insert into vehicle_type values (2,175,300,'LUXURY');
 insert into vehicle_type values (3,200,500,'VAN');
@@ -21,6 +25,19 @@ insert into vehicles (`ALLOWED_BABY_IN_VEHICLE`,`ALLOWED_PET_IN_VEHICLE`,`NUMBER
 insert into vehicles (`ALLOWED_BABY_IN_VEHICLE`,`ALLOWED_PET_IN_VEHICLE`,`NUMBER_OF_SEATS`,`REG_PLATES`,`DRIVER_ID`,`LOCATION_ID`,`VEHICLE_TYPE_ID`) values (false,true,4,'NS-123-BL',5,2,1);
 insert into vehicles (`ALLOWED_BABY_IN_VEHICLE`,`ALLOWED_PET_IN_VEHICLE`,`NUMBER_OF_SEATS`,`REG_PLATES`,`DRIVER_ID`,`LOCATION_ID`,`VEHICLE_TYPE_ID`) values (true,false,4,'NS-400-BL',6,3,2);
 insert into vehicles (`ALLOWED_BABY_IN_VEHICLE`,`ALLOWED_PET_IN_VEHICLE`,`NUMBER_OF_SEATS`,`REG_PLATES`,`DRIVER_ID`,`LOCATION_ID`,`VEHICLE_TYPE_ID`) values (true,true,5,'NS-572-BL',7,4,3);
+
+insert into locations (`ADDRESS`,`LATITUDE`,`LONGITUDE`) values ('Bulevar oslobodjenja 46',45.26242,19.854692);
+insert into locations (`ADDRESS`,`LATITUDE`,`LONGITUDE`) values ('Bulevar oslobodjenja 46',45.255018,19.782459);
+insert into routes (`ESTIMATED_TIME_IN_MINUTES`,`LENGHT`,`END_LOCATION_ID`,`START_LOCATION_ID`) values (10,6783.0,6,5);
+insert into rides (`BABY_IN_VEHICLE`,`END_TIME`,`PANIC`,`PET_IN_VEHICLE`,`SCHEDULED_TIME`,`START_TIME`,`STATUS`,`TOTAL_COST`,`DRIVER_ID`,`REFUSAL_ID`,`ROUTE_ID`,`VEHICLE_TYPE_ID`) values(false,'2023-01-18 13:39:08.306',false,false,null,'2023-01-18 13:39:08.306','PENDING',1217,3,null,1,1);
+insert into rides_passengers values(1,2); 
+
+insert into locations (`ADDRESS`,`LATITUDE`,`LONGITUDE`) values ('Bulevar oslobodjenja 46',45.26242,19.854692);
+insert into locations (`ADDRESS`,`LATITUDE`,`LONGITUDE`) values ('Bulevar oslobodjenja 46',45.255018,19.782459);
+insert into routes (`ESTIMATED_TIME_IN_MINUTES`,`LENGHT`,`END_LOCATION_ID`,`START_LOCATION_ID`) values (10,6783.0,6,5);
+insert into rides (`BABY_IN_VEHICLE`,`END_TIME`,`PANIC`,`PET_IN_VEHICLE`,`SCHEDULED_TIME`,`START_TIME`,`STATUS`,`TOTAL_COST`,`DRIVER_ID`,`REFUSAL_ID`,`ROUTE_ID`,`VEHICLE_TYPE_ID`) values(false,'2023-01-18 13:39:08.306',false,false,null,'2023-01-18 13:39:08.306','FINISHED',1217,3,null,2,1);
+insert into rides_passengers values(2,2);
+
 /*
 insert into routes (`ESTIMATED_TIME_IN_MINUTES`,`LENGHT`,`END_LOCATION_ID`,`START_LOCATION_ID`) values(11,5.5,2,1);
 insert into refusals (`REASON`,`TIME`,`USER_ID`) values('iks de', '2023-01-12 20:46:54.033' ,3);
