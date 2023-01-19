@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,11 +26,13 @@ import tim24.projekat.uberapp.DTO.UserUpdateRequestDTO;
 import tim24.projekat.uberapp.exception.EmailAlreadyExistsException;
 import tim24.projekat.uberapp.exception.InvalidArgumentException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
+import tim24.projekat.uberapp.exception.ValidationException;
 import tim24.projekat.uberapp.model.Ride;
 import tim24.projekat.uberapp.model.Role;
 import tim24.projekat.uberapp.model.User;
 import tim24.projekat.uberapp.repo.RideRepository;
 import tim24.projekat.uberapp.repo.UserRepository;
+import tim24.projekat.uberapp.security.JwtTokenUtil;
 
 @Service
 public class PassengerService {
@@ -45,6 +48,9 @@ public class PassengerService {
 	
 	@Autowired
 	private MailingService mailService;
+	
+	@Autowired
+	private JwtTokenUtil jwtTokenUtil;
 	
 	@Autowired
     private PasswordEncoder passwordEncoder;
@@ -93,12 +99,19 @@ public class PassengerService {
 		return dto;
 	}
 
-	public UserResponseDTO updatePassenger(Long id, UserUpdateRequestDTO dto) {
+	public UserResponseDTO updatePassenger(Long id, UserUpdateRequestDTO dto, String auth) {
 		Optional<User> passengerOpt = userRepo.findByIdAndRole(id, Role.USER);
 		if (passengerOpt.isEmpty()) 
 		{
 			throw new ObjectNotFoundException("Passenger does not exist!");
 		}
+		
+		String message = validateChanges(dto,auth);
+		if (message != null) 
+		{
+			throw new ValidationException (message);
+		}
+		
 		User passenger = passengerOpt.get();
 		passenger.update(dto);
 		
@@ -106,6 +119,42 @@ public class PassengerService {
 		userRepo.flush();
 		
 		return new UserResponseDTO(passenger);
+	}
+	
+	private String validateChanges(UserUpdateRequestDTO dto, String auth) 
+	{
+		if (dto.getAddress().equals("")) 
+		{
+			return "There is no address!";
+		}
+		else if (dto.getEmail().equals("")) 
+		{
+			return "There is no email!";
+		}
+		else if (!(dto.getEmail().contains("@"))) 
+		{
+			return "Invalid email format";
+		}
+		else if (dto.getName().equals("")) 
+		{
+			return "There is no name!";
+		}
+		else if (dto.getSurname().equals("")) 
+		{
+			return "There is no surname!";
+		}
+		else if (dto.getTelephoneNumber().equals("")) 
+		{
+			return "There is no number!";
+		}
+		
+		Optional<User> user = userRepo.findUserByEmail(dto.getEmail());
+		String sender = jwtTokenUtil.getUsernameFromToken(auth.substring(7));
+		if (user.isPresent() && !dto.getEmail().equals(sender)) 
+		{
+			return "Email already taken!";
+		}
+		return null;
 	}
 
 	public DTOList<RideDTO> getPassengerRides(Long id, int page, int size, String sort, String fromDate, String toDate)

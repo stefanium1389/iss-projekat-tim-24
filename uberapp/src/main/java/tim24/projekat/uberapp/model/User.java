@@ -1,5 +1,9 @@
 package tim24.projekat.uberapp.model;
 
+import java.util.Base64;
+
+import org.apache.tomcat.util.http.fileupload.FileUtils;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -7,6 +11,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import tim24.projekat.uberapp.DTO.UserRegistrationDTO;
@@ -21,7 +26,8 @@ public class User {
 	private Long id;
 	private String name;
 	private String surname;
-	private String profilePicture;
+	@Lob
+	private byte[] profilePicture;
 	private String telephoneNumber;
 	private String email;
 	private String address;
@@ -37,9 +43,10 @@ public class User {
 	
 	public User() {
 		super();
+				
 	}
 
-	public User(Long id, String name, String surname, String profilePicture, String telephoneNumber, String email,
+	public User(Long id, String name, String surname, byte[] profilePicture, String telephoneNumber, String email,
 			String address, String password, boolean activated, boolean blocked, Role role) {
 		super();
 		this.id = id;
@@ -53,12 +60,13 @@ public class User {
 		this.activated = activated;
 		this.blocked = blocked;
 		this.role = role;
+		
 	}
 
 	public User(UserRegistrationDTO dto, String password) {
 		this.name = dto.getName();
 		this.surname = dto.getSurname();
-		this.profilePicture = dto.getProfilePicture();
+		this.profilePicture = convertToByte(dto.getProfilePicture());
 		this.telephoneNumber = dto.getTelephoneNumber();
 		this.email = dto.getEmail();
 		this.password = password;
@@ -66,6 +74,7 @@ public class User {
 		this.activated = false;
 		this.blocked = false;
 		this.role = Role.USER;
+		
 	}
 
 	public Long getId() {
@@ -92,11 +101,11 @@ public class User {
 		this.surname = surname;
 	}
 	
-	public String getProfilePicture() {
+	public byte[] getProfilePicture() {
 		return profilePicture;
 	}
 
-	public void setProfilePicture(String profilePicture) {
+	public void setProfilePicture(byte[] profilePicture) {
 		this.profilePicture = profilePicture;
 	}
 
@@ -177,7 +186,23 @@ public class User {
 		this.setName(updated.getName());
 		this.setSurname(updated.getSurname());
 		this.setTelephoneNumber(updated.getTelephoneNumber());
-		this.setProfilePicture(updated.getProfilePicture());
+		this.setProfilePicture(convertToByte(updated.getProfilePicture()));
 	}
+	
+	private byte[] convertToByte(String string) 
+	{
+		byte[] decodedBytes = Base64.getMimeDecoder().decode(string);
+		
+		
+		
+			StringBuilder sb = new StringBuilder();  
+			for (byte b : decodedBytes)   
+			{  
+			sb.append(String.format("%02X", b));  
+			}  
+			System.out.println(sb.toString());
+			return decodedBytes;
+	}
+	
 	
 }

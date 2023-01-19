@@ -1,5 +1,7 @@
 package tim24.projekat.uberapp.controller;
 
+import java.util.Base64;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -93,10 +95,11 @@ public class PassengerController
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePassenger(@RequestBody UserUpdateRequestDTO dto, @PathVariable("id") Long id)
+    public ResponseEntity<?> updatePassenger(@RequestHeader("Authorization") String auth, @RequestBody UserUpdateRequestDTO dto, @PathVariable("id") Long id)
     {
+    	
         try {
-        UserResponseDTO user = passengerService.updatePassenger(id, dto);
+        UserResponseDTO user = passengerService.updatePassenger(id, dto ,auth);
         return new ResponseEntity<UserResponseDTO>(user, HttpStatus.OK);
         }
         catch(ObjectNotFoundException e) {
@@ -131,4 +134,5 @@ public class PassengerController
     		return new ResponseEntity<Error>(error, HttpStatus.BAD_REQUEST);
     	}	
     }
+    
 }
