@@ -37,6 +37,7 @@ public class NotificationDTO
     public NotificationDTO(Notification notification)
     {
         super();
+        this.id = notification.getId();
         this.note = notification.getNote();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         String dateString = sdf.format(notification.getDate());
