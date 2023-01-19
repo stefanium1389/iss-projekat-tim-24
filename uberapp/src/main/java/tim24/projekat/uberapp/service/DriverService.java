@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import tim24.projekat.uberapp.DTO.DTOList;
+import tim24.projekat.uberapp.DTO.DriverChangeDTO;
 import tim24.projekat.uberapp.DTO.DriverDocumentDTO;
 import tim24.projekat.uberapp.DTO.DriverDocumentRequestDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
@@ -34,13 +35,16 @@ import tim24.projekat.uberapp.exception.InvalidArgumentException;
 import tim24.projekat.uberapp.exception.ObjectAlreadyPresentException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.model.DriverDocument;
+import tim24.projekat.uberapp.model.DriverUpdateDetails;
 import tim24.projekat.uberapp.model.Ride;
 import tim24.projekat.uberapp.model.Role;
+import tim24.projekat.uberapp.model.UpdateState;
 import tim24.projekat.uberapp.model.User;
 import tim24.projekat.uberapp.model.Vehicle;
 import tim24.projekat.uberapp.model.VehicleType;
 import tim24.projekat.uberapp.model.WorkingHour;
 import tim24.projekat.uberapp.repo.DriverDocumentRepository;
+import tim24.projekat.uberapp.repo.DriveruUpdateDetailsRepo;
 import tim24.projekat.uberapp.repo.RideRepository;
 import tim24.projekat.uberapp.repo.UserRepository;
 import tim24.projekat.uberapp.repo.VehicleRepository;
@@ -67,6 +71,9 @@ public class DriverService {
 	
 	@Autowired
 	private RideRepository rideRepo;
+	
+	@Autowired
+	private DriveruUpdateDetailsRepo dudRepo;
 	
 	@Autowired
 	private VehicleTypeRepository viehicleTypeRepo;
@@ -112,6 +119,21 @@ public class DriverService {
 		
 	}
 
+	public DriverChangeDTO createDriverChange(Long id, UserUpdateRequestDTO updatedDriver) {
+		Optional<User> driverOpt = userRepo.findByIdAndRole(id, Role.DRIVER);
+		if (driverOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Driver does not exist!");
+		}
+		User driver = driverOpt.get();
+		DriverUpdateDetails dud = new DriverUpdateDetails(driver);
+		
+		dudRepo.save(dud);
+		dudRepo.flush();
+		
+		return new DriverChangeDTO(dud);
+	}
+	
 	public UserResponseDTO updateDriver(Long id, UserUpdateRequestDTO updatedDriver) {
 		Optional<User> driverOpt = userRepo.findByIdAndRole(id, Role.DRIVER);
 		if (driverOpt.isEmpty()) 
@@ -394,6 +416,75 @@ public class DriverService {
 		long totalDurationHours = todaysDuration.toHours();
 		long remainingMinutes = todaysDuration.toMinutesPart();
 		return totalDurationHours + " hours " + remainingMinutes +" minutes ";
+	}
+
+	public DriverChangeDTO getLatestChange(Long driverId) {
+		
+		Optional<User> driverOpt = userRepo.findByIdAndRole(driverId, Role.DRIVER);
+		if (driverOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Driver does not exist!");
+		}
+		
+		Optional<DriverUpdateDetails> detailsOpt = dudRepo.getLatestPendingUpdateRequest(driverId);
+		DriverUpdateDetails dud;
+		if (detailsOpt.isEmpty()) 
+		{
+			dud = null;
+		}
+		else 
+		{
+			dud = detailsOpt.get();
+		}
+		return new DriverChangeDTO(dud);
+	}
+	
+	public UserResponseDTO acceptChange(Long updateId) {
+		
+		Optional<DriverUpdateDetails> driverOpt = dudRepo.findDriverUpdateDetailsById(updateId);
+		if (driverOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Update does not exist!");
+		}
+		
+		DriverUpdateDetails dud = driverOpt.get();
+		
+		if (dud.getUpdateState() != UpdateState.PENDING) 
+		{
+			throw new ConditionNotMetException("Update already handled!");
+		}
+		
+		User driver = dud.getForDriver();
+		
+		driver.setAddress(dud.getAddress());
+		driver.setEmail(dud.getEmail());
+		driver.setName(dud.getName());
+		driver.setSurname(dud.getSurname());
+		driver.setProfilePicture(dud.getProfilePicture());
+		driver.setTelephoneNumber(dud.getTelephoneNumber());
+		dud.setUpdateState(UpdateState.ACCEPTED);
+		userRepo.save(driver);
+		dudRepo.save(dud);
+		return new UserResponseDTO(driver);
+	}
+	
+	public DriverChangeDTO declineChange(Long updateId) {
+		
+		Optional<DriverUpdateDetails> driverOpt = dudRepo.findDriverUpdateDetailsById(updateId);
+		if (driverOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Update does not exist!");
+		}
+		
+		DriverUpdateDetails dud = driverOpt.get();
+		if (dud.getUpdateState() != UpdateState.PENDING) 
+		{
+			throw new ConditionNotMetException("Update already handled!");
+		}
+		
+		dud.setUpdateState(UpdateState.REJECTED);
+		dudRepo.save(dud);
+		return new DriverChangeDTO(dud);
 	}
 
 }
