@@ -2,16 +2,15 @@ package tim24.projekat.uberapp.service;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.GeoCoordinateDTO;
-import tim24.projekat.uberapp.DTO.LoginRequestDTO;
-import tim24.projekat.uberapp.DTO.LoginResponseDTO;
-import tim24.projekat.uberapp.DTO.MessageDTO;
 import tim24.projekat.uberapp.DTO.MessageRequestDTO;
 import tim24.projekat.uberapp.DTO.MessageSendResponseDTO;
 import tim24.projekat.uberapp.DTO.NoteDTO;
@@ -20,17 +19,15 @@ import tim24.projekat.uberapp.DTO.NoteResponseDTO;
 import tim24.projekat.uberapp.DTO.RejectionDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
 import tim24.projekat.uberapp.DTO.RouteDTO;
-import tim24.projekat.uberapp.DTO.UnregisteredRequestDTO;
-import tim24.projekat.uberapp.DTO.UnregisteredResponseDTO;
 import tim24.projekat.uberapp.DTO.UserRef;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.exception.ConditionNotMetException;
-import tim24.projekat.uberapp.exception.InvalidArgumentException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
-import tim24.projekat.uberapp.model.*;
+import tim24.projekat.uberapp.model.Note;
+import tim24.projekat.uberapp.model.Role;
+import tim24.projekat.uberapp.model.User;
 import tim24.projekat.uberapp.repo.NoteRepository;
 import tim24.projekat.uberapp.repo.UserRepository;
-import tim24.projekat.uberapp.repo.VehicleTypeRepository;
 
 
 @Service

@@ -67,6 +67,9 @@ public class MessageService {
 		}
 		Message m = new Message(new Date(System.currentTimeMillis()),sOpt.get(),recOpt.get(),dto.getMessage(),dto.getType(),rOpt.get());
 		
+		messageRepo.save(m);
+		messageRepo.flush();
+		
 		
 		
 		

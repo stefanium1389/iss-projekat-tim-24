@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import tim24.projekat.uberapp.DTO.ErrorDTO;
 import tim24.projekat.uberapp.DTO.GeoCoordinateDTO;
 import tim24.projekat.uberapp.DTO.SuccessDTO;
-import tim24.projekat.uberapp.DTO.VehicleDTO;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.service.VehicleService;
 
