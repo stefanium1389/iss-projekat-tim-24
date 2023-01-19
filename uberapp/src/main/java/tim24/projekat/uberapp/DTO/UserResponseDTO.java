@@ -1,5 +1,7 @@
 package tim24.projekat.uberapp.DTO;
 
+import java.util.Base64;
+
 import tim24.projekat.uberapp.model.User;
 
 public class UserResponseDTO { //ovog usera vracas u responsu
@@ -34,7 +36,10 @@ public class UserResponseDTO { //ovog usera vracas u responsu
 		this.id = user.getId();
 		this.name = user.getName();
 		this.surname = user.getSurname();
-		this.profilePicture = user.getProfilePicture();
+		if (user.getProfilePicture() != null) 
+		{
+			this.profilePicture = convertByteToString(user.getProfilePicture());
+		}
 		this.telephoneNumber = user.getTelephoneNumber();
 		this.email=user.getEmail();
 		this.address=user.getAddress();
@@ -109,7 +114,19 @@ public class UserResponseDTO { //ovog usera vracas u responsu
 		this.address = address;
 	}
 	
-	
+	private String convertByteToString (byte[] bytes) 
+	{
+		//ovako se ovo ne radi lmao
+		String encodedString = Base64.getEncoder().encodeToString(bytes);
+		StringBuilder sb = new StringBuilder(encodedString);
+
+		sb.insert(4, ":");
+		sb.insert(15, ";");
+		sb.insert(22, ",");
+
+		String newString = sb.toString();
+		return newString;
+	}
 	
 	
 }

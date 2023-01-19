@@ -1,9 +1,12 @@
 package tim24.projekat.uberapp.DTO;
 
+import jakarta.persistence.Lob;
+
 public class UserUpdateRequestDTO { //ovog usera otpakujes iz request body
 
 	private String name;
 	private String surname;
+	@Lob
 	private String profilePicture;
 	private String telephoneNumber;
 	private String email;
