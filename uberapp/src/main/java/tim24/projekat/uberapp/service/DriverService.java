@@ -21,6 +21,7 @@ import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.DriverChangeDTO;
 import tim24.projekat.uberapp.DTO.DriverDocumentDTO;
 import tim24.projekat.uberapp.DTO.DriverDocumentRequestDTO;
+import tim24.projekat.uberapp.DTO.DriverReportResponseDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
 import tim24.projekat.uberapp.DTO.UserRegistrationDTO;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
@@ -30,11 +31,13 @@ import tim24.projekat.uberapp.DTO.VehicleRequestDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourPostDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourPutDTO;
+import tim24.projekat.uberapp.controller.DriverReportDTO;
 import tim24.projekat.uberapp.exception.ConditionNotMetException;
 import tim24.projekat.uberapp.exception.InvalidArgumentException;
 import tim24.projekat.uberapp.exception.ObjectAlreadyPresentException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.model.DriverDocument;
+import tim24.projekat.uberapp.model.DriverReport;
 import tim24.projekat.uberapp.model.DriverUpdateDetails;
 import tim24.projekat.uberapp.model.Ride;
 import tim24.projekat.uberapp.model.Role;
@@ -44,6 +47,7 @@ import tim24.projekat.uberapp.model.Vehicle;
 import tim24.projekat.uberapp.model.VehicleType;
 import tim24.projekat.uberapp.model.WorkingHour;
 import tim24.projekat.uberapp.repo.DriverDocumentRepository;
+import tim24.projekat.uberapp.repo.DriverReportRepo;
 import tim24.projekat.uberapp.repo.DriveruUpdateDetailsRepo;
 import tim24.projekat.uberapp.repo.RideRepository;
 import tim24.projekat.uberapp.repo.UserRepository;
@@ -68,6 +72,9 @@ public class DriverService {
 	
 	@Autowired
 	private VehicleRepository vehicleRepo;
+	
+	@Autowired
+	private DriverReportRepo driverReportRepo;
 	
 	@Autowired
 	private RideRepository rideRepo;
@@ -174,6 +181,19 @@ public class DriverService {
 		driverDocumentRepo.flush();
 		DriverDocumentDTO dddto = new DriverDocumentDTO(dd);
 		return dddto;
+	}
+	
+	public DriverReportResponseDTO reportDriver(Long id, DriverReportDTO drd) {
+		Optional<User> driverOpt = userRepo.findByIdAndRole(id, Role.DRIVER);
+		if (driverOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Driver does not exist!");
+		}
+		DriverReport dr = new DriverReport(drd.getReason(),driverOpt.get());
+		driverReportRepo.save(dr);
+		driverReportRepo.flush();
+		DriverReportResponseDTO drrd = new DriverReportResponseDTO(dr);
+		return drrd;
 	}
 
 	public void DeleteDriverDocument(Long id) {
