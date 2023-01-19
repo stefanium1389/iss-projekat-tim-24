@@ -6,7 +6,7 @@ import java.util.List;
 public class DTOList<T> {
 
 	int totalCount;
-	List results;
+	List<T> results;
 	
 	public DTOList(int totalCount, List<T> results) {
 		super();

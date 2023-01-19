@@ -3,6 +3,7 @@ package tim24.projekat.uberapp.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -13,14 +14,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import tim24.projekat.uberapp.DTO.ChangePasswordRequestDTO;
 import tim24.projekat.uberapp.DTO.CodeAndPasswordDTO;
+import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.ErrorDTO;
 import tim24.projekat.uberapp.DTO.LoginResponseDTO;
+import tim24.projekat.uberapp.DTO.MessageDTO;
+import tim24.projekat.uberapp.DTO.MessageRequestDTO;
 import tim24.projekat.uberapp.DTO.PasswordResetRequestDTO;
 import tim24.projekat.uberapp.DTO.RefreshDTO;
 import tim24.projekat.uberapp.DTO.SuccessDTO;
 import tim24.projekat.uberapp.exception.ConditionNotMetException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.security.JwtTokenUtil;
+import tim24.projekat.uberapp.service.MessageService;
 import tim24.projekat.uberapp.service.PasswordResetService;
 
 @RestController
@@ -31,6 +36,9 @@ public class MiscController {
 
 	@Autowired
 	private JwtTokenUtil jwtTokenUtil;
+	
+	@Autowired
+	private MessageService messageService;
 	
 	@PostMapping("user/resetPassword")
 	private ResponseEntity<?> sendResetPasswordEmail(@RequestBody PasswordResetRequestDTO dto){
@@ -98,5 +106,34 @@ public class MiscController {
 		LoginResponseDTO dto = new LoginResponseDTO(newAccessToken,newRefreshToken);
 		return new ResponseEntity<LoginResponseDTO>(dto ,HttpStatus.OK);
 	}
-
+	
+	@GetMapping("user/{id}/meassage")
+	private ResponseEntity<?> getUserMessages(@PathVariable("id") Long id)
+	{
+		try {
+			DTOList<MessageDTO> list = messageService.getUserMessages(id);
+			return new ResponseEntity<DTOList<MessageDTO>>(list, HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e){
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error,HttpStatus.NOT_FOUND);
+		}
+		
+	}
+	@PostMapping("user/{id}/meassage")
+	private ResponseEntity<?> postUserMessages(@RequestHeader("Authorization") String auth, @RequestBody MessageRequestDTO dto, @PathVariable("id") Long id)
+	{
+		try {
+			String sender = jwtTokenUtil.getUsernameFromToken(auth.substring(7));
+			messageService.postUserMessage(id,dto, sender);
+			return new ResponseEntity<>(HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e){
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error,HttpStatus.NOT_FOUND);
+		}
+		
+	}
+	
+	
 }

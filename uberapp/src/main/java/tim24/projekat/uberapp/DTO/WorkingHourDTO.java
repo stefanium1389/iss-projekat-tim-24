@@ -1,7 +1,5 @@
 package tim24.projekat.uberapp.DTO;
 
-import tim24.projekat.uberapp.model.WorkingHour;
-
 public class WorkingHourDTO {
 	private Long id;
 	private String start;

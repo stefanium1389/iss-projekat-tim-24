@@ -23,9 +23,6 @@ import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.ErrorDTO;
 import tim24.projekat.uberapp.DTO.LoginRequestDTO;
 import tim24.projekat.uberapp.DTO.LoginResponseDTO;
-import tim24.projekat.uberapp.DTO.MessageDTO;
-import tim24.projekat.uberapp.DTO.MessageRequestDTO;
-import tim24.projekat.uberapp.DTO.MessageSendResponseDTO;
 import tim24.projekat.uberapp.DTO.NoteDTO;
 import tim24.projekat.uberapp.DTO.NoteRequestDTO;
 import tim24.projekat.uberapp.DTO.NoteResponseDTO;
@@ -116,15 +113,6 @@ public class UserController {
 		return new ResponseEntity<>(dtoList,HttpStatus.OK);
 	}
 	
-	@GetMapping ("user/{id}/message")
-	public ResponseEntity<DTOList<MessageDTO>> getUserMessagesById (@PathVariable("id") Long id)
-	{
-		
-		
-		DTOList<MessageDTO> dtoList = userService.getUserMessagesById(id);
-		return new ResponseEntity<>(dtoList,HttpStatus.OK);
-	}
-	
 	@GetMapping ("user/{id}/note")
 	public ResponseEntity<DTOList<NoteDTO>> getUserNotesById (
 			@PathVariable("id") Long id,
@@ -137,15 +125,6 @@ public class UserController {
 	}
 	
 	//			POST
-	
-	
-	
-	@PostMapping ("user/{id}/message")
-	public ResponseEntity<MessageSendResponseDTO> postMessageById (@PathVariable("id") Long id, @RequestBody MessageRequestDTO messageRequestDTO)
-	{
-		MessageSendResponseDTO m = userService.postMessageById(id, messageRequestDTO);
-		return new ResponseEntity<>(m,HttpStatus.OK);
-	}
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping ("user/{id}/note")

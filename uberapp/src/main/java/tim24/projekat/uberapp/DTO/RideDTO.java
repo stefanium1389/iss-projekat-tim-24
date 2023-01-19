@@ -3,7 +3,6 @@ package tim24.projekat.uberapp.DTO;
 import java.util.ArrayList;
 import java.util.List;
 
-import tim24.projekat.uberapp.model.Location;
 import tim24.projekat.uberapp.model.Ride;
 import tim24.projekat.uberapp.model.User;
 

@@ -1,7 +1,5 @@
 package tim24.projekat.uberapp.model;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,10 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import tim24.projekat.uberapp.DTO.VehicleRequestDTO;
-import tim24.projekat.uberapp.repo.UserRepository;
-import tim24.projekat.uberapp.repo.VehicleTypeRepository;
 
 @Table(name = "vehicles")
 @Entity

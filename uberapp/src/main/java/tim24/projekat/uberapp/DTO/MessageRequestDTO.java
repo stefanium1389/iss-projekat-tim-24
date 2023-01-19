@@ -2,25 +2,15 @@ package tim24.projekat.uberapp.DTO;
 
 public class MessageRequestDTO {
 
-	private Long recieverId;
 	private String message;
 	private String type;
 	private Long rideId;
 	
 	public MessageRequestDTO(Long recieverId, String message, String type, Long rideId) {
 		super();
-		this.recieverId = recieverId;
 		this.message = message;
 		this.type = type;
 		this.rideId = rideId;
-	}
-
-	public Long getRecieverId() {
-		return recieverId;
-	}
-
-	public void setRecieverId(Long recieverId) {
-		this.recieverId = recieverId;
 	}
 
 	public String getMessage() {
