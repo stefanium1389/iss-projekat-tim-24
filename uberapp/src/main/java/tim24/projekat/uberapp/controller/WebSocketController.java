@@ -19,7 +19,7 @@ import java.util.Map;
 public class WebSocketController
 {
     @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
+    public SimpMessagingTemplate simpMessagingTemplate;
     @Autowired
     private VehicleRepository vehicleRepo;
 

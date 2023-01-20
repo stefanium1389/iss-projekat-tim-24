@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.NotificationDTO;
 import tim24.projekat.uberapp.DTO.NotificationRequestDTO;
+import tim24.projekat.uberapp.controller.WebSocketController;
 import tim24.projekat.uberapp.exception.ConditionNotMetException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.model.Notification;
@@ -22,6 +23,8 @@ public class NotificationService
     private NotificationRepository notificationRepo;
     @Autowired
     private UserService userService;
+    @Autowired
+    private WebSocketController webSocketController;
 
     public Notification findNotificationById(Long id)
     {
@@ -37,6 +40,7 @@ public class NotificationService
         User receiver = userService.findUserById(notificationRequestDTO.getUserId());
         Notification notification = new Notification(note, date, read, notificationType, receiver);
         notificationRepo.save(notification);
+        webSocketController.simpMessagingTemplate.convertAndSend("/notification/" + receiver.getId(), new NotificationDTO(notification));
     }
 
     public DTOList<NotificationDTO> getUnreadNotifications()

@@ -16,9 +16,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer
      */
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/socket-connect") // Definisemo endpoint koji ce klijenti koristiti da se povezu sa serverom.
-                // U ovom slucaju, URL za konekciju ce biti http://localhost:8080/socket-connect/
-                .setAllowedOrigins("*") // Dozvoljavamo serveru da prima zahteve bilo kog porekla
+        registry.addEndpoint("/socket") // Definisemo endpoint koji ce klijenti koristiti da se povezu sa serverom.
+                // U ovom slucaju, URL za konekciju ce biti http://localhost:8080/socket/
+                .setAllowedOriginPatterns("*") // Dozvoljavamo serveru da prima zahteve bilo kog porekla
                 .withSockJS(); // Koristi se SockJS: https://github.com/sockjs/sockjs-protocol
     }
 
