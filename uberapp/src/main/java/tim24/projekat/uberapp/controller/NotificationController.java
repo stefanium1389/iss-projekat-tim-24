@@ -11,7 +11,10 @@ import tim24.projekat.uberapp.DTO.NotificationDTO;
 import tim24.projekat.uberapp.DTO.NotificationRequestDTO;
 import tim24.projekat.uberapp.exception.ConditionNotMetException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
+import tim24.projekat.uberapp.model.User;
+import tim24.projekat.uberapp.security.JwtTokenUtil;
 import tim24.projekat.uberapp.service.NotificationService;
+import tim24.projekat.uberapp.service.UserService;
 
 @RestController
 @RequestMapping("api/notification")
@@ -19,12 +22,45 @@ public class NotificationController
 {
     @Autowired
     private NotificationService notificationService;
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+    @Autowired
+    private UserService userService;
+
+    @GetMapping("/unread")
+    public ResponseEntity<?> getHasUnread(@RequestHeader("Authorization") String auth)
+    {
+        try
+        {
+            String userMail = jwtTokenUtil.getUsernameFromToken(auth.substring(7));
+            User user = userService.findUserByEmail(userMail);
+            Long id = user.getId();
+            boolean bool = notificationService.getHasUnread(id);
+            return new ResponseEntity<>(bool, HttpStatus.OK);
+        }
+        catch(ObjectNotFoundException e)
+        {
+            ErrorDTO error = new ErrorDTO(e.getMessage());
+            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        }
+    }
 
     @GetMapping("")
-    public ResponseEntity<?> getUnreadNotifications()
+    public ResponseEntity<?> getNotificationsForUser(@RequestHeader("Authorization") String auth)
     {
-        DTOList<NotificationDTO> list = notificationService.getUnreadNotifications();
-        return new ResponseEntity<>(list, HttpStatus.OK);
+        try
+        {
+            String userMail = jwtTokenUtil.getUsernameFromToken(auth.substring(7));
+            User user = userService.findUserByEmail(userMail);
+            Long id = user.getId();
+            DTOList<NotificationDTO> list = notificationService.getNotificationsById(id);
+            return new ResponseEntity<>(list, HttpStatus.OK);
+        }
+        catch(ObjectNotFoundException e)
+        {
+            ErrorDTO error = new ErrorDTO(e.getMessage());
+            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        }
     }
 
     @PreAuthorize("hasRole('ADMIN')")

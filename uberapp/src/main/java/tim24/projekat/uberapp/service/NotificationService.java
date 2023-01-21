@@ -43,13 +43,24 @@ public class NotificationService
         webSocketController.simpMessagingTemplate.convertAndSend("/notification/" + receiver.getId(), new NotificationDTO(notification));
     }
 
-    public DTOList<NotificationDTO> getUnreadNotifications()
+    public boolean getHasUnread(Long id)
+    {
+        List<Notification> notifications = notificationRepo.findAll();
+        for(Notification n: notifications)
+        {
+            if(n.getId() == id && ! n.isRead())
+                return true;
+        }
+        return false;
+    }
+
+    public DTOList<NotificationDTO> getNotificationsById(Long id)
     {
         DTOList<NotificationDTO> list = new DTOList<NotificationDTO>();
         List<Notification> notifications = notificationRepo.findAll();
         for(Notification n: notifications)
         {
-            if(! n.isRead())
+            if(n.getId() == id)
                 list.add(new NotificationDTO(n));
         }
         return list;
