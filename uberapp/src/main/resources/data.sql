@@ -21,10 +21,10 @@ insert into locations (`ADDRESS`,`LATITUDE`,`LONGITUDE`) values ('sinagoga',45.2
 insert into locations (`ADDRESS`,`LATITUDE`,`LONGITUDE`) values ('dom b',45.236999,19.838950);
 insert into locations (`ADDRESS`,`LATITUDE`,`LONGITUDE`) values ('lidl telep',45.236414,19.827076);
 
-insert into vehicles (`ALLOWED_BABY_IN_VEHICLE`,`ALLOWED_PET_IN_VEHICLE`,`NUMBER_OF_SEATS`,`REG_PLATES`,`DRIVER_ID`,`LOCATION_ID`,`VEHICLE_TYPE_ID`) values (false,false,3,'NS-420-BL',3,1,1);
-insert into vehicles (`ALLOWED_BABY_IN_VEHICLE`,`ALLOWED_PET_IN_VEHICLE`,`NUMBER_OF_SEATS`,`REG_PLATES`,`DRIVER_ID`,`LOCATION_ID`,`VEHICLE_TYPE_ID`) values (false,true,4,'NS-123-BL',5,2,1);
-insert into vehicles (`ALLOWED_BABY_IN_VEHICLE`,`ALLOWED_PET_IN_VEHICLE`,`NUMBER_OF_SEATS`,`REG_PLATES`,`DRIVER_ID`,`LOCATION_ID`,`VEHICLE_TYPE_ID`) values (true,false,4,'NS-400-BL',6,3,2);
-insert into vehicles (`ALLOWED_BABY_IN_VEHICLE`,`ALLOWED_PET_IN_VEHICLE`,`NUMBER_OF_SEATS`,`REG_PLATES`,`DRIVER_ID`,`LOCATION_ID`,`VEHICLE_TYPE_ID`) values (true,true,5,'NS-572-BL',7,4,3);
+insert into vehicles (`ALLOWED_BABY_IN_VEHICLE`,`ALLOWED_PET_IN_VEHICLE`,`MODEL`,`NUMBER_OF_SEATS`,`REG_PLATES`,`DRIVER_ID`,`LOCATION_ID`,`VEHICLE_TYPE_ID`) values (false,false,'Ford Fiesta 1992',3,'NS-420-BL',3,1,1);
+insert into vehicles (`ALLOWED_BABY_IN_VEHICLE`,`ALLOWED_PET_IN_VEHICLE`,`MODEL`,`NUMBER_OF_SEATS`,`REG_PLATES`,`DRIVER_ID`,`LOCATION_ID`,`VEHICLE_TYPE_ID`) values (false,true,'Pipebomb mobil',4,'NS-123-BL',5,2,1);
+insert into vehicles (`ALLOWED_BABY_IN_VEHICLE`,`ALLOWED_PET_IN_VEHICLE`,`MODEL`,`NUMBER_OF_SEATS`,`REG_PLATES`,`DRIVER_ID`,`LOCATION_ID`,`VEHICLE_TYPE_ID`) values (true,false,'Rols Rojs luksuz',4,'NS-400-BL',6,3,2);
+insert into vehicles (`ALLOWED_BABY_IN_VEHICLE`,`ALLOWED_PET_IN_VEHICLE`,`MODEL`,`NUMBER_OF_SEATS`,`REG_PLATES`,`DRIVER_ID`,`LOCATION_ID`,`VEHICLE_TYPE_ID`) values (true,true,'Toyota hillux',5,'NS-572-BL',7,4,3);
 
 insert into locations (`ADDRESS`,`LATITUDE`,`LONGITUDE`) values ('Bulevar oslobodjenja 46',45.26242,19.854692);
 insert into locations (`ADDRESS`,`LATITUDE`,`LONGITUDE`) values ('Bulevar oslobodjenja 46',45.255018,19.782459);

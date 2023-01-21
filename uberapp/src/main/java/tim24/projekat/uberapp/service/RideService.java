@@ -474,7 +474,7 @@ public class RideService
 
 	public RideDTO getRide(Long id)
 	{
-		Optional<Ride> ride = rideRepo.findRideByPassengersId(id);
+		Optional<Ride> ride = rideRepo.findById(id);
 		if(ride.isEmpty()) {
 			throw new ObjectNotFoundException("Ride does not exist!");
 		}

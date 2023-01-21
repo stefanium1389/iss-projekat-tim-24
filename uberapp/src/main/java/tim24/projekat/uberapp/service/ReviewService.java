@@ -83,6 +83,9 @@ public class ReviewService {
 		if(rOpt.isEmpty()) {
 			throw new ObjectNotFoundException("Ride does not exist!");
 		}
+		if(new Date().after(du.plusDays(rOpt.get().getEndTime(), EXPIRE_DAYS))) {
+			throw new InvalidArgumentException("Cannot comment on ride older then "+EXPIRE_DAYS+" days");
+		}
 		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(rOpt.get().getDriver().getId());
 		ReviewVehicle rv = new ReviewVehicle();
 		rv.setRide(rOpt.get());
@@ -109,6 +112,9 @@ public class ReviewService {
 		Optional<Ride> rOpt = rideRepo.findById(rideId);
 		if(rOpt.isEmpty()) {
 			throw new ObjectNotFoundException("Ride does not exist!");
+		}
+		if(new Date().after(du.plusDays(rOpt.get().getEndTime(), EXPIRE_DAYS))) {
+			throw new InvalidArgumentException("Cannot comment on ride older then "+EXPIRE_DAYS+" days");
 		}
 		User d = rOpt.get().getDriver();
 		ReviewDriver rv = new ReviewDriver();

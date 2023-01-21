@@ -33,7 +33,7 @@ public class VehicleDTO {
 		this.vehicleType = v.getVehicleType().getTypeName();
 		this.model = v.getModel();
 		this.licenseNumber = v.getRegPlates();
-		this.currentLocation = new GeoCoordinateDTO(null);//v.Location kad bude moglo
+		this.currentLocation = new GeoCoordinateDTO(v.getLocation());
 		this.passengerSeats = v.getNumberOfSeats();
 		this.babyTransport = v.isAllowedBabyInVehicle();
 		this.petTransport = v.isAllowedPetInVehicle();
