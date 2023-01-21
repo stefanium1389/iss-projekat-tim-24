@@ -3,10 +3,15 @@ package tim24.projekat.uberapp.service;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.TreeMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -42,6 +47,7 @@ import tim24.projekat.uberapp.model.DriverDocument;
 import tim24.projekat.uberapp.model.DriverReport;
 import tim24.projekat.uberapp.model.DriverUpdateDetails;
 import tim24.projekat.uberapp.model.Ride;
+import tim24.projekat.uberapp.model.RideStatus;
 import tim24.projekat.uberapp.model.Role;
 import tim24.projekat.uberapp.model.UpdateState;
 import tim24.projekat.uberapp.model.User;
@@ -64,25 +70,8 @@ public class StatisticsService {
 	private UserRepository userRepo;
 	
 	@Autowired
-	private WorkingHourRepo workingHourRepo;
-	
-	@Autowired
-	private DriverDocumentRepository driverDocumentRepo;
-	
-	@Autowired
-	private VehicleRepository vehicleRepo;
-	
-	@Autowired
-	private DriverReportRepo driverReportRepo;
-	
-	@Autowired
 	private RideRepository rideRepo;
 	
-	@Autowired
-	private DriveruUpdateDetailsRepo dudRepo;
-	
-	@Autowired
-	private VehicleTypeRepository viehicleTypeRepo;
 
 	public StatisticsResponseDTO getRidesStatsForPassenger(Long id, statisticsRequestDTO requestDTO) {
 		
@@ -305,41 +294,6 @@ public StatisticsResponseDTO getExpensesStatsForPassenger(Long id, statisticsReq
 		
 		return dto;
 	}
-	
-
-	public StatisticsResponseDTO getExpensesStatsForDriver(Long id, statisticsRequestDTO requestDTO) {
-		
-		Optional<User> userOpt = userRepo.findByIdAndRole(id, Role.DRIVER);
-		if (userOpt.isEmpty()) 
-		{
-			throw new ObjectNotFoundException("Driver does not exist!");
-		}
-		
-		User user = userOpt.get();
-		Date startDate = parseDate(requestDTO.getStartDate());
-		Date endDate = parseDate(requestDTO.getEndDate());
-		Duration duration = Duration.between(startDate.toInstant(), endDate.toInstant());
-		StatisticsResponseDTO dto = null;
-		if (duration.toDays()<31) 
-		{
-			dto = generateSmallExpensesDriver(id, startDate, endDate);
-		}
-		else if (duration.toDays()>=31 && duration.toDays()<=365) 
-		{
-			dto = generateMediumExpensesDriver(id, startDate, endDate);
-		}
-		else if (duration.toDays()>365) 
-		{
-			dto = generateLargeExpensesDriver(id, startDate, endDate);
-		}
-		else 
-		{
-			throw new InvalidArgumentException ("Error while parsing dates in statistics");
-		}
-		
-		return dto;
-	}
-	
 
 	public StatisticsResponseDTO getExpensesStatsForAdmin(statisticsRequestDTO requestDTO) {
 		
@@ -368,139 +322,1034 @@ public StatisticsResponseDTO getExpensesStatsForPassenger(Long id, statisticsReq
 		return dto;
 	}
 	
-	private StatisticsResponseDTO generateLargeExpensesDriver(Long id, Date startDate, Date endDate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	private StatisticsResponseDTO generateMediumExpensesDriver(Long id, Date startDate, Date endDate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	private StatisticsResponseDTO generateSmallExpensesDriver(Long id, Date startDate, Date endDate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 	private StatisticsResponseDTO generateLargeExpensesPassenger(Long id, Date startDate, Date endDate) {
-	// TODO Auto-generated method stub
-	return null;
+		String type = "bar";
+		List<Double> data = new ArrayList<Double>();
+		List<String> labels = new ArrayList<String>();
+		double total = 0;
+		double average = 0;
+		
+		List<Ride> rides = rideRepo.findAllByDriverIdOrPassengerIdAndStartTimeBetweenAsList(id, startDate, endDate);
+		TreeMap<Date,Double> map = new TreeMap<Date,Double>();
+		for (Ride r : rides) 
+		{
+			Date d = r.getStartTime();
+			LocalDate date = LocalDate.ofInstant(d.toInstant(), ZoneId.systemDefault());
+			LocalDate firstDay = date.withDayOfYear(1);
+			Date d1 = Date.from(firstDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+			
+			if (map.containsKey(d1)) 
+			{
+				map.put(d1, map.get(d1)+r.getCost());
+			}
+			else 
+			{
+				map.put(d1, (double)r.getCost());
+			}
+		}
+		
+		double sum = 0;
+		SimpleDateFormat formatter =  new SimpleDateFormat("yyyy");
+		for (Date d : map.keySet()) 
+		{
+			String formattedDate = formatter.format(d);
+			labels.add(formattedDate);
+			data.add(map.get(d));
+			sum += map.get(d);
+		}
+		total = (double)sum;
+		if (map.keySet().size()>0) 
+		{
+			average = (double)sum/map.keySet().size();
+		}
+		
+		return new StatisticsResponseDTO(type,data,labels,total,average);
 }
 
 	private StatisticsResponseDTO generateMediumExpensesPassenger(Long id, Date startDate, Date endDate) {
-	// TODO Auto-generated method stub
-	return null;
+		String type = "pie";
+		List<Double> data = new ArrayList<Double>();
+		List<String> labels = new ArrayList<String>();
+		double total = 0;
+		double average = 0;
+		
+		List<Ride> rides = rideRepo.findAllByDriverIdOrPassengerIdAndStartTimeBetweenAsList(id, startDate, endDate);
+		TreeMap<Date,Double> map = new TreeMap<Date,Double>();
+		for (Ride r : rides) 
+		{
+			Date d = r.getStartTime();
+			LocalDate date = LocalDate.ofInstant(d.toInstant(), ZoneId.systemDefault());
+			LocalDate firstDay = date.withDayOfMonth(1);
+			Date d1 = Date.from(firstDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+			
+			if (map.containsKey(d1)) 
+			{
+				map.put(d1, map.get(d1)+r.getCost());
+			}
+			else 
+			{
+				map.put(d1, (double)r.getCost());
+			}
+		}
+		
+		double sum = 0;
+		SimpleDateFormat formatter =  new SimpleDateFormat("MMMM yyyy");
+		for (Date d : map.keySet()) 
+		{
+			String formattedDate = formatter.format(d);
+			labels.add(formattedDate);
+			data.add(map.get(d));
+			sum += map.get(d);
+		}
+		total = (double)sum;
+		if (map.keySet().size()>0) 
+		{
+			average = (double)sum/map.keySet().size();
+		}
+		
+		return new StatisticsResponseDTO(type,data,labels,total,average);
 }
 
 	private StatisticsResponseDTO generateSmallExpensesPassenger(Long id, Date startDate, Date endDate) {
-	// TODO Auto-generated method stub
-	return null;
+		String type = "line";
+		List<Double> data = new ArrayList<Double>();
+		List<String> labels = new ArrayList<String>();
+		double total = 0;
+		double average = 0;
+		
+		List<Ride> rides = rideRepo.findAllByDriverIdOrPassengerIdAndStartTimeBetweenAsList(id, startDate, endDate);
+		TreeMap<Date,Double> map = new TreeMap<Date,Double>();
+		for (Ride r : rides) 
+		{
+			Date d = r.getStartTime();
+			if (map.containsKey(d)) 
+			{
+				map.put(d, map.get(d)+r.getCost());
+			}
+			else 
+			{
+				map.put(d, (double)r.getCost());
+			}
+		}
+		
+		double sum = 0;
+		SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy.");
+		for (Date d : map.keySet()) 
+		{
+			String formattedDate = formatter.format(d);
+			labels.add(formattedDate);
+			data.add(map.get(d));
+			sum += map.get(d);
+		}
+		total = (double)sum;
+		if (map.keySet().size()>0) 
+		{
+			average = (double)sum/map.keySet().size();
+		}
+		
+		return new StatisticsResponseDTO(type,data,labels,total,average);
 }
 	
 	private StatisticsResponseDTO generateLargeExpensesAdmin(Date startDate, Date endDate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		String type = "bar";
+		List<Double> data = new ArrayList<Double>();
+		List<String> labels = new ArrayList<String>();
+		double total = 0;
+		double average = 0;
+		
+		List<Ride> rides = rideRepo.findRidesWithStatusBetweenDates(RideStatus.FINISHED, startDate, endDate);
+		TreeMap<Date,Double> map = new TreeMap<Date,Double>();
+		for (Ride r : rides) 
+		{
+			Date d = r.getStartTime();
+			LocalDate date = LocalDate.ofInstant(d.toInstant(), ZoneId.systemDefault());
+			LocalDate firstDay = date.withDayOfYear(1);
+			Date d1 = Date.from(firstDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+			
+			if (map.containsKey(d1)) 
+			{
+				map.put(d1, map.get(d1)+r.getCost());
+			}
+			else 
+			{
+				map.put(d1, (double)r.getCost());
+			}
+		}
+		
+		double sum = 0;
+		SimpleDateFormat formatter =  new SimpleDateFormat("yyyy");
+		for (Date d : map.keySet()) 
+		{
+			String formattedDate = formatter.format(d);
+			labels.add(formattedDate);
+			data.add(map.get(d));
+			sum += map.get(d);
+		}
+		total = (double)sum;
+		if (map.keySet().size()>0) 
+		{
+			average = (double)sum/map.keySet().size();
+		}
+		
+		return new StatisticsResponseDTO(type,data,labels,total,average);
+}
 
 	private StatisticsResponseDTO generateMediumExpensesAdmin(Date startDate, Date endDate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		String type = "pie";
+		List<Double> data = new ArrayList<Double>();
+		List<String> labels = new ArrayList<String>();
+		double total = 0;
+		double average = 0;
+		
+		List<Ride> rides = rideRepo.findRidesWithStatusBetweenDates(RideStatus.FINISHED, startDate, endDate);
+		TreeMap<Date,Double> map = new TreeMap<Date,Double>();
+		for (Ride r : rides) 
+		{
+			Date d = r.getStartTime();
+			LocalDate date = LocalDate.ofInstant(d.toInstant(), ZoneId.systemDefault());
+			LocalDate firstDay = date.withDayOfMonth(1);
+			Date d1 = Date.from(firstDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+			
+			if (map.containsKey(d1)) 
+			{
+				map.put(d1, map.get(d1)+r.getCost());
+			}
+			else 
+			{
+				map.put(d1, (double)r.getCost());
+			}
+		}
+		
+		double sum = 0;
+		SimpleDateFormat formatter =  new SimpleDateFormat("MMMM yyyy");
+		for (Date d : map.keySet()) 
+		{
+			String formattedDate = formatter.format(d);
+			labels.add(formattedDate);
+			data.add(map.get(d));
+			sum += map.get(d);
+		}
+		total = (double)sum;
+		if (map.keySet().size()>0) 
+		{
+			average = (double)sum/map.keySet().size();
+		}
+		
+		return new StatisticsResponseDTO(type,data,labels,total,average);
+}
 
 	private StatisticsResponseDTO generateSmallExpensesAdmin(Date startDate, Date endDate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		String type = "line";
+		List<Double> data = new ArrayList<Double>();
+		List<String> labels = new ArrayList<String>();
+		double total = 0;
+		double average = 0;
+		
+		List<Ride> rides = rideRepo.findRidesWithStatusBetweenDates(RideStatus.FINISHED, startDate, endDate);
+		TreeMap<Date,Double> map = new TreeMap<Date,Double>();
+		for (Ride r : rides) 
+		{
+			Date d = r.getStartTime();
+			if (map.containsKey(d)) 
+			{
+				map.put(d, map.get(d)+r.getCost());
+			}
+			else 
+			{
+				map.put(d, (double)r.getCost());
+			}
+		}
+		
+		double sum = 0;
+		SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy.");
+		for (Date d : map.keySet()) 
+		{
+			String formattedDate = formatter.format(d);
+			labels.add(formattedDate);
+			data.add(map.get(d));
+			sum += map.get(d);
+		}
+		total = (double)sum;
+		if (map.keySet().size()>0) 
+		{
+			average = (double)sum/map.keySet().size();
+		}
+		
+		return new StatisticsResponseDTO(type,data,labels,total,average);
+}
 
 	private StatisticsResponseDTO generateLargeKilometersAdmin(Date startDate, Date endDate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		String type = "bar";
+		List<Double> data = new ArrayList<Double>();
+		List<String> labels = new ArrayList<String>();
+		double total = 0;
+		double average = 0;
+		
+		List<Ride> rides = rideRepo.findRidesWithStatusBetweenDates(RideStatus.FINISHED, startDate, endDate);
+		TreeMap<Date,Double> map = new TreeMap<Date,Double>();
+		for (Ride r : rides) 
+		{
+			Date d = r.getStartTime();
+			LocalDate date = LocalDate.ofInstant(d.toInstant(), ZoneId.systemDefault());
+			LocalDate firstDay = date.withDayOfYear(1);
+			Date d1 = Date.from(firstDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+			
+			if (map.containsKey(d1)) 
+			{
+				map.put(d1, map.get(d1)+r.getRoute().getLenghtInKm());
+			}
+			else 
+			{
+				map.put(d1, +r.getRoute().getLenghtInKm());
+			}
+		}
+		
+		double sum = 0;
+		SimpleDateFormat formatter =  new SimpleDateFormat("yyyy");
+		for (Date d : map.keySet()) 
+		{
+			String formattedDate = formatter.format(d);
+			labels.add(formattedDate);
+			data.add(map.get(d));
+			sum += map.get(d);
+		}
+		total = (double)sum;
+		if (map.keySet().size()>0) 
+		{
+			average = (double)sum/map.keySet().size();
+		}
+		
+		return new StatisticsResponseDTO(type,data,labels,total,average);
+}
 
 	private StatisticsResponseDTO generateMediumKilometersAdmin(Date startDate, Date endDate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		String type = "pie";
+		List<Double> data = new ArrayList<Double>();
+		List<String> labels = new ArrayList<String>();
+		double total = 0;
+		double average = 0;
+		
+		List<Ride> rides = rideRepo.findRidesWithStatusBetweenDates(RideStatus.FINISHED, startDate, endDate);
+		TreeMap<Date,Double> map = new TreeMap<Date,Double>();
+		for (Ride r : rides) 
+		{
+			Date d = r.getStartTime();
+			LocalDate date = LocalDate.ofInstant(d.toInstant(), ZoneId.systemDefault());
+			LocalDate firstDay = date.withDayOfMonth(1);
+			Date d1 = Date.from(firstDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+			
+			if (map.containsKey(d1)) 
+			{
+				map.put(d1, map.get(d1)+r.getRoute().getLenghtInKm());
+			}
+			else 
+			{
+				map.put(d1, (double)r.getRoute().getLenghtInKm());
+			}
+		}
+		
+		double sum = 0;
+		SimpleDateFormat formatter =  new SimpleDateFormat("MMMM yyyy");
+		for (Date d : map.keySet()) 
+		{
+			String formattedDate = formatter.format(d);
+			labels.add(formattedDate);
+			data.add(map.get(d));
+			sum += map.get(d);
+		}
+		total = (double)sum;
+		if (map.keySet().size()>0) 
+		{
+			average = (double)sum/map.keySet().size();
+		}
+		
+		return new StatisticsResponseDTO(type,data,labels,total,average);
+}
 
 	private StatisticsResponseDTO generateSmallKilometersAdmin(Date startDate, Date endDate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		String type = "line";
+		List<Double> data = new ArrayList<Double>();
+		List<String> labels = new ArrayList<String>();
+		double total = 0;
+		double average = 0;
+		
+		List<Ride> rides = rideRepo.findRidesWithStatusBetweenDates(RideStatus.FINISHED, startDate, endDate);
+		TreeMap<Date,Double> map = new TreeMap<Date,Double>();
+		for (Ride r : rides) 
+		{
+			Date d = r.getStartTime();
+			if (map.containsKey(d)) 
+			{
+				map.put(d, map.get(d)+r.getRoute().getLenghtInKm());
+			}
+			else 
+			{
+				map.put(d, r.getRoute().getLenghtInKm());
+			}
+		}
+		
+		double sum = 0;
+		SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy.");
+		for (Date d : map.keySet()) 
+		{
+			String formattedDate = formatter.format(d);
+			labels.add(formattedDate);
+			data.add(map.get(d));
+			sum += map.get(d);
+		}
+		total = (double)sum;
+		if (map.keySet().size()>0) 
+		{
+			average = (double)sum/map.keySet().size();
+		}
+		
+		return new StatisticsResponseDTO(type,data,labels,total,average);
+}
 
 	private StatisticsResponseDTO generateLargeRidesAdmin(Date startDate, Date endDate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		String type = "bar";
+		List<Double> data = new ArrayList<Double>();
+		List<String> labels = new ArrayList<String>();
+		double total = 0;
+		double average = 0;
+		
+		List<Ride> rides = rideRepo.findRidesWithStatusBetweenDates(RideStatus.FINISHED, startDate, endDate);
+		TreeMap<Date,Double> map = new TreeMap<Date,Double>();
+		for (Ride r : rides) 
+		{
+			Date d = r.getStartTime();
+			LocalDate date = LocalDate.ofInstant(d.toInstant(), ZoneId.systemDefault());
+			LocalDate firstDay = date.withDayOfYear(1);
+			Date d1 = Date.from(firstDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+			
+			if (map.containsKey(d1)) 
+			{
+				map.put(d1, map.get(d1)+1);
+			}
+			else 
+			{
+				map.put(d1, 1.0);
+			}
+		}
+		
+		double sum = 0;
+		SimpleDateFormat formatter =  new SimpleDateFormat("yyyy");
+		for (Date d : map.keySet()) 
+		{
+			String formattedDate = formatter.format(d);
+			labels.add(formattedDate);
+			data.add(map.get(d));
+			sum += map.get(d);
+		}
+		total = (double)sum;
+		if (map.keySet().size()>0) 
+		{
+			average = (double)sum/map.keySet().size();
+		}
+		
+		return new StatisticsResponseDTO(type,data,labels,total,average);
+}
 
 	private StatisticsResponseDTO generateMediumRidesAdmin(Date startDate, Date endDate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		String type = "pie";
+		List<Double> data = new ArrayList<Double>();
+		List<String> labels = new ArrayList<String>();
+		double total = 0;
+		double average = 0;
+		
+		List<Ride> rides = rideRepo.findRidesWithStatusBetweenDates(RideStatus.FINISHED, startDate, endDate);
+		TreeMap<Date,Double> map = new TreeMap<Date,Double>();
+		for (Ride r : rides) 
+		{
+			Date d = r.getStartTime();
+			LocalDate date = LocalDate.ofInstant(d.toInstant(), ZoneId.systemDefault());
+			LocalDate firstDay = date.withDayOfMonth(1);
+			Date d1 = Date.from(firstDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+			
+			if (map.containsKey(d1)) 
+			{
+				map.put(d1, map.get(d1)+1);
+			}
+			else 
+			{
+				map.put(d1, 1.0);
+			}
+		}
+		
+		double sum = 0;
+		SimpleDateFormat formatter =  new SimpleDateFormat("MMMM yyyy");
+		for (Date d : map.keySet()) 
+		{
+			String formattedDate = formatter.format(d);
+			labels.add(formattedDate);
+			data.add(map.get(d));
+			sum += map.get(d);
+		}
+		total = (double)sum;
+		if (map.keySet().size()>0) 
+		{
+			average = (double)sum/map.keySet().size();
+		}
+		
+		return new StatisticsResponseDTO(type,data,labels,total,average);
+}
 
 	private StatisticsResponseDTO generateSmallRidesAdmin(Date startDate, Date endDate) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		String type = "line";
+		List<Double> data = new ArrayList<Double>();
+		List<String> labels = new ArrayList<String>();
+		double total = 0;
+		double average = 0;
+		
+		List<Ride> rides = rideRepo.findRidesWithStatusBetweenDates(RideStatus.FINISHED, startDate, endDate);
+		TreeMap<Date,Integer> map = new TreeMap<Date,Integer>();
+		for (Ride r : rides) 
+		{
+			Date d = r.getStartTime();
+			if (map.containsKey(d)) 
+			{
+				map.put(d, map.get(d)+1);
+			}
+			else 
+			{
+				map.put(d, 1);
+			}
+		}
+		
+		double sum = 0;
+		SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy.");
+		for (Date d : map.keySet()) 
+		{
+			String formattedDate = formatter.format(d);
+			labels.add(formattedDate);
+			data.add((double)map.get(d));
+			sum += map.get(d);
+		}
+		total = sum;
+		if (map.keySet().size()>0) 
+		{
+			average = (double)sum/map.keySet().size();
+		}
+		
+		
+		return new StatisticsResponseDTO(type,data,labels,total,average);
 	}
 
 	private StatisticsResponseDTO generateLargeRidesDriver(Long id, Date startDate, Date endDate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		String type = "bar";
+		List<Double> data = new ArrayList<Double>();
+		List<String> labels = new ArrayList<String>();
+		double total = 0;
+		double average = 0;
+		
+		List<Ride> rides = rideRepo.findAllByDriverIdOrPassengerIdAndStartTimeBetweenAsList(id, startDate, endDate);
+		TreeMap<Date,Double> map = new TreeMap<Date,Double>();
+		for (Ride r : rides) 
+		{
+			Date d = r.getStartTime();
+			LocalDate date = LocalDate.ofInstant(d.toInstant(), ZoneId.systemDefault());
+			LocalDate firstDay = date.withDayOfYear(1);
+			Date d1 = Date.from(firstDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+			
+			if (map.containsKey(d1)) 
+			{
+				map.put(d1, map.get(d1)+1);
+			}
+			else 
+			{
+				map.put(d1, 1.0);
+			}
+		}
+		
+		double sum = 0;
+		SimpleDateFormat formatter =  new SimpleDateFormat("yyyy");
+		for (Date d : map.keySet()) 
+		{
+			String formattedDate = formatter.format(d);
+			labels.add(formattedDate);
+			data.add(map.get(d));
+			sum += map.get(d);
+		}
+		total = (double)sum;
+		if (map.keySet().size()>0) 
+		{
+			average = (double)sum/map.keySet().size();
+		}
+		
+		return new StatisticsResponseDTO(type,data,labels,total,average);
+}
 
 	private StatisticsResponseDTO generateMediumRidesDriver(Long id, Date startDate, Date endDate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		String type = "pie";
+		List<Double> data = new ArrayList<Double>();
+		List<String> labels = new ArrayList<String>();
+		double total = 0;
+		double average = 0;
+		
+		List<Ride> rides = rideRepo.findAllByDriverIdOrPassengerIdAndStartTimeBetweenAsList(id, startDate, endDate);
+		TreeMap<Date,Double> map = new TreeMap<Date,Double>();
+		for (Ride r : rides) 
+		{
+			Date d = r.getStartTime();
+			LocalDate date = LocalDate.ofInstant(d.toInstant(), ZoneId.systemDefault());
+			LocalDate firstDay = date.withDayOfMonth(1);
+			Date d1 = Date.from(firstDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+			
+			if (map.containsKey(d1)) 
+			{
+				map.put(d1, map.get(d1)+1);
+			}
+			else 
+			{
+				map.put(d1, 1.0);
+			}
+		}
+		
+		double sum = 0;
+		SimpleDateFormat formatter =  new SimpleDateFormat("MMMM yyyy");
+		for (Date d : map.keySet()) 
+		{
+			String formattedDate = formatter.format(d);
+			labels.add(formattedDate);
+			data.add(map.get(d));
+			sum += map.get(d);
+		}
+		total = (double)sum;
+		if (map.keySet().size()>0) 
+		{
+			average = (double)sum/map.keySet().size();
+		}
+		
+		return new StatisticsResponseDTO(type,data,labels,total,average);
+}
 
 	private StatisticsResponseDTO generateSmallRidesDriver(Long id, Date startDate, Date endDate) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		String type = "line";
+		List<Double> data = new ArrayList<Double>();
+		List<String> labels = new ArrayList<String>();
+		double total = 0;
+		double average = 0;
+		
+		List<Ride> rides = rideRepo.findAllByDriverIdOrPassengerIdAndStartTimeBetweenAsList(id, startDate, endDate);
+		TreeMap<Date,Integer> map = new TreeMap<Date,Integer>();
+		for (Ride r : rides) 
+		{
+			Date d = r.getStartTime();
+			if (map.containsKey(d)) 
+			{
+				map.put(d, map.get(d)+1);
+			}
+			else 
+			{
+				map.put(d, 1);
+			}
+		}
+		
+		double sum = 0;
+		SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy.");
+		for (Date d : map.keySet()) 
+		{
+			String formattedDate = formatter.format(d);
+			labels.add(formattedDate);
+			data.add((double)map.get(d));
+			sum += map.get(d);
+		}
+		total = sum;
+		if (map.keySet().size()>0) 
+		{
+			average = (double)sum/map.keySet().size();
+		}
+		
+		
+		return new StatisticsResponseDTO(type,data,labels,total,average);
 	}
 
 	private StatisticsResponseDTO generateLargeRidesPassenger(Long id, Date startDate, Date endDate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		String type = "bar";
+		List<Double> data = new ArrayList<Double>();
+		List<String> labels = new ArrayList<String>();
+		double total = 0;
+		double average = 0;
+		
+		List<Ride> rides = rideRepo.findAllByDriverIdOrPassengerIdAndStartTimeBetweenAsList(id, startDate, endDate);
+		TreeMap<Date,Double> map = new TreeMap<Date,Double>();
+		for (Ride r : rides) 
+		{
+			Date d = r.getStartTime();
+			LocalDate date = LocalDate.ofInstant(d.toInstant(), ZoneId.systemDefault());
+			LocalDate firstDay = date.withDayOfYear(1);
+			Date d1 = Date.from(firstDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+			
+			if (map.containsKey(d1)) 
+			{
+				map.put(d1, map.get(d1)+1);
+			}
+			else 
+			{
+				map.put(d1, 1.0);
+			}
+		}
+		
+		double sum = 0;
+		SimpleDateFormat formatter =  new SimpleDateFormat("yyyy");
+		for (Date d : map.keySet()) 
+		{
+			String formattedDate = formatter.format(d);
+			labels.add(formattedDate);
+			data.add(map.get(d));
+			sum += map.get(d);
+		}
+		total = (double)sum;
+		if (map.keySet().size()>0) 
+		{
+			average = (double)sum/map.keySet().size();
+		}
+		
+		return new StatisticsResponseDTO(type,data,labels,total,average);
+}
 
 	private StatisticsResponseDTO generateMediumRidesPassenger(Long id, Date startDate, Date endDate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		String type = "pie";
+		List<Double> data = new ArrayList<Double>();
+		List<String> labels = new ArrayList<String>();
+		double total = 0;
+		double average = 0;
+		
+		List<Ride> rides = rideRepo.findAllByDriverIdOrPassengerIdAndStartTimeBetweenAsList(id, startDate, endDate);
+		TreeMap<Date,Double> map = new TreeMap<Date,Double>();
+		for (Ride r : rides) 
+		{
+			Date d = r.getStartTime();
+			LocalDate date = LocalDate.ofInstant(d.toInstant(), ZoneId.systemDefault());
+			LocalDate firstDay = date.withDayOfMonth(1);
+			Date d1 = Date.from(firstDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+			
+			if (map.containsKey(d1)) 
+			{
+				map.put(d1, map.get(d1)+1);
+			}
+			else 
+			{
+				map.put(d1, 1.0);
+			}
+		}
+		
+		double sum = 0;
+		SimpleDateFormat formatter =  new SimpleDateFormat("MMMM yyyy");
+		for (Date d : map.keySet()) 
+		{
+			String formattedDate = formatter.format(d);
+			labels.add(formattedDate);
+			data.add(map.get(d));
+			sum += map.get(d);
+		}
+		total = (double)sum;
+		if (map.keySet().size()>0) 
+		{
+			average = (double)sum/map.keySet().size();
+		}
+		
+		return new StatisticsResponseDTO(type,data,labels,total,average);
+}
 
 	private StatisticsResponseDTO generateSmallRidesPassenger(Long id, Date startDate, Date endDate) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		String type = "line";
+		List<Double> data = new ArrayList<Double>();
+		List<String> labels = new ArrayList<String>();
+		double total = 0;
+		double average = 0;
+		
+		List<Ride> rides = rideRepo.findAllByDriverIdOrPassengerIdAndStartTimeBetweenAsList(id, startDate, endDate);
+		TreeMap<Date,Integer> map = new TreeMap<Date,Integer>();
+		for (Ride r : rides) 
+		{
+			Date d = r.getStartTime();
+			if (map.containsKey(d)) 
+			{
+				map.put(d, map.get(d)+1);
+			}
+			else 
+			{
+				map.put(d, 1);
+			}
+		}
+		
+		double sum = 0;
+		SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy.");
+		for (Date d : map.keySet()) 
+		{
+			String formattedDate = formatter.format(d);
+			labels.add(formattedDate);
+			data.add((double)map.get(d));
+			sum += map.get(d);
+		}
+		total = sum;
+		if (map.keySet().size()>0) 
+		{
+			average = (double)sum/map.keySet().size();
+		}
+		
+		
+		return new StatisticsResponseDTO(type,data,labels,total,average);
 	}
 	
 	private StatisticsResponseDTO generateLargeKilometersDriver(Long id, Date startDate, Date endDate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		String type = "bar";
+		List<Double> data = new ArrayList<Double>();
+		List<String> labels = new ArrayList<String>();
+		double total = 0;
+		double average = 0;
+		
+		List<Ride> rides = rideRepo.findAllByDriverIdOrPassengerIdAndStartTimeBetweenAsList(id, startDate, endDate);
+		TreeMap<Date,Double> map = new TreeMap<Date,Double>();
+		for (Ride r : rides) 
+		{
+			Date d = r.getStartTime();
+			LocalDate date = LocalDate.ofInstant(d.toInstant(), ZoneId.systemDefault());
+			LocalDate firstDay = date.withDayOfYear(1);
+			Date d1 = Date.from(firstDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+			
+			if (map.containsKey(d1)) 
+			{
+				map.put(d1, map.get(d1)+r.getRoute().getLenghtInKm());
+			}
+			else 
+			{
+				map.put(d1, +r.getRoute().getLenghtInKm());
+			}
+		}
+		
+		double sum = 0;
+		SimpleDateFormat formatter =  new SimpleDateFormat("yyyy");
+		for (Date d : map.keySet()) 
+		{
+			String formattedDate = formatter.format(d);
+			labels.add(formattedDate);
+			data.add(map.get(d));
+			sum += map.get(d);
+		}
+		total = (double)sum;
+		if (map.keySet().size()>0) 
+		{
+			average = (double)sum/map.keySet().size();
+		}
+		
+		return new StatisticsResponseDTO(type,data,labels,total,average);
+}
 
 	private StatisticsResponseDTO generateMediumKilometersDriver(Long id, Date startDate, Date endDate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		String type = "pie";
+		List<Double> data = new ArrayList<Double>();
+		List<String> labels = new ArrayList<String>();
+		double total = 0;
+		double average = 0;
+		
+		List<Ride> rides = rideRepo.findAllByDriverIdOrPassengerIdAndStartTimeBetweenAsList(id, startDate, endDate);
+		TreeMap<Date,Double> map = new TreeMap<Date,Double>();
+		for (Ride r : rides) 
+		{
+			Date d = r.getStartTime();
+			LocalDate date = LocalDate.ofInstant(d.toInstant(), ZoneId.systemDefault());
+			LocalDate firstDay = date.withDayOfMonth(1);
+			Date d1 = Date.from(firstDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+			
+			if (map.containsKey(d1)) 
+			{
+				map.put(d1, map.get(d1)+r.getRoute().getLenghtInKm());
+			}
+			else 
+			{
+				map.put(d1, +r.getRoute().getLenghtInKm());
+			}
+		}
+		
+		double sum = 0;
+		SimpleDateFormat formatter =  new SimpleDateFormat("MMMM yyyy");
+		for (Date d : map.keySet()) 
+		{
+			String formattedDate = formatter.format(d);
+			labels.add(formattedDate);
+			data.add(map.get(d));
+			sum += map.get(d);
+		}
+		total = (double)sum;
+		if (map.keySet().size()>0) 
+		{
+			average = (double)sum/map.keySet().size();
+		}
+		
+		return new StatisticsResponseDTO(type,data,labels,total,average);
+}
 
 	private StatisticsResponseDTO generateSmallKilometersDriver(Long id, Date startDate, Date endDate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		String type = "line";
+		List<Double> data = new ArrayList<Double>();
+		List<String> labels = new ArrayList<String>();
+		double total = 0;
+		double average = 0;
+		
+		List<Ride> rides = rideRepo.findAllByDriverIdOrPassengerIdAndStartTimeBetweenAsList(id, startDate, endDate);
+		TreeMap<Date,Double> map = new TreeMap<Date,Double>();
+		for (Ride r : rides) 
+		{
+			Date d = r.getStartTime();
+			if (map.containsKey(d)) 
+			{
+				map.put(d, map.get(d)+r.getRoute().getLenghtInKm());
+			}
+			else 
+			{
+				map.put(d, r.getRoute().getLenghtInKm());
+			}
+		}
+		
+		double sum = 0;
+		SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy.");
+		for (Date d : map.keySet()) 
+		{
+			String formattedDate = formatter.format(d);
+			labels.add(formattedDate);
+			data.add(map.get(d));
+			sum += map.get(d);
+		}
+		total = (double)sum;
+		if (map.keySet().size()>0) 
+		{
+			average = (double)sum/map.keySet().size();
+		}
+		
+		return new StatisticsResponseDTO(type,data,labels,total,average);
+}
 	
 	private StatisticsResponseDTO generateLargeKilometersPassenger(Long id, Date startDate, Date endDate) {
-	// TODO Auto-generated method stub
-	return null;
+		String type = "bar";
+		List<Double> data = new ArrayList<Double>();
+		List<String> labels = new ArrayList<String>();
+		double total = 0;
+		double average = 0;
+		
+		List<Ride> rides = rideRepo.findAllByDriverIdOrPassengerIdAndStartTimeBetweenAsList(id, startDate, endDate);
+		TreeMap<Date,Double> map = new TreeMap<Date,Double>();
+		for (Ride r : rides) 
+		{
+			Date d = r.getStartTime();
+			LocalDate date = LocalDate.ofInstant(d.toInstant(), ZoneId.systemDefault());
+			LocalDate firstDay = date.withDayOfYear(1);
+			Date d1 = Date.from(firstDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+			
+			if (map.containsKey(d1)) 
+			{
+				map.put(d1, map.get(d1)+r.getRoute().getLenghtInKm());
+			}
+			else 
+			{
+				map.put(d1, +r.getRoute().getLenghtInKm());
+			}
+		}
+		
+		double sum = 0;
+		SimpleDateFormat formatter =  new SimpleDateFormat("yyyy");
+		for (Date d : map.keySet()) 
+		{
+			String formattedDate = formatter.format(d);
+			labels.add(formattedDate);
+			data.add(map.get(d));
+			sum += map.get(d);
+		}
+		total = (double)sum;
+		if (map.keySet().size()>0) 
+		{
+			average = (double)sum/map.keySet().size();
+		}
+		
+		return new StatisticsResponseDTO(type,data,labels,total,average);
 }
 
 	private StatisticsResponseDTO generateMediumKilometersPassenger(Long id, Date startDate, Date endDate) {
-	// TODO Auto-generated method stub
-	return null;
+		String type = "pie";
+		List<Double> data = new ArrayList<Double>();
+		List<String> labels = new ArrayList<String>();
+		double total = 0;
+		double average = 0;
+		
+		List<Ride> rides = rideRepo.findAllByDriverIdOrPassengerIdAndStartTimeBetweenAsList(id, startDate, endDate);
+		TreeMap<Date,Double> map = new TreeMap<Date,Double>();
+		for (Ride r : rides) 
+		{
+			Date d = r.getStartTime();
+			LocalDate date = LocalDate.ofInstant(d.toInstant(), ZoneId.systemDefault());
+			LocalDate firstDay = date.withDayOfMonth(1);
+			Date d1 = Date.from(firstDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+			
+			if (map.containsKey(d1)) 
+			{
+				map.put(d1, map.get(d1)+r.getRoute().getLenghtInKm());
+			}
+			else 
+			{
+				map.put(d1, +r.getRoute().getLenghtInKm());
+			}
+		}
+		
+		double sum = 0;
+		SimpleDateFormat formatter =  new SimpleDateFormat("MMMM yyyy");
+		for (Date d : map.keySet()) 
+		{
+			String formattedDate = formatter.format(d);
+			labels.add(formattedDate);
+			data.add(map.get(d));
+			sum += map.get(d);
+		}
+		total = (double)sum;
+		if (map.keySet().size()>0) 
+		{
+			average = (double)sum/map.keySet().size();
+		}
+		
+		return new StatisticsResponseDTO(type,data,labels,total,average);
 }
 
 	private StatisticsResponseDTO generateSmallKilometersPassenger(Long id, Date startDate, Date endDate) {
-	// TODO Auto-generated method stub
-	return null;
+		String type = "line";
+		List<Double> data = new ArrayList<Double>();
+		List<String> labels = new ArrayList<String>();
+		double total = 0;
+		double average = 0;
+		
+		List<Ride> rides = rideRepo.findAllByDriverIdOrPassengerIdAndStartTimeBetweenAsList(id, startDate, endDate);
+		TreeMap<Date,Double> map = new TreeMap<Date,Double>();
+		for (Ride r : rides) 
+		{
+			Date d = r.getStartTime();
+			if (map.containsKey(d)) 
+			{
+				map.put(d, map.get(d)+r.getRoute().getLenghtInKm());
+			}
+			else 
+			{
+				map.put(d, r.getRoute().getLenghtInKm());
+			}
+		}
+		
+		double sum = 0;
+		SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy.");
+		for (Date d : map.keySet()) 
+		{
+			String formattedDate = formatter.format(d);
+			labels.add(formattedDate);
+			data.add(map.get(d));
+			sum += map.get(d);
+		}
+		total = (double)sum;
+		if (map.keySet().size()>0) 
+		{
+			average = (double)sum/map.keySet().size();
+		}
+		
+		return new StatisticsResponseDTO(type,data,labels,total,average);
 }
 
 	public Date parseDate (String date) 

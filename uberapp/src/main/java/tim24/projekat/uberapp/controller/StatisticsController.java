@@ -43,7 +43,7 @@ import tim24.projekat.uberapp.service.StatisticsService;
 
 
 @RestController
-@RequestMapping("api/statistics")
+@RequestMapping("api/statistics/")
 public class StatisticsController {
 	
 	@Autowired
@@ -171,25 +171,6 @@ public class StatisticsController {
 			@RequestBody statisticsRequestDTO srd){
 		try {
 			StatisticsResponseDTO stats = statisticsService.getExpensesStatsForPassenger(id, srd);
-			return new ResponseEntity<StatisticsResponseDTO>(stats, HttpStatus.OK);
-		}
-		catch(ObjectNotFoundException e){
-			ErrorDTO error = new ErrorDTO(e.getMessage());
-			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
-		}
-		catch(InvalidArgumentException e){
-			ErrorDTO error = new ErrorDTO(e.getMessage());
-			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
-		}
-		
-	}
-	
-	@PostMapping("driver/{id}/expenses")
-	public ResponseEntity<?> getDriverExpensesStats(
-			@PathVariable("id") Long id,
-			@RequestBody statisticsRequestDTO srd){
-		try {
-			StatisticsResponseDTO stats = statisticsService.getExpensesStatsForDriver(id, srd);
 			return new ResponseEntity<StatisticsResponseDTO>(stats, HttpStatus.OK);
 		}
 		catch(ObjectNotFoundException e){

@@ -2,24 +2,16 @@ package tim24.projekat.uberapp.DTO;
 
 import java.util.List;
 
-/*{
-  type: ChartType;
-  data: Array<any>;
-  labels: Array<any>;
-  options: any;
-  total: string;
-  average: string;
-}*/
 public class StatisticsResponseDTO {
 
 	private String type;
-	private List<Integer> data;
+	private List<Double> data;
 	private List<String> labels;
-	private String total;
-	private String average;
+	private Double total;
+	private Double average;
 	
 	
-	public StatisticsResponseDTO(String type, List<Integer> data, List<String> labels, String total, String average) {
+	public StatisticsResponseDTO(String type, List<Double> data, List<String> labels, Double total, Double average) {
 		super();
 		this.type = type;
 		this.data = data;
@@ -34,10 +26,10 @@ public class StatisticsResponseDTO {
 	public void setType(String type) {
 		this.type = type;
 	}
-	public List<Integer> getData() {
+	public List<Double> getData() {
 		return data;
 	}
-	public void setData(List<Integer> data) {
+	public void setData(List<Double> data) {
 		this.data = data;
 	}
 	public List<String> getLabels() {
@@ -46,16 +38,16 @@ public class StatisticsResponseDTO {
 	public void setLabels(List<String> labels) {
 		this.labels = labels;
 	}
-	public String getTotal() {
+	public Double getTotal() {
 		return total;
 	}
-	public void setTotal(String total) {
+	public void setTotal(Double total) {
 		this.total = total;
 	}
-	public String getAverage() {
+	public Double getAverage() {
 		return average;
 	}
-	public void setAverage(String average) {
+	public void setAverage(Double average) {
 		this.average = average;
 	}
 	

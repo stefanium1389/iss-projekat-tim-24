@@ -5,6 +5,10 @@ public class statisticsRequestDTO {
 	String startDate;
 	String endDate;
 	
+	
+	public statisticsRequestDTO() {
+		super();
+	}
 	public String getStartDate() {
 		return startDate;
 	}
