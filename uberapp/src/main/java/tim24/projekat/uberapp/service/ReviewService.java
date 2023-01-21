@@ -36,6 +36,10 @@ public class ReviewService {
 	private UserRepository userRepo;
 	@Autowired
 	private RideRepository rideRepo;
+	@Autowired 
+	private DateUtils du;
+	
+	private static int EXPIRE_DAYS = 3;
 
 	public DTOList<ReviewDTO> getVehicleReviewsById(Long id) {
 		
