@@ -48,7 +48,7 @@ public class NotificationService
         List<Notification> notifications = notificationRepo.findAll();
         for(Notification n: notifications)
         {
-            if(n.getId() == id && ! n.isRead())
+            if(n.getReceiver().getId() == id && ! n.isRead())
                 return true;
         }
         return false;
@@ -60,7 +60,7 @@ public class NotificationService
         List<Notification> notifications = notificationRepo.findAll();
         for(Notification n: notifications)
         {
-            if(n.getId() == id)
+            if(n.getReceiver().getId() == id)
                 list.add(new NotificationDTO(n));
         }
         return list;
