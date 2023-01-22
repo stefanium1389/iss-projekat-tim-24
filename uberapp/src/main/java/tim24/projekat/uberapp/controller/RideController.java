@@ -29,10 +29,10 @@ public class RideController
 	private JwtTokenUtil jwtTokenUtil;
 	
     @PostMapping
-    public ResponseEntity<?> postRide(@RequestBody RideRequestDTO rideRequestDTO)
+    public ResponseEntity<?> postRide(@RequestHeader("Authorization") String auth, @RequestBody RideRequestDTO rideRequestDTO)
     {
     	try {
-    		
+    		String email = jwtTokenUtil.getUsernameFromToken(auth.substring(7));
 	        RideDTO ride = rideService.postRide(rideRequestDTO);
 	        return new ResponseEntity<RideDTO>(ride, HttpStatus.OK);
     	}
