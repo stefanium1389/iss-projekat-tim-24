@@ -354,7 +354,7 @@ public class DriverService {
 		Page<Ride> ridesPage = null;
 		
 		try {
-			Pageable pageable = PageRequest.of(page, size, Sort.by(Direction.ASC, sort));
+			Pageable pageable = PageRequest.of(page, size, Sort.by(Direction.DESC, sort));
 			ridesPage = rideRepo.findByDriverIdAndRideDateBetween(id, startDate, endDate, pageable);
 		}
 		catch(RuntimeException e) {

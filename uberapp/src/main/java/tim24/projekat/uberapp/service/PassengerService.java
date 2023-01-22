@@ -168,7 +168,7 @@ public class PassengerService {
 		Date endDate = parseDate(toDate);
 		Page<Ride> ridesPage = null;
 		try {
-			Pageable pageable = PageRequest.of(page, size, Sort.by(Direction.ASC, sort));
+			Pageable pageable = PageRequest.of(page, size, Sort.by(Direction.DESC, sort));
 			ridesPage = rideRepo.findByPassengerIdAndStartTimeBetween(id, startDate, endDate, pageable);
 		}
 		catch(RuntimeException e) {
