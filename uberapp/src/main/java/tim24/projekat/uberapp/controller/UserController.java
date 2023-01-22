@@ -104,6 +104,20 @@ public class UserController {
     	}	
 	}
 	
+	@GetMapping("admin/{id}")
+	public ResponseEntity<?> GetAdminDetails(
+			@PathVariable("id") Long id){
+		try {
+			UserResponseDTO driver = userService.getAdminById(id);
+			return new ResponseEntity<UserResponseDTO>(driver, HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e){
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
+		
+	}
+	
 	@GetMapping ("user")
 	public ResponseEntity<DTOList<UserResponseDTO>> getUsers (
 			@RequestParam("page") int page, 
