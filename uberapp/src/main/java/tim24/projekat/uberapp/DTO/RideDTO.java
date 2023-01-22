@@ -63,7 +63,7 @@ public class RideDTO {
 		}
 		this.passengers = dtoPassengers;
 		this.estimatedTimeInMinutes = ride.getEstimatedTime();
-		this.vehicleType = null;
+		this.vehicleType = ride.getVehicleType().getTypeName();
 		this.babyTransport = ride.isBabyInVehicle();
 		this.petTransport = ride.isPetInVehicle();
 		if(ride.getRefusal() == null) {
