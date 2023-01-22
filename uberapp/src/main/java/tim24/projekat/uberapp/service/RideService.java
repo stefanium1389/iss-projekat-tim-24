@@ -81,7 +81,8 @@ public class RideService
 		if(optR.isPresent()) {
 			throw new ActiveUserRideException("Putnik "+customer.getEmail()+" je vec u aktivnoj voznji");
 		}
-		List<User> passengers = new ArrayList<User>();		
+		List<User> passengers = new ArrayList<User>();	
+		passengers.add(customer);
 		for(UserRef passengerDTO : rideRequestDTO.getPassengers()) {
 			Optional<User> passenger = userRepo.findUserByEmail(passengerDTO.getEmail());
 			if(passenger.isEmpty()) {
