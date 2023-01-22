@@ -33,7 +33,7 @@ public class RideController
     {
     	try {
     		String email = jwtTokenUtil.getUsernameFromToken(auth.substring(7));
-	        RideDTO ride = rideService.postRide(rideRequestDTO);
+	        RideDTO ride = rideService.postRide(email, rideRequestDTO);
 	        return new ResponseEntity<RideDTO>(ride, HttpStatus.OK);
     	}
     	catch(ActiveUserRideException e) 
