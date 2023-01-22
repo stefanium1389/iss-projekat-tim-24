@@ -61,6 +61,8 @@ public class RideService
 	@Autowired
 	private DriverService driverService;
 	@Autowired
+	private NotificationService notificationservice;
+	@Autowired
 	private PanicRepository panicRepository;
 	@Autowired
 	private FavoriteRideRepository favoriteRideRepo;
@@ -673,7 +675,11 @@ public class RideService
 					if (result.getMinutes() < (int)remainingDuration.toMinutes()) 
 					{
 						r.setDriver(result.getDriver());
+
 						//todo: poslati notifikaciju korisniku
+						NotificationRequestDTO notificationRequestDTO = new NotificationRequestDTO(result.getDriver().getId(), "You have a new ride scheduled.", "NORMAL");
+						notificationservice.postNotification(notificationRequestDTO);
+
 						rideRepo.save(r);
 						found = true;
 					}
@@ -683,7 +689,11 @@ public class RideService
 						Date newTime = Date.from(r.getStartTime().toInstant().plus(Duration.ofMinutes(difference)));
 						r.setStartTime(newTime);
 						r.setDriver(result.getDriver());
+
 						//todo: poslati notifikaciju korisniku
+						NotificationRequestDTO notificationRequestDTO = new NotificationRequestDTO(result.getDriver().getId(), "You have a new ride scheduled.", "NORMAL");
+						notificationservice.postNotification(notificationRequestDTO);
+
 						rideRepo.save(r);
 						found = true;
 					}
@@ -700,7 +710,13 @@ public class RideService
 					r.setStatus(RideStatus.CANCELED);
 					System.out.println("zakazana voznja se otkazuje zbog timeout-a");
 					rideRepo.save(r);
+
 					//todo:poslati notifikaciju korisniku
+					for(User passenger: r.getPassengers())
+					{
+						NotificationRequestDTO notificationRequestDTO = new NotificationRequestDTO(passenger.getId(), "Your scheduled ride was canceled.", "NORMAL");
+						notificationservice.postNotification(notificationRequestDTO);
+					}
 				}
 				
 			}

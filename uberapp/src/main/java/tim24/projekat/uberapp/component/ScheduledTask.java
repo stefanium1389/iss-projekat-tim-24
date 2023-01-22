@@ -13,12 +13,14 @@ public class ScheduledTask {
     private RideService rideService;
 
     @Scheduled(fixedRate = 1 * 60 * 1000)
-    public void checkForScheduledRides() {
+    public void checkForScheduledRides()
+    {
         rideService.assignDriverToScheduledRide();
     }
     
     @Scheduled(fixedRate = 5 * 60 * 1000)
-    public void notifyPassengerForImpendingRide() {
+    public void notifyPassengerForImpendingRide()
+    {
         System.out.println("pogledati voznje i obavestiti");
     }
 }
