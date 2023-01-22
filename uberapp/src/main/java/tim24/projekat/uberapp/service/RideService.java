@@ -61,7 +61,7 @@ public class RideService
 	@Autowired
 	private DriverService driverService;
 	@Autowired
-	private NotificationService notificationservice;
+	private NotificationService notificationService;
 	@Autowired
 	private PanicRepository panicRepository;
 	@Autowired
@@ -678,7 +678,7 @@ public class RideService
 
 						//todo: poslati notifikaciju korisniku
 						NotificationRequestDTO notificationRequestDTO = new NotificationRequestDTO(result.getDriver().getId(), "You have a new ride scheduled.", "NORMAL");
-						notificationservice.postNotification(notificationRequestDTO);
+						notificationService.postNotification(notificationRequestDTO);
 
 						rideRepo.save(r);
 						found = true;
@@ -692,7 +692,7 @@ public class RideService
 
 						//todo: poslati notifikaciju korisniku
 						NotificationRequestDTO notificationRequestDTO = new NotificationRequestDTO(result.getDriver().getId(), "You have a new ride scheduled.", "NORMAL");
-						notificationservice.postNotification(notificationRequestDTO);
+						notificationService.postNotification(notificationRequestDTO);
 
 						rideRepo.save(r);
 						found = true;
@@ -715,7 +715,7 @@ public class RideService
 					for(User passenger: r.getPassengers())
 					{
 						NotificationRequestDTO notificationRequestDTO = new NotificationRequestDTO(passenger.getId(), "Your scheduled ride was canceled.", "NORMAL");
-						notificationservice.postNotification(notificationRequestDTO);
+						notificationService.postNotification(notificationRequestDTO);
 					}
 				}
 				
