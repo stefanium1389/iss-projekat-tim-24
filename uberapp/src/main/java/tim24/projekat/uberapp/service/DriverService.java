@@ -133,7 +133,7 @@ public class DriverService {
 			throw new ObjectNotFoundException("Driver does not exist!");
 		}
 		User driver = driverOpt.get();
-		DriverUpdateDetails dud = new DriverUpdateDetails(driver);
+		DriverUpdateDetails dud = new DriverUpdateDetails(updatedDriver,driver);
 		
 		dudRepo.save(dud);
 		dudRepo.flush();
