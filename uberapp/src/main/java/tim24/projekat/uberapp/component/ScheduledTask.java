@@ -47,12 +47,13 @@ public class ScheduledTask {
                 nowCal.setTime(now);
 
                 //pocinje za 5 minuta
-                nowCal.add(Calendar.MINUTE, -4);
+                nowCal.add(Calendar.MINUTE, 4);
                 now = nowCal.getTime();
-                if(now.compareTo(rideStertTime) > 0)
+                if(now.compareTo(rideStertTime) < 0)
                 {
-                    nowCal.add(Calendar.MINUTE, -1);
-                    if(now.compareTo(rideStertTime) <= 0)
+                    nowCal.add(Calendar.MINUTE, 1);
+                    now = nowCal.getTime();
+                    if(now.compareTo(rideStertTime) >= 0)
                     {
                         for(User passenger: ride.getPassengers())
                         {
@@ -63,12 +64,13 @@ public class ScheduledTask {
                 }
 
                 //pocinje za 10 minuta
-                nowCal.add(Calendar.MINUTE, -4);
+                nowCal.add(Calendar.MINUTE, 4);
                 now = nowCal.getTime();
-                if(now.compareTo(rideStertTime) > 0)
+                if(now.compareTo(rideStertTime) < 0)
                 {
-                    nowCal.add(Calendar.MINUTE, -1);
-                    if(now.compareTo(rideStertTime) <= 0)
+                    nowCal.add(Calendar.MINUTE, 1);
+                    now = nowCal.getTime();
+                    if(now.compareTo(rideStertTime) >= 0)
                     {
                         for(User passenger: ride.getPassengers())
                         {
@@ -79,12 +81,13 @@ public class ScheduledTask {
                 }
 
                 //pocinje za 15 minuta
-                nowCal.add(Calendar.MINUTE, -4);
+                nowCal.add(Calendar.MINUTE, 4);
                 now = nowCal.getTime();
-                if(now.compareTo(rideStertTime) > 0)
+                if(now.compareTo(rideStertTime) < 0)
                 {
-                    nowCal.add(Calendar.MINUTE, -1);
-                    if(now.compareTo(rideStertTime) <= 0)
+                    nowCal.add(Calendar.MINUTE, 1);
+                    now = nowCal.getTime();
+                    if(now.compareTo(rideStertTime) >= 0)
                     {
                         for(User passenger: ride.getPassengers())
                         {
