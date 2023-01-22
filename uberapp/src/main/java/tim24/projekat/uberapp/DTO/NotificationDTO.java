@@ -17,7 +17,7 @@ public class NotificationDTO
     private String date;
     private boolean read;
     private String notificationType;
-    private User receiver;
+    private UserRef receiver;
 
     public NotificationDTO()
     {
@@ -31,7 +31,7 @@ public class NotificationDTO
         this.date = date;
         this.read = read;
         this.notificationType = notificationType;
-        this.receiver = receiver;
+        this.receiver = new UserRef(receiver);
     }
 
     public NotificationDTO(Notification notification)
@@ -44,7 +44,7 @@ public class NotificationDTO
         this.date = dateString;
         this.read = notification.isRead();
         this.notificationType = notification.getNotificationType().toString();
-        this.receiver = notification.getReceiver();
+        this.receiver = new UserRef(notification.getReceiver());
     }
 
     public Long getId()
@@ -97,12 +97,12 @@ public class NotificationDTO
         this.notificationType = notificationType;
     }
 
-    public User getReceiver()
+    public UserRef getReceiver()
     {
         return receiver;
     }
 
-    public void setReceiver(User receiver)
+    public void setReceiver(UserRef receiver)
     {
         this.receiver = receiver;
     }
