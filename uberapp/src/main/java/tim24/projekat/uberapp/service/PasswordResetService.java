@@ -99,7 +99,11 @@ public class PasswordResetService {
 			throw new ObjectNotFoundException("User does not exist!");
 		}
 		User actual = uOpt.get();
-		if(!encoder.encode(dto.getOldPassword()).equals(actual.getPassword())) {
+		String encoded = encoder.encode(dto.getOldPassword());
+		if(!encoded.equals(actual.getPassword())) {
+			System.err.println("stara iz korisnika-"+actual.getPassword());
+			System.err.println("stara iz dto-"+encoded +" neenkodirana "+dto.getOldPassword());
+			System.err.println("nova-"+encoder.encode(dto.getOldPassword())+" neenkodirana "+dto.getNewPassword());
 			throw new ConditionNotMetException("Current password is not matching!");
 		}
 		actual.setPassword(encoder.encode(dto.getNewPassword()));

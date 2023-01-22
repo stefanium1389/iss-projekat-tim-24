@@ -180,4 +180,18 @@ public class UserService {
 		
 	}
 	
+	public UserResponseDTO getAdminById(Long id) {
+		
+		Optional<User> adminOpt = userRepo.findByIdAndRole(id, Role.ADMIN);
+		if (adminOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Admin does not exist!");
+		}
+		
+		User admin = adminOpt.get();
+		UserResponseDTO dto = new UserResponseDTO(admin);
+		return dto;
+		
+	}
+	
 }
