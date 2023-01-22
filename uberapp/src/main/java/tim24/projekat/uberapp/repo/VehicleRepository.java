@@ -17,4 +17,5 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
 	@Query("SELECT DISTINCT v FROM Vehicle v JOIN v.driver d JOIN WorkingHour wh ON wh.driver = d WHERE wh.startTime = wh.endTime")
 	List<Vehicle> findDistinctVehiclesWithActiveWorkingHours();
 	
+	Optional<Vehicle> findByDriverId(Long driverId);
 }

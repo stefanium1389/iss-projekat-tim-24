@@ -5,6 +5,7 @@ import java.util.Date;
 
 import jakarta.persistence.*;
 import tim24.projekat.uberapp.DTO.GeoCoordinateDTO;
+import tim24.projekat.uberapp.DTO.UserUpdateRequestDTO;
 
 @Table(name = "driver_update_details")
 @Entity
@@ -56,6 +57,19 @@ public class DriverUpdateDetails
 		this.telephoneNumber = driver.getTelephoneNumber();
 		this.email = driver.getEmail();
 		this.address = driver.getAddress();
+		this.dateOfSubmission = new Date();
+		this.updateState = UpdateState.PENDING;
+		this.setForDriver(driver);
+	}
+
+	public DriverUpdateDetails(UserUpdateRequestDTO updatedDriver, User driver) {
+		super();
+		this.name = updatedDriver.getName();
+		this.surname = updatedDriver.getSurname();
+		this.profilePicture = convertToByte(updatedDriver.getProfilePicture());
+		this.telephoneNumber = updatedDriver.getTelephoneNumber();
+		this.email = updatedDriver.getEmail();
+		this.address = updatedDriver.getAddress();
 		this.dateOfSubmission = new Date();
 		this.updateState = UpdateState.PENDING;
 		this.setForDriver(driver);
@@ -157,6 +171,14 @@ public class DriverUpdateDetails
 
 	public void setForDriver(User forDriver) {
 		this.forDriver = forDriver;
+	}
+	
+	private byte[] convertToByte(String string) 
+	{
+		byte[] decodedBytes = Base64.getMimeDecoder().decode(string);
+		
+			
+		return decodedBytes;
 	}
     
     
