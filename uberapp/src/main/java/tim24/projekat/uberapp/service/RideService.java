@@ -74,10 +74,14 @@ public class RideService
 		return rideRepo.findRideById(id).orElseThrow(()-> new ObjectNotFoundException("Ride not found."));
 	}
 	
-	public RideDTO postRide(RideRequestDTO rideRequestDTO)
+	public RideDTO postRide(String email, RideRequestDTO rideRequestDTO)
 	{
-		
-		List<User> passengers = new ArrayList<User>();
+		User customer = userRepo.findUserByEmail(email).get();
+		Optional<Ride> optR = rideRepo.findActiveRideByPassengerId(customer.getId());
+		if(optR.isPresent()) {
+			throw new ActiveUserRideException("Putnik "+customer.getEmail()+" je vec u aktivnoj voznji");
+		}
+		List<User> passengers = new ArrayList<User>();		
 		for(UserRef passengerDTO : rideRequestDTO.getPassengers()) {
 			Optional<User> passenger = userRepo.findUserByEmail(passengerDTO.getEmail());
 			if(passenger.isEmpty()) {
@@ -85,6 +89,9 @@ public class RideService
 			}
 			if(rideRepo.findActiveRideByPassengerId(passenger.get().getId()).isPresent()) {
 				throw new ActiveUserRideException("Putnik "+passenger.get().getEmail()+" je vec u aktivnoj voznji");
+			}
+			if(email.equals(passenger.get().getEmail())) {
+				continue;
 			}
 			passengers.add(passenger.get());
 		}
