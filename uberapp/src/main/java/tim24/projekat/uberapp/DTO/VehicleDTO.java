@@ -8,12 +8,12 @@ public class VehicleDTO {
 	private String vehicleType;
 	private String model;
 	private String licenseNumber;
-	private GeoCoordinateDTO currentLocation;
+	private GeoCoordinateDTO location;
 	private int passengerSeats;
 	private boolean babyTransport;
 	private boolean petTransport;
 	
-	public VehicleDTO(Long id, Long driverId, String vehicleType, String model, String licenseNumber, GeoCoordinateDTO currentLocation,
+	public VehicleDTO(Long id, Long driverId, String vehicleType, String model, String licenseNumber, GeoCoordinateDTO location,
 			int passengerSeats, boolean babyTransport, boolean petTransport) {
 		super();
 		this.id = id;
@@ -21,7 +21,7 @@ public class VehicleDTO {
 		this.vehicleType = vehicleType;
 		this.model = model;
 		this.licenseNumber = licenseNumber;
-		this.currentLocation = currentLocation;
+		this.location = location;
 		this.passengerSeats = passengerSeats;
 		this.babyTransport = babyTransport;
 		this.petTransport = petTransport;
@@ -33,7 +33,7 @@ public class VehicleDTO {
 		this.vehicleType = v.getVehicleType().getTypeName();
 		this.model = v.getModel();
 		this.licenseNumber = v.getRegPlates();
-		this.currentLocation = new GeoCoordinateDTO(v.getLocation());
+		this.location = new GeoCoordinateDTO(v.getLocation());
 		this.passengerSeats = v.getNumberOfSeats();
 		this.babyTransport = v.isAllowedBabyInVehicle();
 		this.petTransport = v.isAllowedPetInVehicle();
@@ -79,12 +79,12 @@ public class VehicleDTO {
 		this.licenseNumber = licenseNumber;
 	}
 
-	public GeoCoordinateDTO getCurrentLocation() {
-		return currentLocation;
+	public GeoCoordinateDTO getLocation() {
+		return location;
 	}
 
-	public void setCurrentLocation(GeoCoordinateDTO currentLocation) {
-		this.currentLocation = currentLocation;
+	public void setLocation(GeoCoordinateDTO currentLocation) {
+		this.location = currentLocation;
 	}
 
 	public int getPassengerSeats() {
@@ -114,7 +114,7 @@ public class VehicleDTO {
 	@Override
 	public String toString() {
 		return "VehicleDTO [id=" + id + ", driverId=" + driverId + ", vehicleType=" + vehicleType + ", model=" + model
-				+ ", licenseNumber=" + licenseNumber + ", currentLocation=" + currentLocation + ", passengerSeats="
+				+ ", licenseNumber=" + licenseNumber + ", currentLocation=" + location + ", passengerSeats="
 				+ passengerSeats + ", babyTransport=" + babyTransport + ", petTransport=" + petTransport + "]";
 	}
 	
