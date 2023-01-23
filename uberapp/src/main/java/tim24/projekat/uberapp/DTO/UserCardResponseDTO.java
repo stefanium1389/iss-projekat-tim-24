@@ -25,7 +25,7 @@ public class UserCardResponseDTO { //ovog usera vracas u responsu
 		this.surname = surname;
 		this.profilePicture = profilePicture;
 		this.setRole(role);
-		this.email = email;
+		this.setEmail(email);
 	}
 
 
@@ -38,7 +38,7 @@ public class UserCardResponseDTO { //ovog usera vracas u responsu
 			this.profilePicture = convertByteToString(user.getProfilePicture());
 		}
 		this.setRole(user.getRole().toString());
-		this.email = user.getEmail();
+		this.setEmail(user.getEmail());
 	}
 
 	public Long getId() {
@@ -100,6 +100,14 @@ public class UserCardResponseDTO { //ovog usera vracas u responsu
 
 	public void setRole(String role) {
 		this.role = role;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 	
 	
