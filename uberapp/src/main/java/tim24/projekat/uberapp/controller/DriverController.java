@@ -23,6 +23,7 @@ import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.DriverChangeDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
 import tim24.projekat.uberapp.DTO.SuccessDTO;
+import tim24.projekat.uberapp.DTO.UserCardResponseDTO;
 import tim24.projekat.uberapp.DTO.UserRegistrationDTO;
 import tim24.projekat.uberapp.DTO.ErrorDTO;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
@@ -80,6 +81,19 @@ public class DriverController {
 		}
 		
 	}
+	
+	@GetMapping("/search")
+    public ResponseEntity<?> searchDrivers(@RequestParam("key") String key)
+    {
+    	try {
+        DTOList<UserCardResponseDTO> user = driverService.searchDrivers(key);
+        return new ResponseEntity<DTOList<UserCardResponseDTO>>(user, HttpStatus.OK);
+    	}
+    	catch(ObjectNotFoundException e){
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
+    }
 	
 	@PreAuthorize("hasRole('DRIVER')")
 	@PostMapping("/{id}")

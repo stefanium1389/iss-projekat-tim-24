@@ -20,6 +20,7 @@ import jakarta.mail.MessagingException;
 import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.RideDTO;
 import tim24.projekat.uberapp.DTO.SuccessDTO;
+import tim24.projekat.uberapp.DTO.UserCardResponseDTO;
 import tim24.projekat.uberapp.DTO.UserRegistrationDTO;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.DTO.UserUpdateRequestDTO;
@@ -96,6 +97,15 @@ public class PassengerService {
 		
 		User passenger = passengerOpt.get();
 		UserResponseDTO dto = new UserResponseDTO(passenger);
+		return dto;
+	}
+	
+	public DTOList<UserCardResponseDTO> searchPassengers(String key) {
+		List<User> list = userRepo.searchByKeywordAndRole(key,Role.USER);
+		DTOList<UserCardResponseDTO> dto = new DTOList<UserCardResponseDTO>();
+		for(User d : list) {
+			dto.add(new UserCardResponseDTO(d));
+		}
 		return dto;
 	}
 

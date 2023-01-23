@@ -23,6 +23,7 @@ import tim24.projekat.uberapp.DTO.DriverDocumentDTO;
 import tim24.projekat.uberapp.DTO.DriverDocumentRequestDTO;
 import tim24.projekat.uberapp.DTO.DriverReportResponseDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
+import tim24.projekat.uberapp.DTO.UserCardResponseDTO;
 import tim24.projekat.uberapp.DTO.UserRegistrationDTO;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.DTO.UserUpdateRequestDTO;
@@ -154,6 +155,15 @@ public class DriverService {
 		userRepo.flush();
 		
 		return new UserResponseDTO(driver);
+	}
+	
+	public DTOList<UserCardResponseDTO> searchDrivers(String key) {
+		List<User> list = userRepo.searchByKeywordAndRole(key,Role.DRIVER);
+		DTOList<UserCardResponseDTO> dto = new DTOList<UserCardResponseDTO>();
+		for(User d : list) {
+			dto.add(new UserCardResponseDTO(d));
+		}
+		return dto;
 	}
 
 	public ArrayList<DriverDocumentDTO> getDriverDocuments(Long id) {
