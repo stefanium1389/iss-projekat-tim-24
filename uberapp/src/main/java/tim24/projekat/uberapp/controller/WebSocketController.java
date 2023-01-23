@@ -31,16 +31,6 @@ public class WebSocketController
         return messageConverted;
     }
 
-    /*@Scheduled(fixedRate = 5000)
-    public void broadcastMap()
-    {
-        List<Vehicle> vehicles = vehicleRepo.findAll();
-        DTOList list = new DTOList();
-        for(Vehicle v: vehicles)
-            list.add(new VehicleDTO(v));
-        this.simpMessagingTemplate.convertAndSend("/map", list);
-    }*/
-
     @SuppressWarnings("unchecked")
     private Map<String, String> parseMessage(String message)
     {

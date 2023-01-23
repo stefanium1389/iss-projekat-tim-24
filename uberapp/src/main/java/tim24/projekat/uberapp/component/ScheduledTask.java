@@ -5,10 +5,15 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import tim24.projekat.uberapp.DTO.NotificationRequestDTO;
+import tim24.projekat.uberapp.DTO.VehicleDTO;
+import tim24.projekat.uberapp.DTO.DTOList;
+import tim24.projekat.uberapp.controller.WebSocketController;
 import tim24.projekat.uberapp.model.Ride;
 import tim24.projekat.uberapp.model.RideStatus;
 import tim24.projekat.uberapp.model.User;
+import tim24.projekat.uberapp.model.Vehicle;
 import tim24.projekat.uberapp.repo.RideRepository;
+import tim24.projekat.uberapp.repo.VehicleRepository;
 import tim24.projekat.uberapp.service.NotificationService;
 import tim24.projekat.uberapp.service.RideService;
 
@@ -24,7 +29,11 @@ public class ScheduledTask {
     @Autowired
     private RideService rideService;
     @Autowired
+    private WebSocketController webSocketController;
+    @Autowired
     private RideRepository rideRepo;
+    @Autowired
+    private VehicleRepository vehicleRepo;
 
     @Scheduled(fixedRate = 1 * 60 * 1000)
     public void checkForScheduledRides()
@@ -98,6 +107,16 @@ public class ScheduledTask {
                 }
             }
         }
+    }
+
+    @Scheduled(fixedRate = 5 * 1000)
+    public void broadcastMap()
+    {
+        List<Vehicle> vehicles = vehicleRepo.findAll();
+        DTOList list = new DTOList();
+        for(Vehicle v: vehicles)
+            list.add(new VehicleDTO(v));
+        webSocketController.simpMessagingTemplate.convertAndSend("/map", list);
     }
 }
 
