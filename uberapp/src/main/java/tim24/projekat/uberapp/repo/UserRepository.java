@@ -33,5 +33,16 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	@Query("SELECT u.email FROM User u")
 	List<String> getAllMail();
 	
+	@Query("SELECT u FROM User u WHERE u.role != :role")
+    List<User> findAllUsersNotRole(@Param("role") Role role);
+	
+	@Query("SELECT u FROM User u WHERE u.role = :role")
+    List<User> findAllUsersByRole(@Param("role") Role role);
+	
+	@Query("SELECT u FROM User u WHERE u.role = :role AND (u.name like %:keyword% OR u.surname like %:keyword% OR CONCAT(u.name,' ', u.surname) like %:keyword%)")
+    List<User> searchByKeywordAndRole(@Param("keyword") String keyword, @Param("role") Role role);
+	
+	@Query("SELECT u FROM User u WHERE u.role != :role AND (u.name like %:keyword% OR u.surname like %:keyword% OR CONCAT(u.name,' ', u.surname) like %:keyword%)")
+    List<User> searchByKeywordAndNotRole(@Param("keyword") String keyword, @Param("role") Role role);
 
 }

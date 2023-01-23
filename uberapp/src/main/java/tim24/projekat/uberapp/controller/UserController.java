@@ -28,6 +28,7 @@ import tim24.projekat.uberapp.DTO.NoteResponseDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
 import tim24.projekat.uberapp.DTO.UnregisteredRequestDTO;
 import tim24.projekat.uberapp.DTO.UnregisteredResponseDTO;
+import tim24.projekat.uberapp.DTO.UserCardResponseDTO;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.exception.ConditionNotMetException;
 import tim24.projekat.uberapp.exception.InvalidArgumentException;
@@ -126,6 +127,14 @@ public class UserController {
 		DTOList<UserResponseDTO> dtoList = userService.getUsers(page,size);
 		return new ResponseEntity<>(dtoList,HttpStatus.OK);
 	}
+	
+	@GetMapping ("users")
+	public ResponseEntity<DTOList<UserCardResponseDTO>> getUsers2 ()
+	{
+		DTOList<UserCardResponseDTO> dtoList = userService.getUsers2();
+		return new ResponseEntity<>(dtoList,HttpStatus.OK);
+	}
+	
 	@GetMapping("user/search") //Nije po swaggeru, ovaj smo sami dodali jer nam je trebao, pretraga korisnika po imenu i e-mailu
 	public ResponseEntity<DTOList<UserResponseDTO>> findUsers (
 			@RequestParam("querry") String querry)
@@ -133,6 +142,22 @@ public class UserController {
 		DTOList<UserResponseDTO> dtoList = userService.searchUsers(querry);
 		return new ResponseEntity<>(dtoList,HttpStatus.OK);
 	}
+	
+	@GetMapping("user/search2")
+    public ResponseEntity<?> searchUsers(@RequestParam("key") String key)
+    {
+    	try {
+        DTOList<UserCardResponseDTO> user = userService.searchUsers2(key);
+        return new ResponseEntity<DTOList<UserCardResponseDTO>>(user, HttpStatus.OK);
+    	}
+    	catch(ObjectNotFoundException e){
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
+    }
+	
+	
+	
 	
 	@GetMapping ("user/{id}/note")
 	public ResponseEntity<?> getUserNotesById (

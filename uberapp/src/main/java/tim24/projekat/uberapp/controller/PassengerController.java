@@ -10,6 +10,7 @@ import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.ErrorDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
 import tim24.projekat.uberapp.DTO.SuccessDTO;
+import tim24.projekat.uberapp.DTO.UserCardResponseDTO;
 import tim24.projekat.uberapp.DTO.UserRegistrationDTO;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.DTO.UserUpdateRequestDTO;
@@ -50,6 +51,7 @@ public class PassengerController
         DTOList<UserResponseDTO> list = passengerService.getPassengers(page, size);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
+    
 
     @GetMapping("/activate/{activationId}")
     public ResponseEntity<?> activatePassenger(@PathVariable("activationId") String id)
@@ -87,6 +89,19 @@ public class PassengerController
     	try {
         UserResponseDTO user = passengerService.getPassenger(id);
         return new ResponseEntity<UserResponseDTO>(user, HttpStatus.OK);
+    	}
+    	catch(ObjectNotFoundException e){
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
+    }
+    
+    @GetMapping("/search")
+    public ResponseEntity<?> searchPassengers(@RequestParam("key") String key)
+    {
+    	try {
+        DTOList<UserCardResponseDTO> user = passengerService.searchPassengers(key);
+        return new ResponseEntity<DTOList<UserCardResponseDTO>>(user, HttpStatus.OK);
     	}
     	catch(ObjectNotFoundException e){
 			ErrorDTO error = new ErrorDTO(e.getMessage());

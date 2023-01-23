@@ -17,6 +17,7 @@ import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.NoteRequestDTO;
 import tim24.projekat.uberapp.DTO.NoteResponseDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
+import tim24.projekat.uberapp.DTO.UserCardResponseDTO;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.exception.ConditionNotMetException;
 import tim24.projekat.uberapp.exception.InvalidArgumentException;
@@ -110,6 +111,17 @@ public class UserService {
 		list.setTotalCount((int) users.getTotalElements());
 		return list;
 	}
+	
+	public DTOList<UserCardResponseDTO> getUsers2() {
+		
+		List<User> users = userRepo.findAllUsersNotRole(Role.ADMIN);
+	
+		DTOList<UserCardResponseDTO> dto = new DTOList<UserCardResponseDTO>();
+		for(User d : users) {
+			dto.add(new UserCardResponseDTO(d));
+		}
+		return dto;
+	}
 
 
 	public DTOList<NoteResponseDTO> getUserNotesById(Long id, int page, int size) {
@@ -192,6 +204,15 @@ public class UserService {
 		UserResponseDTO dto = new UserResponseDTO(admin);
 		return dto;
 		
+	}
+	
+	public DTOList<UserCardResponseDTO> searchUsers2(String key) {
+		List<User> list = userRepo.searchByKeywordAndNotRole(key,Role.ADMIN);
+		DTOList<UserCardResponseDTO> dto = new DTOList<UserCardResponseDTO>();
+		for(User d : list) {
+			dto.add(new UserCardResponseDTO(d));
+		}
+		return dto;
 	}
 	
 }
