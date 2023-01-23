@@ -133,8 +133,21 @@ public class DriverService {
 		{
 			throw new ObjectNotFoundException("Driver does not exist!");
 		}
+		Optional<DriverUpdateDetails> detailsOpt = dudRepo.getLatestPendingUpdateRequest(id);
+		DriverUpdateDetails dud;
 		User driver = driverOpt.get();
-		DriverUpdateDetails dud = new DriverUpdateDetails(updatedDriver,driver);
+		
+		if (detailsOpt.isPresent()) 
+		{
+			DriverUpdateDetails old = detailsOpt.get();
+			dud = new DriverUpdateDetails(updatedDriver,driver);
+			dud.setId(old.getId());
+		}else 
+		{
+			dud = new DriverUpdateDetails(updatedDriver,driver);
+		}
+		
+		
 		
 		dudRepo.save(dud);
 		dudRepo.flush();
@@ -460,7 +473,7 @@ public class DriverService {
 		DriverUpdateDetails dud;
 		if (detailsOpt.isEmpty()) 
 		{
-			dud = null;
+			throw new ObjectNotFoundException("Change does not exist!");
 		}
 		else 
 		{

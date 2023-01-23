@@ -11,19 +11,21 @@ public class UserCardResponseDTO { //ovog usera vracas u responsu
 	private String surname;
 	private String profilePicture;
 	private String role;
+	private String email;
 	
 	public UserCardResponseDTO()
 	{
 		super();
 	}
 
-	public UserCardResponseDTO(Long id, String name, String surname, String profilePicture, String role) {
+	public UserCardResponseDTO(Long id, String name, String surname, String profilePicture, String role, String email) {
 		
 		this.id = id;
 		this.name = name;
 		this.surname = surname;
 		this.profilePicture = profilePicture;
 		this.setRole(role);
+		this.email = email;
 	}
 
 
@@ -36,6 +38,7 @@ public class UserCardResponseDTO { //ovog usera vracas u responsu
 			this.profilePicture = convertByteToString(user.getProfilePicture());
 		}
 		this.setRole(user.getRole().toString());
+		this.email = user.getEmail();
 	}
 
 	public Long getId() {
