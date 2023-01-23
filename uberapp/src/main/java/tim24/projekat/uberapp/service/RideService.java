@@ -531,6 +531,19 @@ public class RideService
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 		String timeString = sdf.format(time);
 		PanicDTO panicDTO = new PanicDTO(panic.getId(), new UserRef(user), new RideDTO(ride), timeString, reason.getReason());
+
+		//Obavestavamo admine
+		List<User> users = userRepo.findAll();
+		String panicMessage = user.getName() + " " + user.getSurname() + " says:\n" + reason.getReason();
+		for(User u: users)
+		{
+			if(u.getRole() == Role.ADMIN)
+			{
+				NotificationRequestDTO notificationRequestDTO = new NotificationRequestDTO(u.getId(), panicMessage, "PANIC");
+				notificationService.postNotification(notificationRequestDTO);
+			}
+		}
+
 		return panicDTO;
 	}
 
