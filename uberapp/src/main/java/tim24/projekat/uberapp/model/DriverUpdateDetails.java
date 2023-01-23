@@ -118,7 +118,7 @@ public class DriverUpdateDetails
 		sb.insert(22, ",");
 
 		String newString = sb.toString();
-		return encodedString;
+		return newString;
 	}
 
 	public String getTelephoneNumber() {
