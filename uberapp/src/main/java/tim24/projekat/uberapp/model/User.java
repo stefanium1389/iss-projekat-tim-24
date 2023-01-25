@@ -66,7 +66,13 @@ public class User {
 	public User(UserRegistrationDTO dto, String password) {
 		this.name = dto.getName();
 		this.surname = dto.getSurname();
-		this.profilePicture = convertToByte(dto.getProfilePicture());
+		if(dto.getProfilePicture() != null) {
+			this.profilePicture = convertToByte(dto.getProfilePicture());
+
+		}
+		else {
+			this.profilePicture = null;
+		}
 		this.telephoneNumber = dto.getTelephoneNumber();
 		this.email = dto.getEmail();
 		this.password = password;

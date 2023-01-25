@@ -40,6 +40,7 @@ import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.model.DriverDocument;
 import tim24.projekat.uberapp.model.DriverReport;
 import tim24.projekat.uberapp.model.DriverUpdateDetails;
+import tim24.projekat.uberapp.model.Location;
 import tim24.projekat.uberapp.model.Ride;
 import tim24.projekat.uberapp.model.Role;
 import tim24.projekat.uberapp.model.UpdateState;
@@ -50,6 +51,7 @@ import tim24.projekat.uberapp.model.WorkingHour;
 import tim24.projekat.uberapp.repo.DriverDocumentRepository;
 import tim24.projekat.uberapp.repo.DriverReportRepo;
 import tim24.projekat.uberapp.repo.DriveruUpdateDetailsRepo;
+import tim24.projekat.uberapp.repo.LocationRepository;
 import tim24.projekat.uberapp.repo.RideRepository;
 import tim24.projekat.uberapp.repo.UserRepository;
 import tim24.projekat.uberapp.repo.VehicleRepository;
@@ -85,6 +87,9 @@ public class DriverService {
 	
 	@Autowired
 	private VehicleTypeRepository viehicleTypeRepo;
+	
+	@Autowired
+	private LocationRepository locationRepo;
 	
 	public UserResponseDTO createDriver(UserRegistrationDTO newDriver) {
 		Optional<User> existing = userRepo.findUserByEmail(newDriver.getEmail());
@@ -278,6 +283,13 @@ public class DriverService {
 			throw new InvalidArgumentException("Invalid vehicle type");
 		}
 		Vehicle vehicle = new Vehicle(newV, driverOpt.get(), type.get());
+		Location loc = new Location(newV.getCurrentLocation());
+		locationRepo.save(loc);
+		locationRepo.flush();
+		
+		
+		vehicle.setLocation(loc);
+		
 		vehicleRepo.save(vehicle);
 		vehicleRepo.flush();
 		
