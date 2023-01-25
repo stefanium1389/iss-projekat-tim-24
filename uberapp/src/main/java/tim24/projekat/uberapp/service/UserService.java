@@ -215,4 +215,13 @@ public class UserService {
 		return dto;
 	}
 	
+	public DTOList<UserCardResponseDTO> searchUsers3(String key) {
+		List<User> list = userRepo.searchByKeywordAndRole(key,Role.USER);
+		DTOList<UserCardResponseDTO> dto = new DTOList<UserCardResponseDTO>();
+		for(User d : list) {
+			dto.add(new UserCardResponseDTO(d));
+		}
+		return dto;
+	}
+	
 }

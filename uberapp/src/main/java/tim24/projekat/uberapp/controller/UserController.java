@@ -156,6 +156,19 @@ public class UserController {
 		}
     }
 	
+	@GetMapping("user/search3")
+    public ResponseEntity<?> searchUsers3(@RequestParam("key") String key)
+    {
+    	try {
+        DTOList<UserCardResponseDTO> user = userService.searchUsers3(key);
+        return new ResponseEntity<DTOList<UserCardResponseDTO>>(user, HttpStatus.OK);
+    	}
+    	catch(ObjectNotFoundException e){
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
+    }
+	
 	
 	
 	
