@@ -525,7 +525,7 @@ public class RideService
 		Ride ride = findRideById(id);
 		Date time = new Date();
 		if(ride.getStatus() != RideStatus.STARTED)
-			throw new ConditionNotMetException("You cannot panic in a ride that isn't active.");
+			throw new ConditionNotMetException("You cannot panic in a ride that doesn't have status STARTED.");
 		if((user.getRole() == Role.USER && ! ride.getPassengers().contains(user)) || (user.getRole() == Role.DRIVER && user != ride.getDriver()))
 			throw new ConditionNotMetException("You cannot panic in a ride that you aren't in.");
 		Panic panic = panicRepository.save(new Panic(time, reason.getReason(), ride, user));
@@ -615,7 +615,7 @@ public class RideService
 		rideRepo.flush();
 		for(User passenger: actualRide.getPassengers())
 		{
-			NotificationRequestDTO notificationRequestDTO = new NotificationRequestDTO(passenger.getId(), "Your scheduled ride was rejected. Reason: " + reason, "NORMAL");
+			NotificationRequestDTO notificationRequestDTO = new NotificationRequestDTO(passenger.getId(), "Your scheduled ride was rejected. Reason: " + reason.getReason(), "NORMAL");
 			notificationService.postNotification(notificationRequestDTO);
 		}
 		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(actualRide.getDriver().getId());
