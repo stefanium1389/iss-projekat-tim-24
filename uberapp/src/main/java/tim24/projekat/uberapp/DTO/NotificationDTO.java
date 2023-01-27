@@ -1,14 +1,9 @@
 package tim24.projekat.uberapp.DTO;
 
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.OneToOne;
-import tim24.projekat.uberapp.model.Notification;
-import tim24.projekat.uberapp.model.NotificationType;
-import tim24.projekat.uberapp.model.User;
-
 import java.text.SimpleDateFormat;
-import java.util.Date;
+
+import tim24.projekat.uberapp.model.Notification;
+import tim24.projekat.uberapp.model.User;
 
 public class NotificationDTO
 {

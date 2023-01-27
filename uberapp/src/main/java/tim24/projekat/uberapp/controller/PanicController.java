@@ -15,7 +15,7 @@ public class PanicController
 	@Autowired
 	private PanicService panicService;
 	
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<DTOList<PanicDTO>> getPanic()
     {
         DTOList<PanicDTO> panicList = panicService.getPanic();
