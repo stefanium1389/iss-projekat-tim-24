@@ -123,6 +123,20 @@ public class UserService {
 		return dto;
 	}
 
+	public DTOList<NoteResponseDTO> getAllUserNotesById(Long id) {
+		Optional<User> opt = userRepo.findById(id);
+		if(opt.isEmpty()) {
+			throw new ObjectNotFoundException("User does not exist!");
+		}
+		DTOList<NoteResponseDTO> list = new DTOList<NoteResponseDTO>();
+		List<Note> notes = noteRepo.findAll();
+		for(Note note : notes)
+		{
+			if(note.getUser().getId() == id)
+				list.add(new NoteResponseDTO(note));
+		}
+		return list;
+	}
 
 	public DTOList<NoteResponseDTO> getUserNotesById(Long id, int page, int size) {
 		Optional<User> opt = userRepo.findById(id);
@@ -151,7 +165,6 @@ public class UserService {
 		return noteResponseDTO;
 	}
 
-	
 	public void putBlockUserById(Long id)
 	{
 		User user = findUserById(id);
