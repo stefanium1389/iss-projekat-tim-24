@@ -123,7 +123,8 @@ public class RideService
 		if (rideRequestDTO.getScheduledTime() == null) 
 		{
 			driverEstimation = getBestDriverForRide(rideRequestDTO);
-			driver = driverEstimation.getDriver(); 
+			driver = driverEstimation.getDriver();
+			status = RideStatus.ACCEPTED;
 		}
 		
 		boolean panic = false;
@@ -507,7 +508,9 @@ public class RideService
 		actualRide.setStatus(RideStatus.CANCELED);
 		rideRepo.save(actualRide);
 		rideRepo.flush();
-		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(3L);
+		NotificationRequestDTO notificationRequestDTO = new NotificationRequestDTO(actualRide.getDriver().getId(), "Your scheduled ride was withdrawn.", "NORMAL");
+		notificationService.postNotification(notificationRequestDTO);
+		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(actualRide.getDriver().getId());
 		if(v.isEmpty()) {
 			throw new ObjectNotFoundException("Vehicle does not exist!");
 		}
@@ -522,7 +525,7 @@ public class RideService
 		Ride ride = findRideById(id);
 		Date time = new Date();
 		if(ride.getStatus() != RideStatus.STARTED)
-			throw new ConditionNotMetException("You cannot panic in a ride that isn't active.");
+			throw new ConditionNotMetException("You cannot panic in a ride that doesn't have status STARTED.");
 		if((user.getRole() == Role.USER && ! ride.getPassengers().contains(user)) || (user.getRole() == Role.DRIVER && user != ride.getDriver()))
 			throw new ConditionNotMetException("You cannot panic in a ride that you aren't in.");
 		Panic panic = panicRepository.save(new Panic(time, reason.getReason(), ride, user));
@@ -560,7 +563,7 @@ public class RideService
 		actualRide.setStatus(RideStatus.ACCEPTED);
 		rideRepo.save(actualRide);
 		rideRepo.flush();
-		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(3L);
+		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(actualRide.getDriver().getId());
 		if(v.isEmpty()) {
 			throw new ObjectNotFoundException("Vehicle does not exist!");
 		}
@@ -583,7 +586,7 @@ public class RideService
 		actualRide.setStatus(RideStatus.FINISHED);
 		rideRepo.save(actualRide);
 		rideRepo.flush();
-		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(3L);
+		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(actualRide.getDriver().getId());
 		if(v.isEmpty()) {
 			throw new ObjectNotFoundException("Vehicle does not exist!");
 		}
@@ -599,8 +602,8 @@ public class RideService
 			throw new ObjectNotFoundException("Ride does not exist!");
 		}
 		RideStatus status = ride.get().getStatus();
-		if(!status.equals(RideStatus.PENDING)  && !status.equals(RideStatus.ACCEPTED)) {
-			throw new InvalidRideStatusException("Cannot cancel a ride that is not in status PENDING!");
+		if(!status.equals(RideStatus.ACCEPTED)) {
+			throw new InvalidRideStatusException("Cannot cancel a ride that is not in status ACCEPTED!");
 		}
 		Ride actualRide = ride.get();
 		actualRide.setStatus(RideStatus.REJECTED);
@@ -610,8 +613,14 @@ public class RideService
 		refusalRepo.flush();
 		rideRepo.save(actualRide);
 		rideRepo.flush();
-		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(3L);
-		if(v.isEmpty()) {
+		for(User passenger: actualRide.getPassengers())
+		{
+			NotificationRequestDTO notificationRequestDTO = new NotificationRequestDTO(passenger.getId(), "Your scheduled ride was rejected. Reason: " + reason.getReason(), "NORMAL");
+			notificationService.postNotification(notificationRequestDTO);
+		}
+		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(actualRide.getDriver().getId());
+		if(v.isEmpty())
+		{
 			throw new ObjectNotFoundException("Vehicle does not exist!");
 		}
 		RideDTO dto = new RideDTO(actualRide);
@@ -635,7 +644,7 @@ public class RideService
 		actualRide.setStatus(RideStatus.STARTED);
 		rideRepo.save(actualRide);
 		rideRepo.flush();
-		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(3L);
+		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(actualRide.getDriver().getId());
 		if(v.isEmpty()) {
 			throw new ObjectNotFoundException("Vehicle does not exist!");
 		}
@@ -696,6 +705,7 @@ public class RideService
 					if (result.getMinutes() < (int)remainingDuration.toMinutes()) 
 					{
 						r.setDriver(result.getDriver());
+						r.setStatus(RideStatus.ACCEPTED);
 
 						//todo: poslati notifikaciju korisniku
 						NotificationRequestDTO notificationRequestDTO = new NotificationRequestDTO(result.getDriver().getId(), "You have a new ride scheduled.", "NORMAL");
@@ -710,6 +720,7 @@ public class RideService
 						Date newTime = Date.from(r.getStartTime().toInstant().plus(Duration.ofMinutes(difference)));
 						r.setStartTime(newTime);
 						r.setDriver(result.getDriver());
+						r.setStatus(RideStatus.ACCEPTED);
 
 						//todo: poslati notifikaciju korisniku
 						NotificationRequestDTO notificationRequestDTO = new NotificationRequestDTO(result.getDriver().getId(), "You have a new ride scheduled.", "NORMAL");
