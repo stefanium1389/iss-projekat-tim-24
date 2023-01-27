@@ -147,8 +147,8 @@ public class UserController {
     public ResponseEntity<?> searchUsers(@RequestParam("key") String key)
     {
     	try {
-        DTOList<UserCardResponseDTO> user = userService.searchUsers2(key);
-        return new ResponseEntity<DTOList<UserCardResponseDTO>>(user, HttpStatus.OK);
+			DTOList<UserCardResponseDTO> user = userService.searchUsers2(key);
+			return new ResponseEntity<DTOList<UserCardResponseDTO>>(user, HttpStatus.OK);
     	}
     	catch(ObjectNotFoundException e){
 			ErrorDTO error = new ErrorDTO(e.getMessage());
@@ -170,7 +170,20 @@ public class UserController {
     }
 	
 	
-	
+	@GetMapping("user/{id}/allnotes")
+	public ResponseEntity<?> getAllUserNotesById(@PathVariable("id") Long id)
+	{
+		try
+		{
+			DTOList<NoteResponseDTO> dtoList = userService.getAllUserNotesById(id);
+			return new ResponseEntity<DTOList<NoteResponseDTO>>(dtoList,HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e)
+		{
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
+	}
 	
 	@GetMapping ("user/{id}/note")
 	public ResponseEntity<?> getUserNotesById (
