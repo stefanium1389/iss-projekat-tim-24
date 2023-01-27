@@ -36,7 +36,7 @@ public class ReviewService {
 	private UserRepository userRepo;
 	@Autowired
 	private RideRepository rideRepo;
-	@Autowired
+	@Autowired 
 	private DateUtils du;
 	
 	private static int EXPIRE_DAYS = 3;
@@ -87,7 +87,7 @@ public class ReviewService {
 		if(rOpt.isEmpty()) {
 			throw new ObjectNotFoundException("Ride does not exist!");
 		}
-		if(new Date().before(du.plusDays(rOpt.get().getEndTime(), EXPIRE_DAYS))) {
+		if(new Date().after(du.plusDays(rOpt.get().getEndTime(), EXPIRE_DAYS))) {
 			throw new InvalidArgumentException("Cannot comment on ride older then "+EXPIRE_DAYS+" days");
 		}
 		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(rOpt.get().getDriver().getId());
@@ -117,7 +117,7 @@ public class ReviewService {
 		if(rOpt.isEmpty()) {
 			throw new ObjectNotFoundException("Ride does not exist!");
 		}
-		if(new Date().before(du.plusDays(rOpt.get().getEndTime(), EXPIRE_DAYS))) {
+		if(new Date().after(du.plusDays(rOpt.get().getEndTime(), EXPIRE_DAYS))) {
 			throw new InvalidArgumentException("Cannot comment on ride older then "+EXPIRE_DAYS+" days");
 		}
 		User d = rOpt.get().getDriver();

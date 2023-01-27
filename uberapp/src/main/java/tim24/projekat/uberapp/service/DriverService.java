@@ -18,9 +18,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import tim24.projekat.uberapp.DTO.DTOList;
+import tim24.projekat.uberapp.DTO.DriverChangeDTO;
 import tim24.projekat.uberapp.DTO.DriverDocumentDTO;
 import tim24.projekat.uberapp.DTO.DriverDocumentRequestDTO;
+import tim24.projekat.uberapp.DTO.DriverReportResponseDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
+import tim24.projekat.uberapp.DTO.UserCardResponseDTO;
 import tim24.projekat.uberapp.DTO.UserRegistrationDTO;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.DTO.UserUpdateRequestDTO;
@@ -29,18 +32,26 @@ import tim24.projekat.uberapp.DTO.VehicleRequestDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourPostDTO;
 import tim24.projekat.uberapp.DTO.WorkingHourPutDTO;
+import tim24.projekat.uberapp.controller.DriverReportDTO;
 import tim24.projekat.uberapp.exception.ConditionNotMetException;
 import tim24.projekat.uberapp.exception.InvalidArgumentException;
 import tim24.projekat.uberapp.exception.ObjectAlreadyPresentException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.model.DriverDocument;
+import tim24.projekat.uberapp.model.DriverReport;
+import tim24.projekat.uberapp.model.DriverUpdateDetails;
+import tim24.projekat.uberapp.model.Location;
 import tim24.projekat.uberapp.model.Ride;
 import tim24.projekat.uberapp.model.Role;
+import tim24.projekat.uberapp.model.UpdateState;
 import tim24.projekat.uberapp.model.User;
 import tim24.projekat.uberapp.model.Vehicle;
 import tim24.projekat.uberapp.model.VehicleType;
 import tim24.projekat.uberapp.model.WorkingHour;
 import tim24.projekat.uberapp.repo.DriverDocumentRepository;
+import tim24.projekat.uberapp.repo.DriverReportRepo;
+import tim24.projekat.uberapp.repo.DriveruUpdateDetailsRepo;
+import tim24.projekat.uberapp.repo.LocationRepository;
 import tim24.projekat.uberapp.repo.RideRepository;
 import tim24.projekat.uberapp.repo.UserRepository;
 import tim24.projekat.uberapp.repo.VehicleRepository;
@@ -66,10 +77,19 @@ public class DriverService {
 	private VehicleRepository vehicleRepo;
 	
 	@Autowired
+	private DriverReportRepo driverReportRepo;
+	
+	@Autowired
 	private RideRepository rideRepo;
 	
 	@Autowired
+	private DriveruUpdateDetailsRepo dudRepo;
+	
+	@Autowired
 	private VehicleTypeRepository viehicleTypeRepo;
+	
+	@Autowired
+	private LocationRepository locationRepo;
 	
 	public UserResponseDTO createDriver(UserRegistrationDTO newDriver) {
 		Optional<User> existing = userRepo.findUserByEmail(newDriver.getEmail());
@@ -112,6 +132,34 @@ public class DriverService {
 		
 	}
 
+	public DriverChangeDTO createDriverChange(Long id, UserUpdateRequestDTO updatedDriver) {
+		Optional<User> driverOpt = userRepo.findByIdAndRole(id, Role.DRIVER);
+		if (driverOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Driver does not exist!");
+		}
+		Optional<DriverUpdateDetails> detailsOpt = dudRepo.getLatestPendingUpdateRequest(id);
+		DriverUpdateDetails dud;
+		User driver = driverOpt.get();
+		
+		if (detailsOpt.isPresent()) 
+		{
+			DriverUpdateDetails old = detailsOpt.get();
+			dud = new DriverUpdateDetails(updatedDriver,driver);
+			dud.setId(old.getId());
+		}else 
+		{
+			dud = new DriverUpdateDetails(updatedDriver,driver);
+		}
+		
+		
+		
+		dudRepo.save(dud);
+		dudRepo.flush();
+		
+		return new DriverChangeDTO(dud);
+	}
+	
 	public UserResponseDTO updateDriver(Long id, UserUpdateRequestDTO updatedDriver) {
 		Optional<User> driverOpt = userRepo.findByIdAndRole(id, Role.DRIVER);
 		if (driverOpt.isEmpty()) 
@@ -125,6 +173,15 @@ public class DriverService {
 		userRepo.flush();
 		
 		return new UserResponseDTO(driver);
+	}
+	
+	public DTOList<UserCardResponseDTO> searchDrivers(String key) {
+		List<User> list = userRepo.searchByKeywordAndRole(key,Role.DRIVER);
+		DTOList<UserCardResponseDTO> dto = new DTOList<UserCardResponseDTO>();
+		for(User d : list) {
+			dto.add(new UserCardResponseDTO(d));
+		}
+		return dto;
 	}
 
 	public ArrayList<DriverDocumentDTO> getDriverDocuments(Long id) {
@@ -152,6 +209,19 @@ public class DriverService {
 		driverDocumentRepo.flush();
 		DriverDocumentDTO dddto = new DriverDocumentDTO(dd);
 		return dddto;
+	}
+	
+	public DriverReportResponseDTO reportDriver(Long id, DriverReportDTO drd) {
+		Optional<User> driverOpt = userRepo.findByIdAndRole(id, Role.DRIVER);
+		if (driverOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Driver does not exist!");
+		}
+		DriverReport dr = new DriverReport(drd.getReason(),driverOpt.get());
+		driverReportRepo.save(dr);
+		driverReportRepo.flush();
+		DriverReportResponseDTO drrd = new DriverReportResponseDTO(dr);
+		return drrd;
 	}
 
 	public void DeleteDriverDocument(Long id) {
@@ -213,6 +283,13 @@ public class DriverService {
 			throw new InvalidArgumentException("Invalid vehicle type");
 		}
 		Vehicle vehicle = new Vehicle(newV, driverOpt.get(), type.get());
+		Location loc = new Location(newV.getCurrentLocation());
+		locationRepo.save(loc);
+		locationRepo.flush();
+		
+		
+		vehicle.setLocation(loc);
+		
 		vehicleRepo.save(vehicle);
 		vehicleRepo.flush();
 		
@@ -312,7 +389,7 @@ public class DriverService {
 		Page<Ride> ridesPage = null;
 		
 		try {
-			Pageable pageable = PageRequest.of(page, size, Sort.by(Direction.ASC, sort));
+			Pageable pageable = PageRequest.of(page, size, Sort.by(Direction.DESC, sort));
 			ridesPage = rideRepo.findByDriverIdAndRideDateBetween(id, startDate, endDate, pageable);
 		}
 		catch(RuntimeException e) {
@@ -394,6 +471,75 @@ public class DriverService {
 		long totalDurationHours = todaysDuration.toHours();
 		long remainingMinutes = todaysDuration.toMinutesPart();
 		return totalDurationHours + " hours " + remainingMinutes +" minutes ";
+	}
+
+	public DriverChangeDTO getLatestChange(Long driverId) {
+		
+		Optional<User> driverOpt = userRepo.findByIdAndRole(driverId, Role.DRIVER);
+		if (driverOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Driver does not exist!");
+		}
+		
+		Optional<DriverUpdateDetails> detailsOpt = dudRepo.getLatestPendingUpdateRequest(driverId);
+		DriverUpdateDetails dud;
+		if (detailsOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Change does not exist!");
+		}
+		else 
+		{
+			dud = detailsOpt.get();
+		}
+		return new DriverChangeDTO(dud);
+	}
+	
+	public UserResponseDTO acceptChange(Long updateId) {
+		
+		Optional<DriverUpdateDetails> driverOpt = dudRepo.findDriverUpdateDetailsById(updateId);
+		if (driverOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Update does not exist!");
+		}
+		
+		DriverUpdateDetails dud = driverOpt.get();
+		
+		if (dud.getUpdateState() != UpdateState.PENDING) 
+		{
+			throw new ConditionNotMetException("Update already handled!");
+		}
+		
+		User driver = dud.getForDriver();
+		
+		driver.setAddress(dud.getAddress());
+		driver.setEmail(dud.getEmail());
+		driver.setName(dud.getName());
+		driver.setSurname(dud.getSurname());
+		driver.setProfilePicture(dud.getProfilePicture());
+		driver.setTelephoneNumber(dud.getTelephoneNumber());
+		dud.setUpdateState(UpdateState.ACCEPTED);
+		userRepo.save(driver);
+		dudRepo.save(dud);
+		return new UserResponseDTO(driver);
+	}
+	
+	public DriverChangeDTO declineChange(Long updateId) {
+		
+		Optional<DriverUpdateDetails> driverOpt = dudRepo.findDriverUpdateDetailsById(updateId);
+		if (driverOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Update does not exist!");
+		}
+		
+		DriverUpdateDetails dud = driverOpt.get();
+		if (dud.getUpdateState() != UpdateState.PENDING) 
+		{
+			throw new ConditionNotMetException("Update already handled!");
+		}
+		
+		dud.setUpdateState(UpdateState.REJECTED);
+		dudRepo.save(dud);
+		return new DriverChangeDTO(dud);
 	}
 
 }

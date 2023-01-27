@@ -1,17 +1,22 @@
 package tim24.projekat.uberapp.DTO;
 
+import jakarta.persistence.Lob;
+
 public class UserUpdateRequestDTO { //ovog usera otpakujes iz request body
 
 	private String name;
 	private String surname;
+	@Lob
 	private String profilePicture;
 	private String telephoneNumber;
 	private String email;
 	private String address;
+	private String driverId;
 	
 	public UserUpdateRequestDTO(String name, String surname, String profilePicture, String telephoneNumber, String email,
-			String address) {
+			String address, String driverId) {
 		super();
+		this.driverId = driverId;
 		this.name = name;
 		this.surname = surname;
 		this.profilePicture = profilePicture;
@@ -59,5 +64,13 @@ public class UserUpdateRequestDTO { //ovog usera otpakujes iz request body
 	}
 	public void setAddress(String address) {
 		this.address = address;
+	}
+
+	public String getDriverId() {
+		return driverId;
+	}
+
+	public void setDriverId(String driverId) {
+		this.driverId = driverId;
 	}
 }

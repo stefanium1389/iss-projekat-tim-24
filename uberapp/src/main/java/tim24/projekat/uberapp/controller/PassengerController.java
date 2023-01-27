@@ -1,5 +1,7 @@
 package tim24.projekat.uberapp.controller;
 
+import java.util.Base64;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +10,7 @@ import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.ErrorDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
 import tim24.projekat.uberapp.DTO.SuccessDTO;
+import tim24.projekat.uberapp.DTO.UserCardResponseDTO;
 import tim24.projekat.uberapp.DTO.UserRegistrationDTO;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.DTO.UserUpdateRequestDTO;
@@ -48,6 +51,7 @@ public class PassengerController
         DTOList<UserResponseDTO> list = passengerService.getPassengers(page, size);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
+    
 
     @GetMapping("/activate/{activationId}")
     public ResponseEntity<?> activatePassenger(@PathVariable("activationId") String id)
@@ -91,12 +95,26 @@ public class PassengerController
 			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
 		}
     }
+    
+    @GetMapping("/search")
+    public ResponseEntity<?> searchPassengers(@RequestParam("key") String key)
+    {
+    	try {
+        DTOList<UserCardResponseDTO> user = passengerService.searchPassengers(key);
+        return new ResponseEntity<DTOList<UserCardResponseDTO>>(user, HttpStatus.OK);
+    	}
+    	catch(ObjectNotFoundException e){
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
+    }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePassenger(@RequestBody UserUpdateRequestDTO dto, @PathVariable("id") Long id)
+    public ResponseEntity<?> updatePassenger(@RequestHeader("Authorization") String auth, @RequestBody UserUpdateRequestDTO dto, @PathVariable("id") Long id)
     {
+    	
         try {
-        UserResponseDTO user = passengerService.updatePassenger(id, dto);
+        UserResponseDTO user = passengerService.updatePassenger(id, dto ,auth);
         return new ResponseEntity<UserResponseDTO>(user, HttpStatus.OK);
         }
         catch(ObjectNotFoundException e) {
@@ -131,4 +149,5 @@ public class PassengerController
     		return new ResponseEntity<Error>(error, HttpStatus.BAD_REQUEST);
     	}	
     }
+    
 }

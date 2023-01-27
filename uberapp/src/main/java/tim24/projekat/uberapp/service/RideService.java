@@ -61,6 +61,8 @@ public class RideService
 	@Autowired
 	private DriverService driverService;
 	@Autowired
+	private NotificationService notificationService;
+	@Autowired
 	private PanicRepository panicRepository;
 	@Autowired
 	private FavoriteRideRepository favoriteRideRepo;
@@ -74,24 +76,28 @@ public class RideService
 	
 	public RideDTO postRide(String email, RideRequestDTO rideRequestDTO)
 	{
-		List<User> passengers = new ArrayList<User>();
 		User customer = userRepo.findUserByEmail(email).get();
-		if(rideRepo.findActiveRideByPassengerId(customer.getId()).isPresent()) {
-			throw new ActiveUserRideException("Ne mozete poruciti voznju ako imate aktivnu!");
+		Optional<Ride> optR = rideRepo.findActiveRideByPassengerId(customer.getId());
+		if(optR.isPresent()) {
+			throw new ActiveUserRideException("Putnik "+customer.getEmail()+" je vec u aktivnoj voznji");
 		}
+		List<User> passengers = new ArrayList<User>();	
 		passengers.add(customer);
 		for(UserRef passengerDTO : rideRequestDTO.getPassengers()) {
 			Optional<User> passenger = userRepo.findUserByEmail(passengerDTO.getEmail());
 			if(passenger.isEmpty()) {
 				throw new ObjectNotFoundException("Putnik ne postoji u bazi! "+passengerDTO.getEmail());
 			}
-			if(passenger.get().getEmail().equals(customer.getEmail())) {
-				throw new InvalidArgumentException("Porucilac ne sme biti u listi ulinkovanih korisnika!");
-			}
 			if(rideRepo.findActiveRideByPassengerId(passenger.get().getId()).isPresent()) {
 				throw new ActiveUserRideException("Putnik "+passenger.get().getEmail()+" je vec u aktivnoj voznji");
 			}
+			if(email.equals(passenger.get().getEmail())) {
+				continue;
+			}
 			passengers.add(passenger.get());
+		}
+		if(passengers.size() < 1) {
+			throw new ObjectNotFoundException("Ne mozete zapoceti voznju bez putnika!");
 		}
 		
 		Route route;
@@ -117,7 +123,8 @@ public class RideService
 		if (rideRequestDTO.getScheduledTime() == null) 
 		{
 			driverEstimation = getBestDriverForRide(rideRequestDTO);
-			driver = driverEstimation.getDriver(); 
+			driver = driverEstimation.getDriver();
+			status = RideStatus.ACCEPTED;
 		}
 		
 		boolean panic = false;
@@ -478,7 +485,7 @@ public class RideService
 
 	public RideDTO getRide(Long id)
 	{
-		Optional<Ride> ride = rideRepo.findRideByPassengersId(id);
+		Optional<Ride> ride = rideRepo.findById(id);
 		if(ride.isEmpty()) {
 			throw new ObjectNotFoundException("Ride does not exist!");
 		}
@@ -501,7 +508,9 @@ public class RideService
 		actualRide.setStatus(RideStatus.CANCELED);
 		rideRepo.save(actualRide);
 		rideRepo.flush();
-		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(3L);
+		NotificationRequestDTO notificationRequestDTO = new NotificationRequestDTO(actualRide.getDriver().getId(), "Your scheduled ride was withdrawn.", "NORMAL");
+		notificationService.postNotification(notificationRequestDTO);
+		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(actualRide.getDriver().getId());
 		if(v.isEmpty()) {
 			throw new ObjectNotFoundException("Vehicle does not exist!");
 		}
@@ -516,7 +525,7 @@ public class RideService
 		Ride ride = findRideById(id);
 		Date time = new Date();
 		if(ride.getStatus() != RideStatus.STARTED)
-			throw new ConditionNotMetException("You cannot panic in a ride that isn't active.");
+			throw new ConditionNotMetException("You cannot panic in a ride that doesn't have status STARTED.");
 		if((user.getRole() == Role.USER && ! ride.getPassengers().contains(user)) || (user.getRole() == Role.DRIVER && user != ride.getDriver()))
 			throw new ConditionNotMetException("You cannot panic in a ride that you aren't in.");
 		Panic panic = panicRepository.save(new Panic(time, reason.getReason(), ride, user));
@@ -525,6 +534,19 @@ public class RideService
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 		String timeString = sdf.format(time);
 		PanicDTO panicDTO = new PanicDTO(panic.getId(), new UserRef(user), new RideDTO(ride), timeString, reason.getReason());
+
+		//Obavestavamo admine
+		List<User> users = userRepo.findAll();
+		String panicMessage = user.getName() + " " + user.getSurname() + " says:\n" + reason.getReason();
+		for(User u: users)
+		{
+			if(u.getRole() == Role.ADMIN)
+			{
+				NotificationRequestDTO notificationRequestDTO = new NotificationRequestDTO(u.getId(), panicMessage, "PANIC");
+				notificationService.postNotification(notificationRequestDTO);
+			}
+		}
+
 		return panicDTO;
 	}
 
@@ -541,7 +563,7 @@ public class RideService
 		actualRide.setStatus(RideStatus.ACCEPTED);
 		rideRepo.save(actualRide);
 		rideRepo.flush();
-		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(3L);
+		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(actualRide.getDriver().getId());
 		if(v.isEmpty()) {
 			throw new ObjectNotFoundException("Vehicle does not exist!");
 		}
@@ -564,7 +586,7 @@ public class RideService
 		actualRide.setStatus(RideStatus.FINISHED);
 		rideRepo.save(actualRide);
 		rideRepo.flush();
-		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(3L);
+		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(actualRide.getDriver().getId());
 		if(v.isEmpty()) {
 			throw new ObjectNotFoundException("Vehicle does not exist!");
 		}
@@ -580,8 +602,8 @@ public class RideService
 			throw new ObjectNotFoundException("Ride does not exist!");
 		}
 		RideStatus status = ride.get().getStatus();
-		if(!status.equals(RideStatus.PENDING)  && !status.equals(RideStatus.ACCEPTED)) {
-			throw new InvalidRideStatusException("Cannot cancel a ride that is not in status PENDING!");
+		if(!status.equals(RideStatus.ACCEPTED)) {
+			throw new InvalidRideStatusException("Cannot cancel a ride that is not in status ACCEPTED!");
 		}
 		Ride actualRide = ride.get();
 		actualRide.setStatus(RideStatus.REJECTED);
@@ -591,8 +613,14 @@ public class RideService
 		refusalRepo.flush();
 		rideRepo.save(actualRide);
 		rideRepo.flush();
-		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(3L);
-		if(v.isEmpty()) {
+		for(User passenger: actualRide.getPassengers())
+		{
+			NotificationRequestDTO notificationRequestDTO = new NotificationRequestDTO(passenger.getId(), "Your scheduled ride was rejected. Reason: " + reason.getReason(), "NORMAL");
+			notificationService.postNotification(notificationRequestDTO);
+		}
+		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(actualRide.getDriver().getId());
+		if(v.isEmpty())
+		{
 			throw new ObjectNotFoundException("Vehicle does not exist!");
 		}
 		RideDTO dto = new RideDTO(actualRide);
@@ -616,7 +644,7 @@ public class RideService
 		actualRide.setStatus(RideStatus.STARTED);
 		rideRepo.save(actualRide);
 		rideRepo.flush();
-		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(3L);
+		Optional<Vehicle> v = vehicleRepo.findVehicleByDriverId(actualRide.getDriver().getId());
 		if(v.isEmpty()) {
 			throw new ObjectNotFoundException("Vehicle does not exist!");
 		}
@@ -677,7 +705,12 @@ public class RideService
 					if (result.getMinutes() < (int)remainingDuration.toMinutes()) 
 					{
 						r.setDriver(result.getDriver());
+						r.setStatus(RideStatus.ACCEPTED);
+
 						//todo: poslati notifikaciju korisniku
+						NotificationRequestDTO notificationRequestDTO = new NotificationRequestDTO(result.getDriver().getId(), "You have a new ride scheduled.", "NORMAL");
+						notificationService.postNotification(notificationRequestDTO);
+
 						rideRepo.save(r);
 						found = true;
 					}
@@ -687,7 +720,12 @@ public class RideService
 						Date newTime = Date.from(r.getStartTime().toInstant().plus(Duration.ofMinutes(difference)));
 						r.setStartTime(newTime);
 						r.setDriver(result.getDriver());
+						r.setStatus(RideStatus.ACCEPTED);
+
 						//todo: poslati notifikaciju korisniku
+						NotificationRequestDTO notificationRequestDTO = new NotificationRequestDTO(result.getDriver().getId(), "You have a new ride scheduled.", "NORMAL");
+						notificationService.postNotification(notificationRequestDTO);
+
 						rideRepo.save(r);
 						found = true;
 					}
@@ -704,7 +742,13 @@ public class RideService
 					r.setStatus(RideStatus.CANCELED);
 					System.out.println("zakazana voznja se otkazuje zbog timeout-a");
 					rideRepo.save(r);
+
 					//todo:poslati notifikaciju korisniku
+					for(User passenger: r.getPassengers())
+					{
+						NotificationRequestDTO notificationRequestDTO = new NotificationRequestDTO(passenger.getId(), "Your scheduled ride was canceled.", "NORMAL");
+						notificationService.postNotification(notificationRequestDTO);
+					}
 				}
 				
 			}

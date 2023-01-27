@@ -11,6 +11,14 @@ public class NotificationRequestDTO
         super();
     }
 
+    public NotificationRequestDTO(Long userId, String notification, String notificationType)
+    {
+        super();
+        this.userId = userId;
+        this.notification = notification;
+        this.notificationType = notificationType;
+    }
+
     public Long getUserId()
     {
         return userId;

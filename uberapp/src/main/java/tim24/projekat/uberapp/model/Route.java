@@ -51,6 +51,10 @@ public class Route
 	public double getLenght() {
 		return lenght;
 	}
+	
+	public double getLenghtInKm() {
+		return lenght/1000;
+	}
 
 	public void setLenght(double lenght) {
 		this.lenght = lenght;

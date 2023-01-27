@@ -17,6 +17,7 @@ import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.NoteRequestDTO;
 import tim24.projekat.uberapp.DTO.NoteResponseDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
+import tim24.projekat.uberapp.DTO.UserCardResponseDTO;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
 import tim24.projekat.uberapp.exception.ConditionNotMetException;
 import tim24.projekat.uberapp.exception.InvalidArgumentException;
@@ -110,7 +111,32 @@ public class UserService {
 		list.setTotalCount((int) users.getTotalElements());
 		return list;
 	}
+	
+	public DTOList<UserCardResponseDTO> getUsers2() {
+		
+		List<User> users = userRepo.findAllUsersNotRole(Role.ADMIN);
+	
+		DTOList<UserCardResponseDTO> dto = new DTOList<UserCardResponseDTO>();
+		for(User d : users) {
+			dto.add(new UserCardResponseDTO(d));
+		}
+		return dto;
+	}
 
+	public DTOList<NoteResponseDTO> getAllUserNotesById(Long id) {
+		Optional<User> opt = userRepo.findById(id);
+		if(opt.isEmpty()) {
+			throw new ObjectNotFoundException("User does not exist!");
+		}
+		DTOList<NoteResponseDTO> list = new DTOList<NoteResponseDTO>();
+		List<Note> notes = noteRepo.findAll();
+		for(Note note : notes)
+		{
+			if(note.getUser().getId() == id)
+				list.add(new NoteResponseDTO(note));
+		}
+		return list;
+	}
 
 	public DTOList<NoteResponseDTO> getUserNotesById(Long id, int page, int size) {
 		Optional<User> opt = userRepo.findById(id);
@@ -139,7 +165,6 @@ public class UserService {
 		return noteResponseDTO;
 	}
 
-	
 	public void putBlockUserById(Long id)
 	{
 		User user = findUserById(id);
@@ -178,6 +203,38 @@ public class UserService {
 		}
 		return returnList;
 		
+	}
+	
+	public UserResponseDTO getAdminById(Long id) {
+		
+		Optional<User> adminOpt = userRepo.findByIdAndRole(id, Role.ADMIN);
+		if (adminOpt.isEmpty()) 
+		{
+			throw new ObjectNotFoundException("Admin does not exist!");
+		}
+		
+		User admin = adminOpt.get();
+		UserResponseDTO dto = new UserResponseDTO(admin);
+		return dto;
+		
+	}
+	
+	public DTOList<UserCardResponseDTO> searchUsers2(String key) {
+		List<User> list = userRepo.searchByKeywordAndNotRole(key,Role.ADMIN);
+		DTOList<UserCardResponseDTO> dto = new DTOList<UserCardResponseDTO>();
+		for(User d : list) {
+			dto.add(new UserCardResponseDTO(d));
+		}
+		return dto;
+	}
+	
+	public DTOList<UserCardResponseDTO> searchUsers3(String key) {
+		List<User> list = userRepo.searchByKeywordAndRole(key,Role.USER);
+		DTOList<UserCardResponseDTO> dto = new DTOList<UserCardResponseDTO>();
+		for(User d : list) {
+			dto.add(new UserCardResponseDTO(d));
+		}
+		return dto;
 	}
 	
 }

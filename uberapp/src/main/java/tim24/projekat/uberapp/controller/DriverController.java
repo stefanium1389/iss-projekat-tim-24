@@ -17,10 +17,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import tim24.projekat.uberapp.DTO.DriverDocumentDTO;
 import tim24.projekat.uberapp.DTO.DriverDocumentRequestDTO;
+import tim24.projekat.uberapp.DTO.DriverReportResponseDTO;
 import tim24.projekat.uberapp.DTO.DurationDTO;
 import tim24.projekat.uberapp.DTO.DTOList;
+import tim24.projekat.uberapp.DTO.DriverChangeDTO;
 import tim24.projekat.uberapp.DTO.RideDTO;
 import tim24.projekat.uberapp.DTO.SuccessDTO;
+import tim24.projekat.uberapp.DTO.UserCardResponseDTO;
 import tim24.projekat.uberapp.DTO.UserRegistrationDTO;
 import tim24.projekat.uberapp.DTO.ErrorDTO;
 import tim24.projekat.uberapp.DTO.UserResponseDTO;
@@ -78,6 +81,103 @@ public class DriverController {
 		}
 		
 	}
+	
+	@GetMapping("/search")
+    public ResponseEntity<?> searchDrivers(@RequestParam("key") String key)
+    {
+    	try {
+        DTOList<UserCardResponseDTO> user = driverService.searchDrivers(key);
+        return new ResponseEntity<DTOList<UserCardResponseDTO>>(user, HttpStatus.OK);
+    	}
+    	catch(ObjectNotFoundException e){
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
+    }
+	
+	@PreAuthorize("hasRole('DRIVER')")
+	@PostMapping("/{id}")
+	public ResponseEntity<?> setUpdateDetails(
+			@RequestBody UserUpdateRequestDTO updatedDriver, 
+			@PathVariable("id") Long id)
+	{
+		try {
+			DriverChangeDTO driver = driverService.createDriverChange(id, updatedDriver);
+			return new ResponseEntity<DriverChangeDTO>(driver, HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
+		catch(Exception e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.BAD_REQUEST);
+		}
+		
+	}
+	
+	@GetMapping("/changes/{driverId}")
+	public ResponseEntity<?> getUpdateDetails(@PathVariable("driverId") Long driverId)
+	{
+		try {
+			DriverChangeDTO driver = driverService.getLatestChange(driverId);
+			return new ResponseEntity<DriverChangeDTO>(driver, HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
+		catch(Exception e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.BAD_REQUEST);
+		}
+		
+	}
+	
+	@PreAuthorize("hasRole('ADMIN')")
+	@PutMapping("/changes/{updateId}/accept")
+	public ResponseEntity<?> acceptUpdateDetails(@PathVariable("updateId") Long updateId)
+	{
+		try {
+			UserResponseDTO driver = driverService.acceptChange(updateId);
+			return new ResponseEntity<UserResponseDTO>(driver, HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
+		catch(ConditionNotMetException e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
+		catch(Exception e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.BAD_REQUEST);
+		}
+		
+	}
+	
+	@PreAuthorize("hasRole('ADMIN')")
+	@PutMapping("/changes/{updateId}/decline")
+	public ResponseEntity<?> declineUpdateDetails(@PathVariable("updateId") Long updateId)
+	{
+		try {
+			DriverChangeDTO driver = driverService.declineChange(updateId);
+			return new ResponseEntity<DriverChangeDTO>(driver, HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
+		catch(Exception e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.BAD_REQUEST);
+		}
+		
+	}
+	
+	
+	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/{id}")
 	public ResponseEntity<?> UpdateDriverDetails(
 			@RequestBody UserUpdateRequestDTO updatedDriver, 
@@ -123,6 +223,21 @@ public class DriverController {
 			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
 		}
 	}
+	
+	@PostMapping("/{id}/report")
+	public ResponseEntity<?> CreateDriverDocuments(
+			@RequestBody DriverReportDTO drd, 
+			@PathVariable("id") Long id){
+		try {
+			DriverReportResponseDTO dd = driverService.reportDriver(id, drd);
+			return new ResponseEntity<DriverReportResponseDTO>(dd, HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e) {
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+		}
+	}
+	
 	@DeleteMapping("/document/{id}")
 	public ResponseEntity<?> DeleteDriverDocuments(
 			@PathVariable("id") Long id){

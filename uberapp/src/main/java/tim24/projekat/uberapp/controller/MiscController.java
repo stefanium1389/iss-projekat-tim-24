@@ -107,7 +107,7 @@ public class MiscController {
 		return new ResponseEntity<LoginResponseDTO>(dto ,HttpStatus.OK);
 	}
 	
-	@GetMapping("user/{id}/meassage")
+	@GetMapping("user/{id}/message")
 	private ResponseEntity<?> getUserMessages(@PathVariable("id") Long id)
 	{
 		try {
@@ -120,7 +120,7 @@ public class MiscController {
 		}
 		
 	}
-	@PostMapping("user/{id}/meassage")
+	@PostMapping("user/{id}/message")
 	private ResponseEntity<?> postUserMessages(@RequestHeader("Authorization") String auth, @RequestBody MessageRequestDTO dto, @PathVariable("id") Long id)
 	{
 		try {
