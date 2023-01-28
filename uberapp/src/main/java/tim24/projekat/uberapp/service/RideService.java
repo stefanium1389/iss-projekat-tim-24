@@ -169,7 +169,17 @@ public class RideService
 		VehicleType vehicleType = vehicleTypeOpt.get();
 		//ovde se podrazumeva da je sve poslo po redu
 		
-		
+		if(driver != null)
+		{
+			NotificationRequestDTO notificationRequestDTO = new NotificationRequestDTO(driver.getId(), "You have a new ride.", "NORMAL");
+			notificationService.postNotification(notificationRequestDTO);
+		}
+		for(User passenger: passengers)
+		{
+			NotificationRequestDTO notificationRequestDTO = new NotificationRequestDTO(passenger.getId(), "You have a new ride.", "NORMAL");
+			notificationService.postNotification(notificationRequestDTO);
+		}
+
 		Ride ride = new Ride(startTime,endTime,scheduledTime,status,panic,babyInVehicle,petInVehicle,route,driver,refusal,passengers,totalCost,vehicleType);
 		saveRideDetailsOnDatabase(ride);
 		RideDTO dto = new RideDTO(ride);

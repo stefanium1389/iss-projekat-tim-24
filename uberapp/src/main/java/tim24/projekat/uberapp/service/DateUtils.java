@@ -29,12 +29,6 @@ public class DateUtils {
 		return Date.from(ins);
 	}
 	
-	public Date plusDays(Date date, int days) {
-		Instant ins = date.toInstant();
-		ins = ins.plus(Duration.ofDays(days));
-		return Date.from(ins);
-	}
-	
 	public Date minusDays(Date date, int days) {
 		Instant ins = date.toInstant();
 		ins = ins.minus(Duration.ofDays(days));
