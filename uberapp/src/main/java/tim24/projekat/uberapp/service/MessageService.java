@@ -33,7 +33,7 @@ public class MessageService {
 	public DTOList<MessageDTO> getUserMessages(Long id) {
 		Optional<User> opt = userRepo.findById(id);
 		if(opt.isEmpty()) {
-			throw new ObjectNotFoundException("User does not exsist");
+			throw new ObjectNotFoundException("User does not exist");
 		}
 		List<Message> list = messageRepo.findAllByRecieverId(id);
 		DTOList<MessageDTO> dtos = new DTOList<MessageDTO>(); 
@@ -55,15 +55,15 @@ public class MessageService {
 	public void postUserMessage(Long id, MessageRequestDTO dto, String sender) {
 		Optional<User> recOpt = userRepo.findById(id);
 		if(recOpt.isEmpty()) {
-			throw new ObjectNotFoundException("User does not exsist");
+			throw new ObjectNotFoundException("User does not exist");
 		}
 		Optional<Ride> rOpt = rideRepo.findById(dto.getRideId());
 		if(rOpt.isEmpty()) {
-			throw new ObjectNotFoundException("Ride does not exsist");
+			throw new ObjectNotFoundException("Ride does not exist");
 		}
 		Optional<User> sOpt = userRepo.findUserByEmail(sender);
 		if(sOpt.isEmpty()) {
-			throw new ObjectNotFoundException("User does not exsist");
+			throw new ObjectNotFoundException("User does not exist");
 		}
 		Message m = new Message(new Date(System.currentTimeMillis()),sOpt.get(),recOpt.get(),dto.getMessage(),dto.getType(),rOpt.get());
 		
