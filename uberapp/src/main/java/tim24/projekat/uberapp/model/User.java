@@ -122,7 +122,7 @@ public class User {
 		sb.insert(22, ",");
 
 		String newString = sb.toString();
-		return encodedString;
+		return newString;
 	}
 
 	public void setProfilePicture(byte[] profilePicture) {

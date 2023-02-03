@@ -6,6 +6,7 @@ public class MessageRequestDTO {
 	private String type;
 	private Long rideId;
 	
+	
 	public MessageRequestDTO(Long recieverId, String message, String type, Long rideId) {
 		super();
 		this.message = message;

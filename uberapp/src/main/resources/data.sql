@@ -50,6 +50,14 @@ insert into routes (`ESTIMATED_TIME_IN_MINUTES`,`LENGHT`,`END_LOCATION_ID`,`STAR
 insert into rides (`BABY_IN_VEHICLE`,`END_TIME`,`PANIC`,`PET_IN_VEHICLE`,`SCHEDULED_TIME`,`START_TIME`,`STATUS`,`TOTAL_COST`,`DRIVER_ID`,`REFUSAL_ID`,`ROUTE_ID`,`VEHICLE_TYPE_ID`) values(false,'2022-11-15 13:39:08.306',false,false,null,'2022-11-15 13:39:08.306','FINISHED',950,3,null,4,1);
 insert into rides_passengers values(4,2);
 
+insert into messages (`MESSAGE`,`TIMESTAMP`,`TYPE`,`RECIEVER_ID`,`RIDE_ID`,`SENDER_ID`) values ('pozdravv','2023-01-15 13:30:54.033','RIDE',3,1,2);
+insert into messages (`MESSAGE`,`TIMESTAMP`,`TYPE`,`RECIEVER_ID`,`RIDE_ID`,`SENDER_ID`) values ('jauuu','2023-01-15 13:31:54.033','RIDE',2,1,3);
+insert into messages (`MESSAGE`,`TIMESTAMP`,`TYPE`,`RECIEVER_ID`,`RIDE_ID`,`SENDER_ID`) values ('chat malloo','2023-01-15 13:32:54.033','RIDE',3,1,2);
+
+insert into messages (`MESSAGE`,`TIMESTAMP`,`TYPE`,`RECIEVER_ID`,`RIDE_ID`,`SENDER_ID`) values ('vozim se jeee','2023-01-18 13:31:54.033','RIDE',3,2,2);
+insert into messages (`MESSAGE`,`TIMESTAMP`,`TYPE`,`RECIEVER_ID`,`RIDE_ID`,`SENDER_ID`) values ('ne zadugo','2023-01-18 13:32:54.033','RIDE',2,2,3);
+insert into messages (`MESSAGE`,`TIMESTAMP`,`TYPE`,`RECIEVER_ID`,`RIDE_ID`,`SENDER_ID`) values ('o bogoooo','2023-01-18 13:33:54.033','PANIC',3,2,2);
+
 /*
 insert into routes (`ESTIMATED_TIME_IN_MINUTES`,`LENGHT`,`END_LOCATION_ID`,`START_LOCATION_ID`) values(11,5.5,2,1);
 insert into refusals (`REASON`,`TIME`,`USER_ID`) values('iks de', '2023-01-12 20:46:54.033' ,3);
