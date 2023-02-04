@@ -10,10 +10,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import tim24.projekat.uberapp.DTO.ChangePasswordRequestDTO;
 import tim24.projekat.uberapp.DTO.CodeAndPasswordDTO;
+import tim24.projekat.uberapp.DTO.ContactDTO;
 import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.ErrorDTO;
 import tim24.projekat.uberapp.DTO.LoginResponseDTO;
@@ -120,6 +122,21 @@ public class MiscController {
 		}
 		
 	}
+	
+	@GetMapping("contacts/{id}")
+	private ResponseEntity<?> getUserContacts(@PathVariable("id") Long id, @RequestParam("sort") String sort, @RequestParam("filter") String filter, @RequestParam("keyword") String keyword)
+	{
+		try {
+			DTOList<ContactDTO> list = messageService.getUserContacts(id,sort,filter, keyword);
+			return new ResponseEntity<DTOList<ContactDTO>>(list, HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e){
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error,HttpStatus.NOT_FOUND);
+		}
+		
+	}
+	
 	@PostMapping("user/{id}/message")
 	private ResponseEntity<?> postUserMessages(@RequestHeader("Authorization") String auth, @RequestBody MessageRequestDTO dto, @PathVariable("id") Long id)
 	{

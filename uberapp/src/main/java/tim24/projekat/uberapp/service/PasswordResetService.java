@@ -27,6 +27,8 @@ public class PasswordResetService {
 	@Autowired
 	private UserRepository userRepo;
 	@Autowired
+	private UserService userService;
+	@Autowired
 	private MailingService mailService;
 	@Autowired
 	private PasswordEncoder encoder;
@@ -94,11 +96,7 @@ public class PasswordResetService {
 	}
 
 	public SuccessDTO putChangePassword(Long id, ChangePasswordRequestDTO dto) {
-		Optional<User> uOpt = userRepo.findById(id);
-		if(uOpt.isEmpty()) {
-			throw new ObjectNotFoundException("User does not exist!");
-		}
-		User actual = uOpt.get();
+		User actual = userService.findUserById(id);
 		String encoded = encoder.encode(dto.getOldPassword());
 		if(!encoded.equals(actual.getPassword())) {
 			System.err.println("stara iz korisnika-"+actual.getPassword());

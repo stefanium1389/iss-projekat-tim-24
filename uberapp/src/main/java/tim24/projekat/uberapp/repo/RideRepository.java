@@ -22,6 +22,10 @@ public interface RideRepository extends JpaRepository<Ride, Long>
 	
 	Optional<Ride> findRideByPassengersId(Long id);
 	
+	List<Ride> findAllRideByDriverId(Long id);
+	
+	List<Ride> findAllRideByPassengersId(Long id);
+	
 	@Query("SELECT r FROM Ride r JOIN r.passengers p WHERE p.id = :passengerId AND (r.status = 'PENDING' OR r.status = 'STARTED' OR r.status = 'ACCEPTED')")
     Optional<Ride> findActiveRideByPassengerId(@Param("passengerId") Long passengerId);
 	
