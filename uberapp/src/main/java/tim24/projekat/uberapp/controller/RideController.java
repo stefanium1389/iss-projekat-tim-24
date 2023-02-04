@@ -63,6 +63,13 @@ public class RideController
     	}
     }
 
+	@GetMapping
+	public ResponseEntity<?> getAllRides()
+	{
+		DTOList<RideDTO> rides = rideService.getAllRides();
+		return new ResponseEntity<>(rides, HttpStatus.OK);
+	}
+
     @GetMapping("/driver/{driverId}/active")
     public ResponseEntity<?> getDriverRide(@PathVariable("driverId") Long id)
     {
