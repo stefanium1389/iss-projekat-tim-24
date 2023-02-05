@@ -1,13 +1,13 @@
 package tim24.projekat.uberapp;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.testng.annotations.Test;
 
-@SpringBootTest
-class UberappApplicationTests {
-
+@Test
+class UberappApplicationTests
+{
 	@Test
-	void contextLoads() {
-	}
+	void contextLoads()
+	{
 
+	}
 }
