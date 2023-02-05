@@ -23,6 +23,7 @@ import tim24.projekat.uberapp.DTO.MessageDTO;
 import tim24.projekat.uberapp.DTO.MessageRequestDTO;
 import tim24.projekat.uberapp.DTO.PasswordResetRequestDTO;
 import tim24.projekat.uberapp.DTO.RefreshDTO;
+import tim24.projekat.uberapp.DTO.SpecificMessagesRequestIDsDTO;
 import tim24.projekat.uberapp.DTO.SuccessDTO;
 import tim24.projekat.uberapp.exception.ConditionNotMetException;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
@@ -140,10 +141,26 @@ public class MiscController {
 	@PostMapping("user/{id}/message")
 	private ResponseEntity<?> postUserMessages(@RequestHeader("Authorization") String auth, @RequestBody MessageRequestDTO dto, @PathVariable("id") Long id)
 	{
+		System.out.println("NOVA PORUKA!!");
 		try {
 			String sender = jwtTokenUtil.getUsernameFromToken(auth.substring(7));
 			messageService.postUserMessage(id,dto, sender);
 			return new ResponseEntity<>(HttpStatus.OK);
+		}
+		catch(ObjectNotFoundException e){
+			ErrorDTO error = new ErrorDTO(e.getMessage());
+			return new ResponseEntity<ErrorDTO>(error,HttpStatus.NOT_FOUND);
+		}
+		
+	}
+	
+	@PostMapping("user/messages/specific")
+	private ResponseEntity<?> getMessagesForSpecificIds(@RequestBody SpecificMessagesRequestIDsDTO dto)
+	{
+		
+		try {
+			DTOList<MessageDTO> list = messageService.getSpecificMessages(dto);
+			return new ResponseEntity<DTOList<MessageDTO>>(list, HttpStatus.OK);
 		}
 		catch(ObjectNotFoundException e){
 			ErrorDTO error = new ErrorDTO(e.getMessage());

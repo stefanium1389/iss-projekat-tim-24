@@ -16,6 +16,7 @@ import tim24.projekat.uberapp.DTO.ContactDTO;
 import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.MessageDTO;
 import tim24.projekat.uberapp.DTO.MessageRequestDTO;
+import tim24.projekat.uberapp.DTO.SpecificMessagesRequestIDsDTO;
 import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.model.Message;
 import tim24.projekat.uberapp.model.MessageType;
@@ -187,7 +188,6 @@ public class MessageService {
 		
 		if (filter.equals("ANY")) 
 		{
-			System.out.print("any, vracam true");
 			return true;
 		}
 			
@@ -219,21 +219,94 @@ public class MessageService {
 		}
 		return false;
 	}
+	
+	public DTOList<MessageDTO> getSpecificMessages(SpecificMessagesRequestIDsDTO dto) {
+		Long userId = dto.getUserId();
+		Long otherId = dto.getOtherId();
+		Long rideId = dto.getRideId();
+		boolean adminPresent = false;
+		
+		Optional<User> opt = userRepo.findById(userId);
+		if(opt.isEmpty()) {
+			throw new ObjectNotFoundException("User does not exsist");
+		}
+		if (opt.get().getRole().equals(Role.ADMIN))
+			adminPresent = true;
+		
+		Optional<User> otheropt = userRepo.findById(otherId);
+		if(otheropt.isEmpty()) {
+			throw new ObjectNotFoundException("User does not exsist");
+		}
+		if (otheropt.get().getRole().equals(Role.ADMIN))
+			adminPresent = true;
+		
+		if (rideId!=null && rideId!=-1) 
+		{
+			Optional<Ride> rideOpt = rideRepo.findById(rideId);
+			if (rideOpt.isEmpty()) 
+			{
+				throw new ObjectNotFoundException("Ride does not exsist");
+			}
+		}
+		
+		
+		
+		List<Message> messages = new ArrayList<>();
+		if (adminPresent) 
+		{
+			messages = messageRepo.findBySenderAndRecipient(userId, otherId);
+		}
+		else 
+		{
+			messages = messageRepo.findBySenderAndRecipientAndRide(userId, otherId, rideId);
+		}
+		
+		DTOList<MessageDTO> dtos = new DTOList<MessageDTO>(); 
+		for (Message m : messages) 
+		{
+			
+			/* String timeOfSending, Long senderId, Long receiverId, String message, String type,
+			Long rideId, String nameToDisplay*/
+			String nameToDisplay = "Me";
+			if (userId == m.getReciever().getId())
+			{
+				nameToDisplay = otheropt.get().getName()+" "+otheropt.get().getSurname();
+			}
+			Long rId = null;
+			if (m.getRide()!=null) 
+			{
+				rId = m.getRide().getId();
+			}
+			dtos.add(new MessageDTO(m.getId(),m.getTimestamp(),m.getSender().getId(),m.getReciever().getId(),m.getMessage(),m.getType().toString(),rId,nameToDisplay));
+		}
+		
+		System.out.println("Uspeo sam sa dobivanjem poruka");
+		return dtos;
+	}
+	
+	
 
 	public void postUserMessage(Long id, MessageRequestDTO dto, String sender) {
 		Optional<User> recOpt = userRepo.findById(id);
 		if(recOpt.isEmpty()) {
 			throw new ObjectNotFoundException("User does not exist");
 		}
-		Optional<Ride> rOpt = rideRepo.findById(dto.getRideId());
-		if(rOpt.isEmpty()) {
-			throw new ObjectNotFoundException("Ride does not exist");
+		Ride ride = null;
+		if (dto.getRideId()!=null) 
+		{
+			Optional<Ride> rOpt = rideRepo.findById(dto.getRideId());
+			
+			if (rOpt.isPresent()) 
+			{
+				ride = rOpt.get();
+			}
 		}
+		
 		Optional<User> sOpt = userRepo.findUserByEmail(sender);
 		if(sOpt.isEmpty()) {
 			throw new ObjectNotFoundException("User does not exist");
 		}
-		Message m = new Message(new Date(System.currentTimeMillis()),sOpt.get(),recOpt.get(),dto.getMessage(),dto.getType(),rOpt.get());
+		Message m = new Message(new Date(System.currentTimeMillis()),sOpt.get(),recOpt.get(),dto.getMessage(),dto.getType(),ride);
 		
 		messageRepo.save(m);
 		messageRepo.flush();

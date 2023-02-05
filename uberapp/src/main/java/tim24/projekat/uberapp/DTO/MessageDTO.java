@@ -1,5 +1,10 @@
 package tim24.projekat.uberapp.DTO;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import tim24.projekat.uberapp.model.Message;
+
 public class MessageDTO {
 
 	private Long id;
@@ -9,21 +14,23 @@ public class MessageDTO {
 	private String message;
 	private String type;
 	private Long rideId;
+	private String nameToDisplay;
 	
 	public MessageDTO() {
 		super();
 	}
 
-	public MessageDTO(Long id, String timeOfSending, Long senderId, Long receiverId, String message, String type,
-			Long rideId) {
-		super();
+	public MessageDTO(Long id, Date timeOfSending, Long senderId, Long receiverId, String message, String type,
+			Long rideId, String nameToDisplay) {
 		this.id = id;
-		this.timeOfSending = timeOfSending;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		this.timeOfSending = sdf.format(timeOfSending);
 		this.senderId = senderId;
 		this.receiverId = receiverId;
 		this.message = message;
 		this.type = type;
 		this.rideId = rideId;
+		this.setNameToDisplay(nameToDisplay);
 	}
 
 	public Long getId() {
@@ -80,6 +87,14 @@ public class MessageDTO {
 
 	public void setRideId(Long rideId) {
 		this.rideId = rideId;
+	}
+
+	public String getNameToDisplay() {
+		return nameToDisplay;
+	}
+
+	public void setNameToDisplay(String nameToDisplay) {
+		this.nameToDisplay = nameToDisplay;
 	}
 	
 	
