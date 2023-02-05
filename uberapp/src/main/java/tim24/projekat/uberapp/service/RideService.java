@@ -69,6 +69,15 @@ public class RideService
 	@Autowired
 	private RefusalRepository refusalRepo;
 
+	public DTOList<RideDTO> getAllRides()
+	{
+		DTOList<RideDTO> rides = new DTOList<>();
+		List<Ride> list = rideRepo.findAll();
+		for(Ride r: list)
+			rides.add(new RideDTO(r));
+		return rides;
+	}
+
 	public Ride findRideById (Long id)
 	{
 		return rideRepo.findRideById(id).orElseThrow(()-> new ObjectNotFoundException("Ride not found."));
