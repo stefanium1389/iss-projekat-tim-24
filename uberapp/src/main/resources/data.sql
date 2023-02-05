@@ -57,6 +57,7 @@ insert into messages (`MESSAGE`,`TIMESTAMP`,`TYPE`,`RECIEVER_ID`,`RIDE_ID`,`SEND
 insert into messages (`MESSAGE`,`TIMESTAMP`,`TYPE`,`RECIEVER_ID`,`RIDE_ID`,`SENDER_ID`) values ('vozim se jeee','2023-01-18 13:31:54.033','RIDE',3,2,2);
 insert into messages (`MESSAGE`,`TIMESTAMP`,`TYPE`,`RECIEVER_ID`,`RIDE_ID`,`SENDER_ID`) values ('ne zadugo','2023-01-18 13:32:54.033','RIDE',2,2,3);
 insert into messages (`MESSAGE`,`TIMESTAMP`,`TYPE`,`RECIEVER_ID`,`RIDE_ID`,`SENDER_ID`) values ('o bogoooo','2023-01-18 13:33:54.033','PANIC',3,2,2);
+insert into panics (`REASON`,`TIME`,`RIDE_ID`,`USER_ID`) values ('kek','2023-01-18 13:33:54.033',2,2);
 
 /*
 insert into routes (`ESTIMATED_TIME_IN_MINUTES`,`LENGHT`,`END_LOCATION_ID`,`START_LOCATION_ID`) values(11,5.5,2,1);

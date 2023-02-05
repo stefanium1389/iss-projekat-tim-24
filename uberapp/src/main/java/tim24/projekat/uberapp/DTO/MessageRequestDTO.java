@@ -7,12 +7,17 @@ public class MessageRequestDTO {
 	private Long rideId;
 	
 	
-	public MessageRequestDTO(Long recieverId, String message, String type, Long rideId) {
-		super();
+	public MessageRequestDTO(String message, String type, Long rideId) {
 		this.message = message;
 		this.type = type;
 		this.rideId = rideId;
 	}
+	
+
+	public MessageRequestDTO() {
+		super();
+	}
+
 
 	public String getMessage() {
 		return message;

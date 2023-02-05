@@ -29,5 +29,15 @@ public class PanicService
         return panicList;
 	}
 	
+	public DTOList<PanicDTO> getPanicForRide(Long rideId)
+	{
+		DTOList<PanicDTO> panicList = new DTOList<PanicDTO>();
+        List<Panic> panics = panicRepo.findAllByRideId(rideId);
+        for(Panic p : panics) {
+        	panicList.add(new PanicDTO(p.getId(), new UserRef(p.getUser()), new RideDTO(p.getRide()), du.formatDate(p.getTime()), p.getReason()));
+        }
+        return panicList;
+	}
+	
 	
 }
