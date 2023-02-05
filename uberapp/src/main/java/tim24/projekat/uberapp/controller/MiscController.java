@@ -19,6 +19,7 @@ import tim24.projekat.uberapp.DTO.ContactDTO;
 import tim24.projekat.uberapp.DTO.DTOList;
 import tim24.projekat.uberapp.DTO.ErrorDTO;
 import tim24.projekat.uberapp.DTO.LoginResponseDTO;
+import tim24.projekat.uberapp.DTO.MapDetailDTO;
 import tim24.projekat.uberapp.DTO.MessageDTO;
 import tim24.projekat.uberapp.DTO.MessageRequestDTO;
 import tim24.projekat.uberapp.DTO.PasswordResetRequestDTO;
@@ -30,6 +31,7 @@ import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.security.JwtTokenUtil;
 import tim24.projekat.uberapp.service.MessageService;
 import tim24.projekat.uberapp.service.PasswordResetService;
+import tim24.projekat.uberapp.service.VehicleService;
 
 @RestController
 @RequestMapping("api/")
@@ -42,6 +44,9 @@ public class MiscController {
 	
 	@Autowired
 	private MessageService messageService;
+	
+	@Autowired
+	private VehicleService vehicleService;
 	
 	@PostMapping("user/resetPassword")
 	private ResponseEntity<?> sendResetPasswordEmail(@RequestBody PasswordResetRequestDTO dto){
@@ -168,6 +173,20 @@ public class MiscController {
 		}
 		
 	}
+	
+	@GetMapping("/vehicle/detailsForMap")
+    public ResponseEntity<?> getDetailsForMap()
+    {
+    	try {
+    		DTOList<MapDetailDTO> list = vehicleService.getDetailsForMap();
+            return new ResponseEntity<DTOList<MapDetailDTO>>(list,HttpStatus.OK);
+    	}
+    	catch(ObjectNotFoundException e) {
+    		ErrorDTO err = new ErrorDTO(e.getMessage());
+    		return new ResponseEntity<ErrorDTO>(err,HttpStatus.NOT_FOUND);
+    	}
+    	
+    }
 	
 	
 }
