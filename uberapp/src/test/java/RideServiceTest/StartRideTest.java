@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
-public class EndRideTest
+public class StartRideTest
 {
     @Autowired
     @InjectMocks
@@ -42,8 +42,8 @@ public class EndRideTest
     private VehicleRepository vehicleRepository;
 
     @Test
-    @DisplayName("Should retrieve a RideDTO with RideStatus.FINISHED")
-    public void endRideValid()
+    @DisplayName("Should retrieve a RideDTO with RideStatus.STARTED")
+    public void startRideValid()
     {
         Date date = new Date();
         User user = new User(1L, "A", "B", new byte[]{}, "a", "a", "a", "a", true, false, Role.DRIVER);
@@ -55,15 +55,15 @@ public class EndRideTest
         Route route = new Route(1L, 10.5, 15, location, location);
         VehicleType vehicleType = new VehicleType(1L, "STANDARD", 100, 100);
 
-        Ride mockRide = new Ride(1L, date, date, RideStatus.STARTED, false, false, false, user, refusal, passengers, route, date, 200, vehicleType);
+        Ride mockRide = new Ride(1L, date, date, RideStatus.ACCEPTED, false, false, false, user, refusal, passengers, route, date, 200, vehicleType);
 
         Vehicle vehicle = new Vehicle(1l, "NS 420 RS", user, vehicleType, 5, false, false, location, "Ford Fiesta");
 
         Mockito.when(rideRepository.findById(1L)).thenReturn(Optional.of(mockRide));
         Mockito.when(vehicleRepository.findVehicleByDriverId(1L)).thenReturn(Optional.of(vehicle));
 
-        RideDTO actualRideDTO = rideService.endRide(1L);
-        mockRide.setStatus(RideStatus.FINISHED);
+        RideDTO actualRideDTO = rideService.startRide(1L);
+        mockRide.setStatus(RideStatus.STARTED);
         RideDTO mockRideDTO = new RideDTO(mockRide);
 
         assertEquals(actualRideDTO.getId(), mockRideDTO.getId());
@@ -73,7 +73,7 @@ public class EndRideTest
 
     @Test
     @DisplayName("Should throw an InvalidRideStatus exception")
-    public void endRideInvalid()
+    public void startRideInvalid()
     {
         Date date = new Date();
         User user = new User(1L, "A", "B", new byte[]{}, "a", "a", "a", "a", true, false, Role.DRIVER);
@@ -85,18 +85,18 @@ public class EndRideTest
         Route route = new Route(1L, 10.5, 15, location, location);
         VehicleType vehicleType = new VehicleType(1L, "STANDARD", 100, 100);
 
-        Ride mockRide = new Ride(1L, date, date, RideStatus.PENDING, false, false, false, user, refusal, passengers, route, date, 200, vehicleType);
+        Ride mockRide = new Ride(1L, date, date, RideStatus.FINISHED, false, false, false, user, refusal, passengers, route, date, 200, vehicleType);
 
         Vehicle vehicle = new Vehicle(1l, "NS 420 RS", user, vehicleType, 5, false, false, location, "Ford Fiesta");
 
         Mockito.when(rideRepository.findById(1L)).thenReturn(Optional.of(mockRide));
 
-        assertThrows(InvalidRideStatusException.class, () -> rideService.endRide(1L));
+        assertThrows(InvalidRideStatusException.class, () -> rideService.startRide(1L));
     }
 
     @Test
     @DisplayName("Should throw an ObjectNotFound exception for no ride")
-    public void endRideNoRide()
+    public void startRideNoRide()
     {
         Date date = new Date();
         User user = new User(1L, "A", "B", new byte[]{}, "a", "a", "a", "a", true, false, Role.DRIVER);
@@ -108,18 +108,18 @@ public class EndRideTest
         Route route = new Route(1L, 10.5, 15, location, location);
         VehicleType vehicleType = new VehicleType(1L, "STANDARD", 100, 100);
 
-        Ride mockRide = new Ride(1L, date, date, RideStatus.STARTED, false, false, false, user, refusal, passengers, route, date, 200, vehicleType);
+        Ride mockRide = new Ride(1L, date, date, RideStatus.ACCEPTED, false, false, false, user, refusal, passengers, route, date, 200, vehicleType);
 
         Vehicle vehicle = new Vehicle(1l, "NS 420 RS", user, vehicleType, 5, false, false, location, "Ford Fiesta");
 
         Mockito.when(rideRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ObjectNotFoundException.class, () -> rideService.endRide(1L));
+        assertThrows(ObjectNotFoundException.class, () -> rideService.startRide(1L));
     }
 
     @Test
     @DisplayName("Should throw an ObjectNotFound exception for no vehicle")
-    public void endRideNoVehicle()
+    public void startRideNoVehicle()
     {
         Date date = new Date();
         User user = new User(1L, "A", "B", new byte[]{}, "a", "a", "a", "a", true, false, Role.DRIVER);
@@ -131,13 +131,13 @@ public class EndRideTest
         Route route = new Route(1L, 10.5, 15, location, location);
         VehicleType vehicleType = new VehicleType(1L, "STANDARD", 100, 100);
 
-        Ride mockRide = new Ride(1L, date, date, RideStatus.STARTED, false, false, false, user, refusal, passengers, route, date, 200, vehicleType);
+        Ride mockRide = new Ride(1L, date, date, RideStatus.ACCEPTED, false, false, false, user, refusal, passengers, route, date, 200, vehicleType);
 
         Vehicle vehicle = new Vehicle(1l, "NS 420 RS", user, vehicleType, 5, false, false, location, "Ford Fiesta");
 
         Mockito.when(rideRepository.findById(1L)).thenReturn(Optional.of(mockRide));
         Mockito.when(vehicleRepository.findVehicleByDriverId(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ObjectNotFoundException.class, () -> rideService.endRide(1L));
+        assertThrows(ObjectNotFoundException.class, () -> rideService.startRide(1L));
     }
 }
