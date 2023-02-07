@@ -44,7 +44,7 @@ class GetAllRidesTest
         passengers.add(user);
         Location location = new Location(1L, 10.5, 10.5, "Everywhere at the end of time...");
         Route route = new Route(1L, 10.5, 15, location, location);
-        VehicleType vehicleType = new VehicleType();
+        VehicleType vehicleType = new VehicleType(1L, "STANDARD", 100, 100);
 
         Ride ride1 = new Ride(1L, date, date, RideStatus.STARTED, false, false, false, user, refusal, passengers, route, date, 200, vehicleType);
         Ride ride2 = new Ride(2L, date, date, RideStatus.STARTED, false, false, false, user, refusal, passengers, route, date, 100, vehicleType);
