@@ -36,6 +36,7 @@ public class CalculatePriceTest
         Mockito.when(vehicleTypeRepository.findOneByTypeName("STANDARD")).thenReturn(Optional.of(vehicleType));
 
         int actualPrice = rideService.calculatePrice("STANDARD", 1000);
+
         assertEquals(actualPrice, 200);
     }
 

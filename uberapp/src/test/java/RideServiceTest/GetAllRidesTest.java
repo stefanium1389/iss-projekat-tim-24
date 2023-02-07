@@ -61,6 +61,7 @@ class GetAllRidesTest
         Mockito.when(rideRepository.findAll()).thenReturn(mockRides);
 
         DTOList<RideDTO> actualRideList = rideService.getAllRides();
+
         assertEquals(actualRideList.getTotalCount(), mockRideList.getTotalCount());
         List<RideDTO> actual = actualRideList.getResults();
         List<RideDTO> mock = mockRideList.getResults();
@@ -79,6 +80,7 @@ class GetAllRidesTest
         Mockito.when(rideRepository.findAll()).thenReturn(mockRides);
 
         DTOList<RideDTO> actualRideList = rideService.getAllRides();
+
         assertEquals(actualRideList.getTotalCount(), 0);
     }
 

@@ -59,6 +59,7 @@ public class GetPassengerRideTest
 
         RideDTO actualRideDTO = rideService.getPassengerRide(1L);
         RideDTO mockRideDTO = new RideDTO(mockRide);
+
         assertEquals(actualRideDTO.getId(), mockRideDTO.getId());
         assertEquals(mockRideDTO.getVehicleType(), actualRideDTO.getVehicleType());
     }

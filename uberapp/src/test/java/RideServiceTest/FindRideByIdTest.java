@@ -53,6 +53,7 @@ public class FindRideByIdTest
         Mockito.when(rideRepository.findRideById(1L)).thenReturn(Optional.of(mockRide));
 
         Ride actualRide = rideService.findRideById(1L);
+
         assertEquals(actualRide.getId(), mockRide.getId());
     }
 
