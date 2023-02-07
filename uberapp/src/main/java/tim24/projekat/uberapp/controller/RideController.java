@@ -164,7 +164,7 @@ public class RideController
     	}
         
     }
-    @PutMapping("/{id}/accept")
+    @PutMapping("/{id}/accept") //ne koristimo nigde, i happy flow ove funkcije ne postoji
     public ResponseEntity<?> acceptRide(@PathVariable("id") Long id)
     {
     	try {
