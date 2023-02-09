@@ -442,6 +442,35 @@ public class PostRideControllerTests {
 
 		
 	}
+	@Test
+    public void postRide_noAvailableVehicles_returnsBadRequest() throws Exception {
+		
+        String jwt = jwtTokenUtil.generateToken("stefanium@mail.com");
+        
+        String endWorkHourJson = "{\r\n"
+        		+ "  \"end\": \"2023-02-09T02:03:42.446Z\"\r\n"
+        		+ "}";
+        
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/driver/working-hour/1")
+        		.header("Authorization", "Bearer " + jwt)
+        		.contentType(MediaType.APPLICATION_JSON)
+                .content(endWorkHourJson));
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/driver/working-hour/2")
+        		.header("Authorization", "Bearer " + jwt)
+        		.contentType(MediaType.APPLICATION_JSON)
+                .content(endWorkHourJson));
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/driver/working-hour/3") //pogasi sve vozace
+        		.header("Authorization", "Bearer " + jwt)
+        		.contentType(MediaType.APPLICATION_JSON)
+                .content(endWorkHourJson));
+        
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/ride") //poruci voznju
+        		.header("Authorization", "Bearer " + jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestJson))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+		
+	}
 }
 
 
