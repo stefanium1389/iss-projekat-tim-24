@@ -97,10 +97,16 @@ public class RideController
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RideDTO> getRide(@PathVariable("id") Long id)
+    public ResponseEntity<?> getRide(@PathVariable("id") Long id)
     {
-        RideDTO ride = rideService.getRide(id);
-        return new ResponseEntity<>(ride, HttpStatus.OK);
+    	try {
+    		RideDTO ride = rideService.getRide(id);
+            return new ResponseEntity<RideDTO>(ride, HttpStatus.OK);
+    	}
+        catch(ObjectNotFoundException e) {
+        	ErrorDTO error = new ErrorDTO(e.getMessage());
+    		return new ResponseEntity<ErrorDTO>(error, HttpStatus.NOT_FOUND);
+        }
     }
 
     @PutMapping("/{id}/withdraw")
@@ -158,7 +164,7 @@ public class RideController
     	}
         
     }
-    @PutMapping("/{id}/accept")
+    @PutMapping("/{id}/accept") //ne koristimo nigde, i happy flow ove funkcije ne postoji
     public ResponseEntity<?> acceptRide(@PathVariable("id") Long id)
     {
     	try {
