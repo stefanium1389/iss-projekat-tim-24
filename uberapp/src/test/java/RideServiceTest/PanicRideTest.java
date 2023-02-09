@@ -83,7 +83,7 @@ public class PanicRideTest
     }
 
     @Test
-    @DisplayName("Should throw an ConditionNotMetException exception for wrong RideStatus")
+    @DisplayName("Should throw a ConditionNotMetException exception for wrong RideStatus")
     public void cancelRideInvalid1()
     {
         Date date = new Date();
@@ -107,7 +107,7 @@ public class PanicRideTest
     }
 
     @Test
-    @DisplayName("Should throw an ConditionNotMetException exception for not being in ride")
+    @DisplayName("Should throw a ConditionNotMetException exception for not being in ride")
     public void cancelRideInvalid2()
     {
         Date date = new Date();

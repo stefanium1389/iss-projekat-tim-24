@@ -43,7 +43,7 @@ public class DeleteFavoriteRideTest
     }
 
     @Test
-    @DisplayName("Should throw an IObjectNotFoundException exception")
+    @DisplayName("Should throw an ObjectNotFoundException exception")
     public void deleteFavoriteRideInvalid()
     {
         Mockito.when(favoriteRideRepository.findById(1L)).thenReturn(Optional.empty());
