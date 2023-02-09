@@ -24,6 +24,7 @@ public class CalculatePriceTest
     @Autowired
     @InjectMocks
     private RideService rideService;
+
     @Mock
     private VehicleTypeRepository vehicleTypeRepository;
 
