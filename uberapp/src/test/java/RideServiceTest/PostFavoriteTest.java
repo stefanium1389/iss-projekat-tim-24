@@ -15,7 +15,6 @@ import tim24.projekat.uberapp.exception.ObjectNotFoundException;
 import tim24.projekat.uberapp.model.*;
 import tim24.projekat.uberapp.repo.*;
 import tim24.projekat.uberapp.service.RideService;
-import tim24.projekat.uberapp.service.UserService;
 
 import java.util.ArrayList;
 import java.util.Date;
